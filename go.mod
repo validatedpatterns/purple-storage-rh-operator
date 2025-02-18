@@ -7,21 +7,33 @@ require (
 	github.com/manifestival/manifestival v0.7.2
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
-	github.com/openshift/api v0.0.0-00010101000000-000000000000
+	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
+	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v12.0.0+incompatible
 	sigs.k8s.io/controller-runtime v0.19.4
 )
 
 require (
+	github.com/ajeddeloh/go-json v0.0.0-20170920214419-6a2fe990e083 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clarketm/json v1.14.1 // indirect
+	github.com/coreos/fcct v0.5.0 // indirect
+	github.com/coreos/go-semver v0.3.1 // indirect
+	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
+	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
+	github.com/coreos/ign-converter v0.0.0-20200629171308-e40a44f244c5 // indirect
+	github.com/coreos/ignition v0.35.0 // indirect
+	github.com/coreos/ignition/v2 v2.3.0 // indirect
+	github.com/coreos/vcontext v0.0.0-20191017033345-260217907eb5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
@@ -29,6 +41,7 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang/glog v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.6.8 // indirect
@@ -43,15 +56,18 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/openshift/client-go v0.0.0-20200827190008-3062137373b5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.19.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/vincent-petithory/dataurl v0.0.0-20160330182126-9a301d65acbb // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
+	go4.org v0.0.0-20200104003542-c7e774b10ea0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
@@ -79,8 +95,9 @@ require (
 replace (
 	// Usually not needed unless we have newer k8s.io deps and argocd still uses an old gitops-engine
 	// github.com/argoproj/gitops-engine => github.com/argoproj/gitops-engine v0.0.0-20240905010810-bd7681ae3f8b
-	github.com/openshift/api => github.com/openshift/api v0.0.0-20240124164020-e2ce40831f2e
-	github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20240115204758-e6bf7d631d5e
+	// github.com/openshift/api => github.com/openshift/api v0.0.0-20240124164020-e2ce40831f2e
+	// github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20240115204758-e6bf7d631d5e
+	github.com/openshift/machine-config-operator => github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 	// Caused by Argo importing 'k8s.io/api'
 	// Override all the v0.0.0 entries
 	k8s.io/api => k8s.io/api v0.31.2
@@ -111,4 +128,5 @@ replace (
 	k8s.io/mount-utils => k8s.io/mount-utils v0.31.2
 	k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.31.2
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.31.2
+
 )

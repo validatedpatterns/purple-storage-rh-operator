@@ -1,6 +1,6 @@
 module github.com/darkdoc/purple-storage-rh-operator
 
-go 1.21
+go 1.23
 
 require (
 	github.com/manifestival/controller-runtime-client v0.4.0

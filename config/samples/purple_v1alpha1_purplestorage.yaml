@@ -1,0 +1,10 @@
+apiVersion: purple.purplestorage.com/v1alpha1
+kind: PurpleStorage
+metadata:
+  labels:
+    app.kubernetes.io/name: purple-storage-rh-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: purplestorage-sample
+spec:
+  ibm_spectrum_scale_container_native_version: "5.2.2.0"
+  # TODO(user): Add fields here

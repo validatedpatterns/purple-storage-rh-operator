@@ -322,6 +322,16 @@ catalog-build: opm ## Build a catalog image.
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
 
+.PHONY: catalog-install
+catalog-install: config/samples/purplestorage-catalog-$(VERSION).yaml ## Install the OLM catalog on a cluster (for testing).
+	-oc delete -f config/samples/purplestorage-catalog-$(VERSION).yaml
+	oc create -f config/samples/purplestorage-catalog-$(VERSION).yaml
+
+.PHONY: config/samples/purplestorage-catalog-$(VERSION).yaml
+config/samples/purplestorage-catalog-$(VERSION).yaml:
+	cp config/samples/purplestorage-catalog.yaml config/samples/purplestorage-catalog-$(VERSION).yaml
+	sed -i -e "s@CATALOG_IMG@$(CATALOG_IMG)@g" config/samples/purplestorage-catalog-$(VERSION).yaml
+
 .PHONY: fetchyaml
 fetchyaml: ## Fetches install yaml files
 	./scripts/fetch-install-yamls.sh

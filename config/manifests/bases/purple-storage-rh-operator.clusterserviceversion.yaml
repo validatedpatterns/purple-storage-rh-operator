@@ -46,6 +46,7 @@ spec:
   - email: aeros@redhat.com
     name: darkdoc
   maturity: alpha
+  minKubeVersion: 1.23.0
   provider:
     name: Purple Team
   version: 0.0.0

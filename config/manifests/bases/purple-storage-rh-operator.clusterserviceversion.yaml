@@ -1,0 +1,51 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: purple-storage-rh-operator.v0.0.0
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: PurpleStorage is the Schema for the purplestorages API
+      displayName: Purple Storage
+      kind: PurpleStorage
+      name: purplestorages.purple.purplestorage.com
+      version: v1alpha1
+  description: Purple Storage Setup
+  displayName: Purple Storage
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - gpfs
+  - purple
+  - storage
+  links:
+  - name: Purple Storage Rh Operator
+    url: https://purple-storage-rh-operator.domain
+  maintainers:
+  - email: michele@acksyn.org
+    name: mbaldessari
+  - email: aeros@redhat.com
+    name: darkdoc
+  maturity: alpha
+  provider:
+    name: Purple Team
+  version: 0.0.0

@@ -1,7 +1,11 @@
 package controller
 
 import (
+	"encoding/json"
+
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+	ctrlcommon "github.com/openshift/machine-config-operator/pkg/controller/common"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -36,13 +40,16 @@ func NewMachineConfig(label string) *machineconfigv1.MachineConfig {
 }
 
 func NewMachineConfigSpec() *machineconfigv1.MachineConfigSpec {
+
+	tmpIgnCfg := ctrlcommon.NewIgnConfig()
+	rawTmpIgnCfg, _ := json.Marshal(tmpIgnCfg)
+
 	return &machineconfigv1.MachineConfigSpec{
 		// config is a Ignition Config object.
 		// +optional
 		Config: runtime.RawExtension{
-			Object: runtime.Object{
-				version: "3.2.0",
-			}},
+			Raw: rawTmpIgnCfg,
+		},
 		// extensions contains a list of additional features that can be enabled on host
 		// +listType=atomic
 		// +optional

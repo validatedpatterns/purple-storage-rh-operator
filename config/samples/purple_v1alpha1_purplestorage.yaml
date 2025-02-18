@@ -7,4 +7,8 @@ metadata:
   name: purplestorage-sample
 spec:
   ibm_spectrum_scale_container_native_version: "v5.2.2.0"
+  machineconfig:
+    labels:
+      machineconfiguration.openshift.io/role: "worker"
+
   # TODO(user): Add fields here

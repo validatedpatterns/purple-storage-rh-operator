@@ -85,9 +85,10 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	log.Log.Info(fmt.Sprintf("Creating machineconfig")) //, install_path))
-	mc := NewMachineConfig("label")
-	// _, err = client.Resource(gvr).Namespace(namespace).Create(context.TODO(), newArgo, metav1.CreateOptions{})
+	log.Log.Info(fmt.Sprintf("Creating machineconfig"))                       //, install_path))
+	log.Log.Info(fmt.Sprintf("%#v", purplestorage.Spec.Machineconfig.Labels)) //, install_path))
+
+	mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
 	err = r.Client.Create(ctx, mc)
 	if err != nil {
 		return ctrl.Result{}, err

@@ -23,17 +23,15 @@ import (
 //   extensions:
 //   - kernel-devel
 
-func NewMachineConfig(label string) *machineconfigv1.MachineConfig {
+func NewMachineConfig(labels map[string]string) *machineconfigv1.MachineConfig {
 	return &machineconfigv1.MachineConfig{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: machineconfigv1.SchemeGroupVersion.String(),
 			Kind:       "MachineConfig",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "00-worker-ibm-spectrum-scale-kernel-devel",
-			Labels: map[string]string{
-				"machineconfiguration.openshift.io/role": "worker",
-			},
+			Name:   "00-worker-ibm-spectrum-scale-kernel-devel",
+			Labels: labels,
 		},
 		Spec: *NewMachineConfigSpec(),
 	}

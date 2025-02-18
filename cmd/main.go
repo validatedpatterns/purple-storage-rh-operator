@@ -36,6 +36,7 @@ import (
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
+	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -48,6 +49,8 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(purplev1alpha1.AddToScheme(scheme))
+
+	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 

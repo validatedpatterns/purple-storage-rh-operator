@@ -31,7 +31,7 @@ RUN go mod download
 COPY cmd/main.go cmd/main.go
 COPY api/ api/
 COPY internal/controller/ internal/controller/
-COPY files/ files/
+COPY files/ /files/
 RUN mkdir /licenses
 COPY LICENSE /licenses
 
@@ -45,6 +45,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ma
 # UBI is larger (158Mb vs. 56Mb) but approved by RH 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 WORKDIR /
+COPY --from=builder /files/ /files/
 COPY --from=builder /workspace/manager .
 COPY --from=builder /licenses/ /licenses/
 USER 65532:65532

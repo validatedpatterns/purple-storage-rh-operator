@@ -1,0 +1,1 @@
+# purple-storage-rh-operator

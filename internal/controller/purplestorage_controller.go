@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -63,19 +64,26 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
-	// ctrl.Log.Info(purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
-	// installManifest, err := manifestival.NewManifest(fmt.Sprintf("files/v%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)) //, manifestival.UseClient(r.Client))
-	installManifest, err := manifestival.NewManifest(fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version), manifestival.UseClient(mfc.NewClient(r.Client)))
+	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
+	_, err = os.Stat(install_path)
+	if os.IsNotExist(err) {
+		install_path = fmt.Sprintf("/%s", install_path)
+		_, err = os.Stat(install_path)
+		if os.IsNotExist(err) {
+			return ctrl.Result{}, err
+		}
+	}
+	installManifest, err := manifestival.NewManifest(install_path, manifestival.UseClient(mfc.NewClient(r.Client)))
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	log.Log.Info(fmt.Sprintf("DEBUG #####%s", installManifest.Resources()[0].GetName()))
+	log.Log.Info(fmt.Sprintf("Applying manifest from %s", install_path))
 
 	if err := installManifest.Apply(); err != nil {
-		fmt.Printf("Error applying manifest: %v\n", err)
+		log.Log.Error(err, "Error applying manifest")
 		return reconcile.Result{}, err
 	}
-	log.Log.Info(fmt.Sprintf("Applied manifest from files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version))
+	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
 	return ctrl.Result{}, nil
 }

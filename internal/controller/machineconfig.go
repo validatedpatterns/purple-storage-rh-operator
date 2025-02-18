@@ -2,8 +2,8 @@ package controller
 
 import (
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // apiVersion: machineconfiguration.openshift.io/v1
@@ -39,10 +39,7 @@ func NewMachineConfigSpec() *machineconfigv1.MachineConfigSpec {
 	return &machineconfigv1.MachineConfigSpec{
 		// config is a Ignition Config object.
 		// +optional
-		Config: runtime.RawExtension{
-			Object: runtime.Object{
-				version: "3.2.0",
-			}},
+
 		// extensions contains a list of additional features that can be enabled on host
 		// +listType=atomic
 		// +optional

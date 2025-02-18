@@ -25,8 +25,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	mfc "github.com/manifestival/controller-runtime-client"
 	"github.com/manifestival/manifestival"
 )
 
@@ -61,11 +63,20 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
-	ctrl.Log.Info(purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
-	_, err = manifestival.NewManifest(fmt.Sprintf("files/v%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version), manifestival.UseClient(r.Client))
+	// ctrl.Log.Info(purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
+	// installManifest, err := manifestival.NewManifest(fmt.Sprintf("files/v%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)) //, manifestival.UseClient(r.Client))
+	installManifest, err := manifestival.NewManifest(fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version), manifestival.UseClient(mfc.NewClient(r.Client)))
 	if err != nil {
-		panic("Failed to load manifest")
+		return ctrl.Result{}, err
 	}
+	log.Log.Info(fmt.Sprintf("DEBUG #####%s", installManifest.Resources()[0].GetName()))
+
+	if err := installManifest.Apply(); err != nil {
+		fmt.Printf("Error applying manifest: %v\n", err)
+		return reconcile.Result{}, err
+	}
+	log.Log.Info(fmt.Sprintf("Applied manifest from files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version))
+
 	return ctrl.Result{}, nil
 }
 

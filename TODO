@@ -1,1 +1,2 @@
 - Figure out in which namespace the operator should be installed (don't think using the default 'opernshift-operators' is best practice these days)
+- For the MachineConfig bits do we want to drop all these modules and just render a yaml template and use manifestival?

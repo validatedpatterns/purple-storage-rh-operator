@@ -18,7 +18,7 @@ if [ ! -f "$FILE" ]; then
     exit 1
 fi
 
-rm -f /tmp/purple_rbacs_*
+rm -f /tmp/purple_rbacs_* /tmp/purple_roles_*
 
 # Generate one file for each kind / apiversion[0] combo
 yq e '. | {"kind": (.kind | downcase), "apiVersion": (.apiVersion | downcase )}' -s '"/tmp/purple_rbacs_" + (.kind | downcase) + "_" + (.apiVersion | split("/") | .[0] | downcase)' "${FILE}"
@@ -36,4 +36,15 @@ for i in /tmp/purple_rbacs_*; do
         group='""'
     fi
     echo "//+kubebuilder:rbac:groups=${group},resources=${kind},verbs=${BASE_PERMS}"
+done
+
+yq eval '. as $doc | select(.kind == "Role" or .kind == "ClusterRole")' -s '"/tmp/purple_roles_" + (.kind | downcase) + "_" + (.metadata.name | downcase)' "${FILE}" 
+
+for i in /tmp/purple_roles_*; do
+    yq eval -o=json '.rules' "${i}" | jq -r '
+      .[] as $rule |
+      $rule.apiGroups[] as $group |
+      $rule.resources[] as $resource |
+      "//+kubebuilder:rbac:groups=\($group),resources=\($resource),verbs=\($rule.verbs | join(";"))"
+    ' | sed -e 's/groups=,/groups="",/g'
 done

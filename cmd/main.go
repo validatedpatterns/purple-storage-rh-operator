@@ -34,9 +34,10 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
+	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
-	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -131,6 +132,12 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PurpleStorage")
 		os.Exit(1)
+	}
+	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
+		if err = (&purplev1alpha1.PurpleStorage{}).SetupWebhookWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create webhook", "webhook", "PurpleStorage")
+			os.Exit(1)
+		}
 	}
 	//+kubebuilder:scaffold:builder
 

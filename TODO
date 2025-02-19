@@ -8,3 +8,6 @@
 - Can we export IBM GPFS stuff through events from the start or performance metrics through the native openshift bits?
 - In the UI add that warning that you must create the PurpleStorage singleton object
 - Think of what fields will be immutable in our CR (list of cluster nodes maybe?)
+- Tweak our ansible scripts to use the operator
+
+[DONE]

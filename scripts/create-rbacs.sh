@@ -4,7 +4,7 @@ set -e
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <file>"
     exit 1
-fi 
+fi
 
 # Example rbacs
 # //+kubebuilder:rbac:groups=config.openshift.io,resources=infrastructures,verbs=list;get
@@ -18,17 +18,17 @@ if [ ! -f "$FILE" ]; then
     exit 1
 fi
 
-rm -f "/tmp/purple_rbacs_*"
+rm -f /tmp/purple_rbacs_*
 
 # Generate one file for each kind / apiversion[0] combo
-yq e '. | {"kind": .kind, "apiVersion": .apiVersion}' -s '"/tmp/purple_rbacs_" + .kind + "_" + (.apiVersion | split("/") | .[0])' "${FILE}"
+yq e '. | {"kind": (.kind | downcase), "apiVersion": (.apiVersion | downcase )}' -s '"/tmp/purple_rbacs_" + (.kind | downcase) + "_" + (.apiVersion | split("/") | .[0] | downcase)' "${FILE}"
 
 for i in /tmp/purple_rbacs_*; do
     #echo -n "${i}"
     kind=$(yq e ".kind" "${i}")
     apiversion=$(yq e ".apiVersion" "${i}")
-    if [[ $apiversion == *"/"* ]]; then 
-        group=$(cut -d '/' -f 1 <<< $apiversion)
+    if [[ "${apiversion}" == *"/"* ]]; then
+        group=$(cut -d '/' -f 1 <<< "${apiversion}")
     else
         group='""'
     fi

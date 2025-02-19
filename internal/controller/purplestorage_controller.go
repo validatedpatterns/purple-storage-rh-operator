@@ -68,7 +68,11 @@ type PurpleStorageReconciler struct {
 //+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=list;watch;delete;update;get;create;patch
 //+kubebuilder:rbac:groups="",resources=services,verbs=list;watch;delete;update;get;create;patch
 //+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=validatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
+
+// There is a bug in IBMs role granting silly permissions, so here we work around that:
 //+kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=coordination.k8s.io,resources=configmaps,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups="",resources=leases,verbs=list;watch;delete;update;get;create;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

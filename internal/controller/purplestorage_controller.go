@@ -52,22 +52,22 @@ type PurpleStorageReconciler struct {
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=purplestorages/finalizers,verbs=update
 
 // Operator needs to create some machine configs
-//+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfig,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfigs,verbs=get;list;watch;create;update;patch;delete
 
 // Below rules are generated via ./scripts/create-rbac.sh
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebinding,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrole,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups="",resources=configmap,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinition,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=apps,resources=deployment,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfiguration,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups="",resources=namespace,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebinding,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=role,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraints,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups="",resources=serviceaccount,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups="",resources=service,verbs=list;watch;delete;update;get;create;patch
-//+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=validatingwebhookconfiguration,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups="",resources=namespaces,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=security.openshift.io,resources=securitycontextconstraintss,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups="",resources=services,verbs=list;watch;delete;update;get;create;patch
+//+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=validatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

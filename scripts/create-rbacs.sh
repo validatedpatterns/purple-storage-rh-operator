@@ -32,5 +32,5 @@ for i in /tmp/purple_rbacs_*; do
     else
         group='""'
     fi
-    echo "//+kubebuilder:rbac:groups=${group},resources=${kind},verbs=${BASE_PERMS}"
+    echo "//+kubebuilder:rbac:groups=${group},resources=${kind}s,verbs=${BASE_PERMS}"
 done

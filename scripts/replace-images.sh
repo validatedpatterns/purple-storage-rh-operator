@@ -17,12 +17,10 @@ declare -A replacements=(
     ["icr.io/cpopen"]="quay.io/rhsysdeseng/cpopen"
 )
 
-# Process each file passed as argument
 for file in "$@"; do
     if [ -f "$file" ]; then
         echo "Processing file: $file"
 
-        # Loop through the replacement list and perform replacements
         for search in "${!replacements[@]}"; do
             replace="${replacements[$search]}"
             sed -i "s|$search|$replace|g" "$file"

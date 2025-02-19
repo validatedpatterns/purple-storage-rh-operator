@@ -14,6 +14,7 @@ declare -A replacements=(
     ["cp.icr.io/cp/spectrum/scale/data-management"]="quay.io/rhsysdeseng/cp/spectrum/scale/data-management"
     ["cp.icr.io/cp/spectrum/scale"]="quay.io/rhsysdeseng/cp/spectrum/scale"
     ["cp.icr.io/cp/spectrum/scale/csi"]="quay.io/rhsysdeseng/cp/spectrum/scale/csi"
+    ["icr.io/cpopen"]="quay.io/rhsysdeseng/cpopen"
 )
 
 # Process each file passed as argument

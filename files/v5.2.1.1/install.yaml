@@ -10014,7 +10014,7 @@ data:
       sysmon: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-monitor@sha256:7ebe93f44ad6d08a6db9919b775819d2fd2780f3f426ed745736b9247da03ce9
       grafanaBridge: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-grafana-bridge@sha256:65a14666cc3dc2ad7516b715f175ddfc18a6f2b5b6c1a3966560b03d6fd02f99
       coreDNS: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-coredns@sha256:88cbfe40fd302a6467cb7e852b298f6c8d8659782ab313706d491d3ddf172a6e
-      mustGather: icr.io/cpopen/ibm-spectrum-scale-must-gather@sha256:fd1c27c6cf5d34782c5fe718486fab38ba9c8227b4d81961b5e39b692fbd6aa7
+      mustGather: quay.io/rhsysdeseng/cpopen/ibm-spectrum-scale-must-gather@sha256:fd1c27c6cf5d34782c5fe718486fab38ba9c8227b4d81961b5e39b692fbd6aa7
       ganesha: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-ganesha@sha256:5577552b823dcde1fdfdf7354f12f457e261a612ac6ad735a800961ab47debe9
       stunnel: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-stunnel@sha256:bd1f4607c8b02063dde8aff7caa9eee732ffdf2c5d535d0b5eff6c9616359cdd
       pmsensors: quay.io/rhsysdeseng/cp/spectrum/scale/ibm-spectrum-scale-pmsensors@sha256:daf6a9098ce8e3a5192d8a36cbc362d271afca0a7d9f29364fd0a35de1a7322a
@@ -10114,7 +10114,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: icr.io/cpopen/ibm-spectrum-scale-csi-operator@sha256:99ba046ccc9f90777366ebc0dbee55309460d312f68da0f371c176513b5e9592
+        image: quay.io/rhsysdeseng/cpopen/ibm-spectrum-scale-csi-operator@sha256:99ba046ccc9f90777366ebc0dbee55309460d312f68da0f371c176513b5e9592
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -10225,7 +10225,7 @@ spec:
           valueFrom:
             resourceFieldRef:
               resource: limits.memory
-        image: icr.io/cpopen/ibm-spectrum-scale-operator@sha256:b6fb2a894bd05ce05580466f2307d4c871dc49da14453c96f081ab3b13c76bc8
+        image: quay.io/rhsysdeseng/cpopen/ibm-spectrum-scale-operator@sha256:b6fb2a894bd05ce05580466f2307d4c871dc49da14453c96f081ab3b13c76bc8
         livenessProbe:
           httpGet:
             path: /healthz

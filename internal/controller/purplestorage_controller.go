@@ -306,7 +306,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	destSecretName := "ibm-entitlement-key"
-	destNamespaces := []string{"ibm-spectrum-scale", "ibm-spectrum-scale-dns", "ibm-spectrum-scale-csi"}
+	destNamespaces := []string{"ibm-spectrum-scale", "ibm-spectrum-scale-dns", "ibm-spectrum-scale-csi", "ibm-spectrum-scale-operator"}
 	for _, destNamespace := range destNamespaces {
 		ibmPullSecret := newSecret(destSecretName, destNamespace, secretData, "kubernetes.io/dockerconfigjson", nil)
 		_, err = r.fullClient.CoreV1().Secrets(destNamespace).Get(ctx, destSecretName, metav1.GetOptions{})

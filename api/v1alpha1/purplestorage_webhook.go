@@ -17,6 +17,9 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"context"
+	"fmt"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -30,50 +33,55 @@ var purplestoragelog = logf.Log.WithName("purplestorage-resource")
 // SetupWebhookWithManager will setup the manager to manage the webhooks
 func (r *PurpleStorage) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
-		For(r).
+		For(&PurpleStorage{}).
+		WithValidator(&PurpleStorageValidator{}).
 		Complete()
 }
 
-// TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// +kubebuilder:object:generate=false
+// +k8s:deepcopy-gen=false
+// +k8s:openapi-gen=false
+// PurpleStorageValidator is responsible for setting default values on the PurpleStorage resources
+// when created or updated.
+//
+// NOTE: The +kubebuilder:object:generate=false and +k8s:deepcopy-gen=false marker prevents controller-gen from generating DeepCopy methods,
+// as it is used only for temporary operations and does not need to be deeply copied.
+type PurpleStorageValidator struct{}
 
-// +kubebuilder:webhook:path=/mutate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=true,failurePolicy=fail,sideEffects=None,groups=purple.purplestorage.com,resources=purplestorages,verbs=create;update,versions=v1alpha1,name=mpurplestorage.kb.io,admissionReviewVersions=v1
+// FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
+// +kubebuilder:webhook:verbs=create;update,path=/validate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=false,failurePolicy=fail,groups=purple.purplestorage.com,resources=purplestorages,versions=v1alpha1,name=vpurplestorage.kb.io,admissionReviewVersions=v1,sideEffects=none
 
-var _ webhook.Defaulter = &PurpleStorage{}
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *PurpleStorage) Default() {
-	purplestoragelog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
-}
-
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-// NOTE: The 'path' attribute must follow a specific pattern and should not be modified directly here.
-// Modifying the path for an invalid path can cause API server errors; failing to locate the webhook.
-// +kubebuilder:webhook:path=/validate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=false,failurePolicy=fail,sideEffects=None,groups=purple.purplestorage.com,resources=purplestorages,verbs=create;update,versions=v1alpha1,name=vpurplestorage.kb.io,admissionReviewVersions=v1
-
-var _ webhook.Validator = &PurpleStorage{}
+var _ webhook.CustomValidator = &PurpleStorageValidator{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *PurpleStorage) ValidateCreate() (admission.Warnings, error) {
-	purplestoragelog.Info("validate create", "name", r.Name)
+func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+	p, ok := obj.(*PurpleStorage)
+	if !ok {
+		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", obj)
+	}
+	purplestoragelog.Info("validate create", "name", p.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *PurpleStorage) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
-	purplestoragelog.Info("validate update", "name", r.Name)
+func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+	p, ok := oldObj.(*PurpleStorage)
+	if !ok {
+		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", oldObj)
+	}
+	purplestoragelog.Info("validate update", "name", p.Name)
 
-	// TODO(user): fill in your validation logic upon object update.
 	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *PurpleStorage) ValidateDelete() (admission.Warnings, error) {
-	purplestoragelog.Info("validate delete", "name", r.Name)
+func (r *PurpleStorageValidator) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+	p, ok := obj.(*PurpleStorage)
+	if !ok {
+		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", obj)
+	}
+	purplestoragelog.Info("validate create", "name", p.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
 	return nil, nil
 }

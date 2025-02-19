@@ -35,6 +35,7 @@ type PurpleStorageSpec struct {
 	// Foo is an example field of PurpleStorage. Edit purplestorage_types.go to remove/update
 	Ibm_spectrum_scale_container_native_version string        `json:"ibm_spectrum_scale_container_native_version,omitempty"`
 	Machineconfig                               MachineConfig `json:"machineconfig,omitempty"`
+	Pull_secret                                 string        `json:"pull_secret,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

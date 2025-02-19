@@ -50,6 +50,8 @@ spec:
                       type: string
                     type: object
                 type: object
+              pull_secret:
+                type: string
             type: object
           status:
             description: PurpleStorageStatus defines the observed state of PurpleStorage

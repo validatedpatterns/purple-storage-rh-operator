@@ -28,6 +28,9 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 
+	kerrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/client-go/kubernetes"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -44,6 +47,7 @@ type PurpleStorageReconciler struct {
 	Scheme        *runtime.Scheme
 	config        *rest.Config
 	dynamicClient dynamic.Interface
+	fullClient    kubernetes.Interface
 }
 
 // Basic Operator RBACs
@@ -246,6 +250,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
+	//Load and install manifests from ibm
 	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
 	_, err = os.Stat(install_path)
 	if os.IsNotExist(err) {
@@ -267,6 +272,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
+	//Create machineconfig to enable kernel modules
 	new_mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
 	gvr := schema.GroupVersionResource{
 		Group:    "machineconfiguration.openshift.io",
@@ -292,8 +298,31 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		log.Log.Info(fmt.Sprintf("Updated machineconfig"))
 	}
+	//Create secrets in IBM namespaces to pull images from quay
+	secretData := map[string][]byte{
+		"pullsecret": []byte(purplestorage.Spec.Pull_secret),
+	}
+	destNamespace := "default"
+	destSecretName := "test-secret"
+	ibmPullSecret := newSecret(destSecretName, destNamespace, secretData, nil)
 
-	return ctrl.Result{}, nil
+	_, err = r.fullClient.CoreV1().Secrets(destNamespace).Get(ctx, destSecretName, metav1.GetOptions{})
+
+	if err != nil {
+		if kerrors.IsNotFound(err) {
+			// Resource does not exist, create it
+			_, err = r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
+			log.Log.Info(fmt.Sprintf("Created Secret"))
+		}
+		return ctrl.Result{}, err
+	}
+	// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
+	_, err = r.fullClient.CoreV1().Secrets(destNamespace).Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
+	if err == nil {
+		log.Log.Info(fmt.Sprintf("Updated Secret"))
+		return ctrl.Result{}, nil
+	}
+	return ctrl.Result{}, err
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -301,6 +330,9 @@ func (r *PurpleStorageReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	var err error
 	r.config = mgr.GetConfig()
 	if r.dynamicClient, err = dynamic.NewForConfig(r.config); err != nil {
+		return err
+	}
+	if r.fullClient, err = kubernetes.NewForConfig(r.config); err != nil {
 		return err
 	}
 	return ctrl.NewControllerManagedBy(mgr).

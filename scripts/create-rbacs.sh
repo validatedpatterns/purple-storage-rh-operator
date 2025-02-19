@@ -26,11 +26,14 @@ yq e '. | {"kind": (.kind | downcase), "apiVersion": (.apiVersion | downcase )}'
 for i in /tmp/purple_rbacs_*; do
     #echo -n "${i}"
     kind=$(yq e ".kind" "${i}")
+    if [[ "${kind}" != *"s" ]]; then
+        kind="${kind}s"
+    fi
     apiversion=$(yq e ".apiVersion" "${i}")
     if [[ "${apiversion}" == *"/"* ]]; then
         group=$(cut -d '/' -f 1 <<< "${apiversion}")
     else
         group='""'
     fi
-    echo "//+kubebuilder:rbac:groups=${group},resources=${kind}s,verbs=${BASE_PERMS}"
+    echo "//+kubebuilder:rbac:groups=${group},resources=${kind},verbs=${BASE_PERMS}"
 done

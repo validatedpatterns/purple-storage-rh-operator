@@ -9,7 +9,7 @@ spec:
   ibm_spectrum_scale_container_native_version: "v5.2.2.0"
   machineconfig:
     labels:
-      node-role.kubernetes.io/worker: ""
-  pull_secret: "secret_to_pull_stuff"
+      machineconfiguration.openshift.io/role: "worker"
+  pull_secret: "secret_value"
 
   # TODO(user): Add fields here

@@ -1,0 +1,1 @@
+- Figure out in which namespace the operator should be installed (don't think using the default 'opernshift-operators' is best practice these days)

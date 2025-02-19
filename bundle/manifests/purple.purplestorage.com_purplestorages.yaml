@@ -6,6 +6,16 @@ metadata:
   creationTimestamp: null
   name: purplestorages.purple.purplestorage.com
 spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: purple-storage-rh-operator-webhook-service
+          namespace: purple-storage-rh-operator-system
+          path: /convert
+      conversionReviewVersions:
+      - v1
   group: purple.purplestorage.com
   names:
     kind: PurpleStorage
@@ -50,6 +60,8 @@ spec:
                       type: string
                     type: object
                 type: object
+              pull_secret:
+                type: string
             type: object
           status:
             description: PurpleStorageStatus defines the observed state of PurpleStorage

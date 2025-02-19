@@ -5,7 +5,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func newSecret(name, namespace string, secret map[string][]byte, labels map[string]string) *corev1.Secret {
+func newSecret(name, namespace string, secret map[string][]byte, secretType corev1.SecretType, labels map[string]string) *corev1.Secret {
 	k8sSecret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
@@ -13,6 +13,7 @@ func newSecret(name, namespace string, secret map[string][]byte, labels map[stri
 			Labels:    labels,
 		},
 		Data: secret,
+		Type: secretType,
 	}
 	return k8sSecret
 }

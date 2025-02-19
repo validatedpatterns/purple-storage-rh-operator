@@ -298,29 +298,34 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		log.Log.Info(fmt.Sprintf("Updated machineconfig"))
 	}
+
+	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, purplestorage.Spec.Pull_secret)
 	//Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
-		"pullsecret": []byte(purplestorage.Spec.Pull_secret),
+		".dockerconfigjson": []byte(secretstring),
 	}
-	destNamespace := "default"
-	destSecretName := "test-secret"
-	ibmPullSecret := newSecret(destSecretName, destNamespace, secretData, nil)
 
-	_, err = r.fullClient.CoreV1().Secrets(destNamespace).Get(ctx, destSecretName, metav1.GetOptions{})
+	destSecretName := "ibm-entitlement-key"
+	destNamespaces := []string{"ibm-spectrum-scale", "ibm-spectrum-scale-dns", "ibm-spectrum-scale-csi"}
+	for _, destNamespace := range destNamespaces {
+		ibmPullSecret := newSecret(destSecretName, destNamespace, secretData, "kubernetes.io/dockerconfigjson", nil)
+		_, err = r.fullClient.CoreV1().Secrets(destNamespace).Get(ctx, destSecretName, metav1.GetOptions{})
 
-	if err != nil {
-		if kerrors.IsNotFound(err) {
-			// Resource does not exist, create it
-			_, err = r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
-			log.Log.Info(fmt.Sprintf("Created Secret"))
+		if err != nil {
+			if kerrors.IsNotFound(err) {
+				// Resource does not exist, create it
+				_, err = r.fullClient.CoreV1().Secrets(destNamespace).Create(context.TODO(), ibmPullSecret, metav1.CreateOptions{})
+				log.Log.Info(fmt.Sprintf("Created Secret %s in ns %s", destSecretName, destNamespace))
+				continue
+			}
+			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, err
-	}
-	// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
-	_, err = r.fullClient.CoreV1().Secrets(destNamespace).Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
-	if err == nil {
-		log.Log.Info(fmt.Sprintf("Updated Secret"))
-		return ctrl.Result{}, nil
+		// The destination secret already exists so we upate it and return an error if they were different so the reconcile loop can restart
+		_, err = r.fullClient.CoreV1().Secrets(destNamespace).Update(context.TODO(), ibmPullSecret, metav1.UpdateOptions{})
+		if err == nil {
+			log.Log.Info(fmt.Sprintf("Updated Secret %s in ns %s", destSecretName, destNamespace))
+			continue
+		}
 	}
 	return ctrl.Result{}, err
 }

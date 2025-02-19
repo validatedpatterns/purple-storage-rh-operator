@@ -22,7 +22,12 @@ import (
 	"os"
 
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -36,7 +41,9 @@ import (
 // PurpleStorageReconciler reconciles a PurpleStorage object
 type PurpleStorageReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme        *runtime.Scheme
+	config        *rest.Config
+	dynamicClient dynamic.Interface
 }
 
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=purplestorages,verbs=get;list;watch;create;update;patch;delete
@@ -85,20 +92,42 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	log.Log.Info(fmt.Sprintf("Creating machineconfig"))                       //, install_path))
-	log.Log.Info(fmt.Sprintf("%#v", purplestorage.Spec.Machineconfig.Labels)) //, install_path))
-
-	mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
-	err = r.Client.Create(ctx, mc)
-	if err != nil {
-		return ctrl.Result{}, err
+	new_mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
+	gvr := schema.GroupVersionResource{
+		Group:    "machineconfiguration.openshift.io",
+		Version:  "v1",
+		Resource: "machineconfigs",
 	}
-	log.Log.Info(fmt.Sprintf("%#v", mc)) //, install_path))
+
+	old_mc, err := r.dynamicClient.Resource(gvr).Get(ctx, new_mc.GetName(), metav1.GetOptions{})
+	if err != nil {
+		log.Log.Info(fmt.Sprintf("Creating machineconfig"))
+		err = r.Client.Create(ctx, new_mc)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Log.Info(fmt.Sprintf("Created machineconfig"))
+
+	} else {
+		log.Log.Info(fmt.Sprintf("Updating machineconfig"))
+		new_mc.SetResourceVersion(old_mc.GetResourceVersion())
+		err = r.Client.Update(ctx, new_mc)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Log.Info(fmt.Sprintf("Updated machineconfig"))
+	}
+
 	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *PurpleStorageReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	var err error
+	r.config = mgr.GetConfig()
+	if r.dynamicClient, err = dynamic.NewForConfig(r.config); err != nil {
+		return err
+	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&purplev1alpha1.PurpleStorage{}).
 		Complete(r)

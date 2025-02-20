@@ -7,6 +7,8 @@
 - Make sure that the operator is disconnected and fips compliant
 - Can we export IBM GPFS stuff through events from the start or performance metrics through the native openshift bits?
 - In the UI add that warning that you must create the PurpleStorage singleton object
+  - Creation webhook is DONE
+  - UI bits still missing
 - Think of what fields will be immutable in our CR (list of cluster nodes maybe?)
 - Tweak our ansible scripts to use the operator
 - Get to 100% unit testing

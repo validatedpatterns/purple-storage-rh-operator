@@ -21,6 +21,8 @@ import (
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
@@ -46,7 +48,9 @@ func (r *PurpleStorage) SetupWebhookWithManager(mgr ctrl.Manager) error {
 //
 // NOTE: The +kubebuilder:object:generate=false and +k8s:deepcopy-gen=false marker prevents controller-gen from generating DeepCopy methods,
 // as it is used only for temporary operations and does not need to be deeply copied.
-type PurpleStorageValidator struct{}
+type PurpleStorageValidator struct {
+	Client client.Client
+}
 
 // FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
 // +kubebuilder:webhook:verbs=create;update,path=/validate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=false,failurePolicy=fail,groups=purple.purplestorage.com,resources=purplestorages,versions=v1alpha1,name=vpurplestorage.kb.io,admissionReviewVersions=v1,sideEffects=none
@@ -55,20 +59,28 @@ var _ webhook.CustomValidator = &PurpleStorageValidator{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
-	p, ok := obj.(*PurpleStorage)
-	if !ok {
-		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", obj)
+	p, err := convertToPurpleStorage(obj)
+	if err != nil {
+		purplestoragelog.Error(err, "validate create", "name", p.Name)
+		return nil, err
+	}
+	var purplestorages PurpleStorageList
+	if err = r.Client.List(ctx, &purplestorages); err != nil {
+		return nil, fmt.Errorf("failed to list PurpleStorage resources: %v", err)
+	}
+	if len(purplestorages.Items) > 0 {
+		return nil, fmt.Errorf("only one PurpleStorage resource is allowed")
 	}
 	purplestoragelog.Info("validate create", "name", p.Name)
-
 	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
-	p, ok := oldObj.(*PurpleStorage)
-	if !ok {
-		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", oldObj)
+	p, err := convertToPurpleStorage(oldObj)
+	if err != nil {
+		purplestoragelog.Error(err, "validate create", "name", p.Name)
+		return nil, err
 	}
 	purplestoragelog.Info("validate update", "name", p.Name)
 
@@ -77,11 +89,20 @@ func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, new
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *PurpleStorageValidator) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
-	p, ok := obj.(*PurpleStorage)
-	if !ok {
-		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", obj)
+	p, err := convertToPurpleStorage(obj)
+	if err != nil {
+		purplestoragelog.Error(err, "validate create", "name", p.Name)
+		return nil, err
 	}
 	purplestoragelog.Info("validate create", "name", p.Name)
 
 	return nil, nil
+}
+
+func convertToPurpleStorage(obj runtime.Object) (*PurpleStorage, error) {
+	p, ok := obj.(*PurpleStorage)
+	if !ok {
+		return nil, fmt.Errorf("expected a PurpleStorage object but got %T", obj)
+	}
+	return p, nil
 }

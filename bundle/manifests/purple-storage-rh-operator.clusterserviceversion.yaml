@@ -26,7 +26,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-02-20T09:02:16Z"
+    createdAt: "2025-02-20T10:34:53Z"
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: purple-storage-rh-operator.v0.0.1

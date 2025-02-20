@@ -3,6 +3,7 @@ module github.com/darkdoc/purple-storage-rh-operator
 go 1.23
 
 require (
+	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/manifestival/controller-runtime-client v0.4.0
 	github.com/manifestival/manifestival v0.7.2
 	github.com/onsi/ginkgo/v2 v2.19.0

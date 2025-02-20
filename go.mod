@@ -9,6 +9,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
 	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
+	github.com/openshift/client-go v0.0.0-20200827190008-3062137373b5
 	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
 	k8s.io/api v0.31.2
 	k8s.io/apimachinery v0.31.2
@@ -58,7 +59,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/openshift/client-go v0.0.0-20200827190008-3062137373b5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.19.1 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect

@@ -28,19 +28,19 @@ RUN export GO_VERSION=$(grep -E "go [[:digit:]]\.[[:digit:]][[:digit:]]" go.mod 
 RUN go mod download
 
 # Copy the go source
+COPY vendor/ vendor/
 COPY cmd/main.go cmd/main.go
 COPY api/ api/
 COPY internal/ internal/
 COPY files/ /files/
+COPY hack/ hack/
+# Needed to get the git versions in there
+COPY .git/ .git/
 RUN mkdir /licenses
 COPY LICENSE /licenses
 
 # Build
-# the GOARCH has not a default value to allow the binary be built according to the host where the command
-# was called. For example, if we call make docker-build in a local env which has the Apple Silicon M1 SO
-# the docker BUILDPLATFORM arg will be linux/arm64 when for Apple x86 it will be linux/amd64. Therefore,
-# by leaving it empty we can ensure that the container and binary shipped on it will have the same platform.
-RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o manager cmd/main.go
+RUN --mount=type=secret,id=pull hack/build.sh
 
 # UBI is larger (158Mb vs. 56Mb) but approved by RH 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest

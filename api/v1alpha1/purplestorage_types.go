@@ -32,10 +32,6 @@ type IBMSpectrumCluster struct {
 
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of PurpleStorage. Edit purplestorage_types.go to remove/update
 	Ibm_spectrum_scale_container_native_version string             `json:"ibm_spectrum_scale_container_native_version,omitempty"`
 	Machineconfig                               MachineConfig      `json:"machineconfig,omitempty"`
 	Pull_secret                                 string             `json:"pull_secret,omitempty"`

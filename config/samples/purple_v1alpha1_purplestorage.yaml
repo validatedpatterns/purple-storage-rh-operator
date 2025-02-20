@@ -10,7 +10,7 @@ spec:
   machineconfig:
     labels:
       machineconfiguration.openshift.io/role: "worker"
-  pull_secret: "secret_value"
+  pull_secret: ""
   ibm_spectrum_scale_cluster:
     create: true
 

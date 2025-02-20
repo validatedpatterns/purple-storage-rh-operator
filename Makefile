@@ -5,6 +5,8 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 0.0.1
 
+PULLFILE ?= internal/controller/pull.txt
+
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
@@ -131,11 +133,16 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager cmd/main.go
+	GOOS=${GOOS} GOARCH=${GOARCH} hack/build.sh
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./cmd/main.go
+	GOOS=${GOOS} GOARCH=${GOARCH} hack/build.sh run
+
+.PHONY: clean
+clean: ## Remove build artifacts and downloaded tools
+	find bin/ -exec chmod +w "{}" \;
+	rm -rf ./manager ./bin/*
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
@@ -143,7 +150,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 TARGETARCH ?= amd64
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	$(CONTAINER_TOOL) build --build-arg TARGETARCH=$(TARGETARCH) -t ${IMG} .
+	$(CONTAINER_TOOL) build --secret id=pull,src=$(PULLFILE) --build-arg TARGETARCH=$(TARGETARCH) -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.

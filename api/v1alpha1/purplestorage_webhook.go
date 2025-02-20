@@ -106,7 +106,12 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	p, err := convertToPurpleStorage(oldObj)
 	if err != nil {
-		purplestoragelog.Error(err, "validate create", "name", p.Name)
+		purplestoragelog.Error(err, "validate update", "name", p.Name)
+		return nil, err
+	}
+	pNew, err := convertToPurpleStorage(newObj)
+	if err != nil {
+		purplestoragelog.Error(err, "validate update", "name", pNew.Name)
 		return nil, err
 	}
 	purplestoragelog.Info("validate update", "name", p.Name)
@@ -118,10 +123,10 @@ func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, new
 func (r *PurpleStorageValidator) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
 	p, err := convertToPurpleStorage(obj)
 	if err != nil {
-		purplestoragelog.Error(err, "validate create", "name", p.Name)
+		purplestoragelog.Error(err, "validate delete", "name", p.Name)
 		return nil, err
 	}
-	purplestoragelog.Info("validate create", "name", p.Name)
+	purplestoragelog.Info("validate delete", "name", p.Name)
 
 	return nil, nil
 }

@@ -26,6 +26,9 @@ import (
 type MachineConfig struct {
 	Labels map[string]string `json:"labels,omitempty"`
 }
+type IBMSpectrumCluster struct {
+	Create bool `json:"create,omitempty"`
+}
 
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
@@ -33,9 +36,10 @@ type PurpleStorageSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of PurpleStorage. Edit purplestorage_types.go to remove/update
-	Ibm_spectrum_scale_container_native_version string        `json:"ibm_spectrum_scale_container_native_version,omitempty"`
-	Machineconfig                               MachineConfig `json:"machineconfig,omitempty"`
-	Pull_secret                                 string        `json:"pull_secret,omitempty"`
+	Ibm_spectrum_scale_container_native_version string             `json:"ibm_spectrum_scale_container_native_version,omitempty"`
+	Machineconfig                               MachineConfig      `json:"machineconfig,omitempty"`
+	Pull_secret                                 string             `json:"pull_secret,omitempty"`
+	Cluster                                     IBMSpectrumCluster `json:"ibm_spectrum_scale_cluster,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

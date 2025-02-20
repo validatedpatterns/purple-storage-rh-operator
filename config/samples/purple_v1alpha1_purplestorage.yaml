@@ -11,5 +11,7 @@ spec:
     labels:
       machineconfiguration.openshift.io/role: "worker"
   pull_secret: "secret_value"
+  ibm_spectrum_scale_cluster:
+    create: true
 
   # TODO(user): Add fields here

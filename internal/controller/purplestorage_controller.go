@@ -327,6 +327,28 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			continue
 		}
 	}
+	if purplestorage.Spec.Cluster.Create == true {
+		//Create IBM storage cluster
+		cluster := NewSpectrumCluster()
+		gvr = schema.GroupVersionResource{
+			Group:    "scale.spectrum.ibm.com",
+			Version:  "v1beta1",
+			Resource: "clusters",
+		}
+		log.Log.Info(fmt.Sprintf("Creating cluster"))
+
+		_, err = r.dynamicClient.Resource(gvr).Get(ctx, cluster.GetName(), metav1.GetOptions{})
+
+		if err != nil {
+			if kerrors.IsNotFound(err) {
+				// Resource does not exist, create it
+				err = r.Client.Create(ctx, cluster)
+				log.Log.Info(fmt.Sprintf("Created cluster"))
+			}
+			return ctrl.Result{}, err
+		}
+		log.Log.Info(fmt.Sprintf("Cluster aleardy exists, considering immutable"))
+	}
 	return ctrl.Result{}, err
 }
 

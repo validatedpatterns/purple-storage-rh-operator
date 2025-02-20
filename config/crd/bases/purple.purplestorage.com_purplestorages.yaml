@@ -39,6 +39,11 @@ spec:
           spec:
             description: PurpleStorageSpec defines the desired state of PurpleStorage
             properties:
+              ibm_spectrum_scale_cluster:
+                properties:
+                  create:
+                    type: boolean
+                type: object
               ibm_spectrum_scale_container_native_version:
                 description: Foo is an example field of PurpleStorage. Edit purplestorage_types.go
                   to remove/update

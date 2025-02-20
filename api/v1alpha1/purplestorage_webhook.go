@@ -32,14 +32,6 @@ import (
 // log is for logging in this package.
 var purplestoragelog = logf.Log.WithName("purplestorage-resource")
 
-// SetupWebhookWithManager will setup the manager to manage the webhooks
-func (r *PurpleStorageValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewWebhookManagedBy(mgr).
-		For(&PurpleStorage{}).
-		WithValidator(r).
-		Complete()
-}
-
 // +kubebuilder:object:generate=false
 // +k8s:deepcopy-gen=false
 // +k8s:openapi-gen=false
@@ -56,6 +48,15 @@ type PurpleStorageValidator struct {
 // +kubebuilder:webhook:verbs=create;update,path=/validate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=false,failurePolicy=fail,groups=purple.purplestorage.com,resources=purplestorages,versions=v1alpha1,name=vpurplestorage.kb.io,admissionReviewVersions=v1,sideEffects=none
 
 var _ webhook.CustomValidator = &PurpleStorageValidator{}
+
+// SetupWebhookWithManager will setup the manager to manage the webhooks
+func (r *PurpleStorageValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
+	r.Client = mgr.GetClient()
+	return ctrl.NewWebhookManagedBy(mgr).
+		For(&PurpleStorage{}).
+		WithValidator(r).
+		Complete()
+}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {

@@ -298,7 +298,14 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		log.Log.Info("Updated machineconfig")
 	}
 
-	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, purplestorage.Spec.Pull_secret)
+	var pullString string
+	if purplestorage.Spec.Pull_secret != "" {
+		pullString = purplestorage.Spec.Pull_secret
+	} else {
+		pullString = pull
+	}
+
+	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, pullString)
 	//Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
 		".dockerconfigjson": []byte(secretstring),

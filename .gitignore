@@ -29,3 +29,4 @@ go.work
 /config/samples/purplestorage-catalog-*.yaml
 /coverage.html
 
+**/pull.txt

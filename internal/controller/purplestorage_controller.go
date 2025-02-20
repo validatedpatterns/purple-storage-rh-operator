@@ -250,7 +250,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
-	//Load and install manifests from ibm
+	// Load and install manifests from ibm
 	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
 	_, err = os.Stat(install_path)
 	if os.IsNotExist(err) {
@@ -272,7 +272,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	//Create machineconfig to enable kernel modules
+	// Create machineconfig to enable kernel modules
 	new_mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
 	gvr := schema.GroupVersionResource{
 		Group:    "machineconfiguration.openshift.io",
@@ -288,7 +288,6 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			return ctrl.Result{}, err
 		}
 		log.Log.Info("Created machineconfig")
-
 	} else {
 		log.Log.Info("Updating machineconfig")
 		new_mc.SetResourceVersion(old_mc.GetResourceVersion())
@@ -310,8 +309,8 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		pullString = strings.TrimSpace(pull)
 	}
 
-	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, pullString)
-	//Create secrets in IBM namespaces to pull images from quay
+	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, pullString)
+	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
 		".dockerconfigjson": []byte(secretstring),
 	}
@@ -339,7 +338,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 	}
 	if purplestorage.Spec.Cluster.Create {
-		//Create IBM storage cluster
+		// Create IBM storage cluster
 		cluster := NewSpectrumCluster()
 		gvr = schema.GroupVersionResource{
 			Group:    "scale.spectrum.ibm.com",

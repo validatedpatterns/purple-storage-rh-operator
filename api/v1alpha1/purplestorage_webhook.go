@@ -50,6 +50,7 @@ type PurpleStorageValidator struct {
 }
 
 // FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
+//nolint:lll
 // +kubebuilder:webhook:verbs=create;update,path=/validate-purple-purplestorage-com-v1alpha1-purplestorage,mutating=false,failurePolicy=fail,groups=purple.purplestorage.com,resources=purplestorages,versions=v1alpha1,name=vpurplestorage.kb.io,admissionReviewVersions=v1,sideEffects=none
 
 var _ webhook.CustomValidator = &PurpleStorageValidator{}
@@ -103,7 +104,7 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
+func (r *PurpleStorageValidator) ValidateUpdate(_ context.Context, oldObj, newObj runtime.Object) (admission.Warnings, error) {
 	p, err := convertToPurpleStorage(oldObj)
 	if err != nil {
 		purplestoragelog.Error(err, "validate update", "name", p.Name)
@@ -125,7 +126,7 @@ func (r *PurpleStorageValidator) ValidateUpdate(ctx context.Context, oldObj, new
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *PurpleStorageValidator) ValidateDelete(ctx context.Context, obj runtime.Object) (admission.Warnings, error) {
+func (r *PurpleStorageValidator) ValidateDelete(_ context.Context, obj runtime.Object) (admission.Warnings, error) {
 	p, err := convertToPurpleStorage(obj)
 	if err != nil {
 		purplestoragelog.Error(err, "validate delete", "name", p.Name)

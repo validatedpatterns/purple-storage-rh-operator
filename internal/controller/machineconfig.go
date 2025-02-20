@@ -38,7 +38,6 @@ func NewMachineConfig(labels map[string]string) *machineconfigv1.MachineConfig {
 }
 
 func NewMachineConfigSpec() *machineconfigv1.MachineConfigSpec {
-
 	tmpIgnCfg := ctrlcommon.NewIgnConfig()
 	rawTmpIgnCfg, _ := json.Marshal(tmpIgnCfg)
 

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"os"
 
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -245,7 +244,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	purplestorage := &purplev1alpha1.PurpleStorage{}
 	err := r.Get(ctx, req.NamespacedName, purplestorage)
 	if err != nil {
-		if errors.IsNotFound(err) {
+		if kerrors.IsNotFound(err) {
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err

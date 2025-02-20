@@ -65,6 +65,8 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 		purplestoragelog.Error(err, "validate create", "name", p.Name)
 		return nil, err
 	}
+
+	// Make sure the PurpleStorage object is a singleton
 	var purplestorages PurpleStorageList
 	if err = r.Client.List(ctx, &purplestorages); err != nil {
 		return nil, fmt.Errorf("failed to list PurpleStorage resources: %v", err)
@@ -72,6 +74,12 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 	if len(purplestorages.Items) > 0 {
 		return nil, fmt.Errorf("only one PurpleStorage resource is allowed")
 	}
+
+	// Check if the IBM version we are running is an allowed one
+	//ocpVersion := controller.GetOpenShiftVersion()
+	//if !controller.IsOpenShiftSupported() {
+	//	return nil, fmt.Errorf("IBM CNSA version %s is not supported", controller.GetOpenShiftVersion())
+	//	}
 	purplestoragelog.Info("validate create", "name", p.Name)
 	return nil, nil
 }

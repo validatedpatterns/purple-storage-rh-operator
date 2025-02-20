@@ -281,21 +281,21 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	old_mc, err := r.dynamicClient.Resource(gvr).Get(ctx, new_mc.GetName(), metav1.GetOptions{})
 	if err != nil {
-		log.Log.Info(fmt.Sprintf("Creating machineconfig"))
+		log.Log.Info("Creating machineconfig")
 		err = r.Client.Create(ctx, new_mc)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		log.Log.Info(fmt.Sprintf("Created machineconfig"))
+		log.Log.Info("Created machineconfig")
 
 	} else {
-		log.Log.Info(fmt.Sprintf("Updating machineconfig"))
+		log.Log.Info("Updating machineconfig")
 		new_mc.SetResourceVersion(old_mc.GetResourceVersion())
 		err = r.Client.Update(ctx, new_mc)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		log.Log.Info(fmt.Sprintf("Updated machineconfig"))
+		log.Log.Info("Updated machineconfig")
 	}
 
 	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, purplestorage.Spec.Pull_secret)
@@ -326,7 +326,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			continue
 		}
 	}
-	if purplestorage.Spec.Cluster.Create == true {
+	if purplestorage.Spec.Cluster.Create {
 		//Create IBM storage cluster
 		cluster := NewSpectrumCluster()
 		gvr = schema.GroupVersionResource{
@@ -334,7 +334,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			Version:  "v1beta1",
 			Resource: "clusters",
 		}
-		log.Log.Info(fmt.Sprintf("Creating cluster"))
+		log.Log.Info("Creating cluster")
 
 		_, err = r.dynamicClient.Resource(gvr).Get(ctx, cluster.GetName(), metav1.GetOptions{})
 
@@ -342,11 +342,11 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			if kerrors.IsNotFound(err) {
 				// Resource does not exist, create it
 				err = r.Client.Create(ctx, cluster)
-				log.Log.Info(fmt.Sprintf("Created cluster"))
+				log.Log.Info("Created cluster")
 			}
 			return ctrl.Result{}, err
 		}
-		log.Log.Info(fmt.Sprintf("Cluster aleardy exists, considering immutable"))
+		log.Log.Info("Cluster aleardy exists, considering immutable")
 	}
 	return ctrl.Result{}, err
 }

@@ -96,10 +96,10 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current cluster version: %v", err)
 	}
-	if !utils.IsOpenShiftSupported(p.Spec.Ibm_spectrum_scale_container_native_version, *ocpVersion) {
+	if !utils.IsOpenShiftSupported(p.Spec.IbmCnsaVersion, *ocpVersion) {
 		return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
 	}
-	purplestoragelog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.Ibm_spectrum_scale_container_native_version)
+	purplestoragelog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 	return nil, nil
 }
 
@@ -117,7 +117,7 @@ func (r *PurpleStorageValidator) ValidateUpdate(_ context.Context, oldObj, newOb
 	}
 
 	// FIXME(bandini): IBM CNSA version cannot be updated for now
-	if pNew.Spec.Ibm_spectrum_scale_container_native_version != p.Spec.Ibm_spectrum_scale_container_native_version {
+	if pNew.Spec.IbmCnsaVersion != p.Spec.IbmCnsaVersion {
 		return nil, fmt.Errorf("IBM CNSA version cannot be updated")
 	}
 	purplestoragelog.Info("validate update", "name", p.Name)

@@ -20,22 +20,22 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 type MachineConfig struct {
 	Labels map[string]string `json:"labels,omitempty"`
 }
 type IBMSpectrumCluster struct {
+	// Boolean to create the CNSA cluster object
 	Create bool `json:"create,omitempty"`
 }
 
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
-	Ibm_spectrum_scale_container_native_version string             `json:"ibm_spectrum_scale_container_native_version,omitempty"`
-	Machineconfig                               MachineConfig      `json:"machineconfig,omitempty"`
-	Pull_secret                                 string             `json:"pull_secret,omitempty"`
-	Cluster                                     IBMSpectrumCluster `json:"ibm_spectrum_scale_cluster,omitempty"`
+	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
+	IbmCnsaVersion string        `json:"ibm_cnsa_version,omitempty"`
+	MachineConfig  MachineConfig `json:"machineconfig,omitempty"`
+	// PullSecret is the secret that contains the credentials to pull the images from the Container Registry
+	PullSecret string             `json:"pull_secret,omitempty"`
+	Cluster    IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

@@ -251,7 +251,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, err
 	}
 	// Load and install manifests from ibm
-	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.Ibm_spectrum_scale_container_native_version)
+	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.IbmCnsaVersion)
 	_, err = os.Stat(install_path)
 	if os.IsNotExist(err) {
 		install_path = fmt.Sprintf("/%s", install_path)
@@ -273,7 +273,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
 	// Create machineconfig to enable kernel modules
-	new_mc := NewMachineConfig(purplestorage.Spec.Machineconfig.Labels)
+	new_mc := NewMachineConfig(purplestorage.Spec.MachineConfig.Labels)
 	gvr := schema.GroupVersionResource{
 		Group:    "machineconfiguration.openshift.io",
 		Version:  "v1",
@@ -300,8 +300,8 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	var pullString string
 	// If the user defined a pull secret in the CR, use that, otherwise use the one from the build
-	if purplestorage.Spec.Pull_secret != "" {
-		pullString = strings.TrimSpace(purplestorage.Spec.Pull_secret)
+	if purplestorage.Spec.PullSecret != "" {
+		pullString = strings.TrimSpace(purplestorage.Spec.PullSecret)
 	} else {
 		if pull != "" {
 			log.Log.Info("Pull txt was present in the build")

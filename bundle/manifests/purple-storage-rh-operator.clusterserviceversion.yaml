@@ -15,18 +15,21 @@ metadata:
             "name": "purplestorage-sample"
           },
           "spec": {
+            "ibm_spectrum_scale_cluster": {
+              "create": true
+            },
             "ibm_spectrum_scale_container_native_version": "v5.2.2.0",
             "machineconfig": {
               "labels": {
                 "machineconfiguration.openshift.io/role": "worker"
               }
             },
-            "pull_secret": "secret_value"
+            "pull_secret": ""
           }
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-02-20T10:34:53Z"
+    createdAt: "2025-02-20T18:29:04Z"
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: purple-storage-rh-operator.v0.0.1

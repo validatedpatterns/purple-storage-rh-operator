@@ -6,12 +6,12 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: purplestorage-sample
 spec:
-  ibm_spectrum_scale_container_native_version: "v5.2.2.0"
+  ibm_cnsa_version: "v5.2.2.0"
   machineconfig:
     labels:
       machineconfiguration.openshift.io/role: "worker"
   pull_secret: ""
-  ibm_spectrum_scale_cluster:
+  ibm_cnsa_cluster:
     create: true
 
   # TODO(user): Add fields here

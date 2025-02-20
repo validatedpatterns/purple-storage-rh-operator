@@ -30,7 +30,7 @@ RUN go mod download
 # Copy the go source
 COPY cmd/main.go cmd/main.go
 COPY api/ api/
-COPY internal/controller/ internal/controller/
+COPY internal/ internal/
 COPY files/ /files/
 RUN mkdir /licenses
 COPY LICENSE /licenses

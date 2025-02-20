@@ -20,10 +20,13 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/darkdoc/purple-storage-rh-operator/internal/utils"
+	configclient "github.com/openshift/client-go/config/clientset/versioned"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
+	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
@@ -41,7 +44,9 @@ var purplestoragelog = logf.Log.WithName("purplestorage-resource")
 // NOTE: The +kubebuilder:object:generate=false and +k8s:deepcopy-gen=false marker prevents controller-gen from generating DeepCopy methods,
 // as it is used only for temporary operations and does not need to be deeply copied.
 type PurpleStorageValidator struct {
-	Client client.Client
+	Client       client.Client
+	config       *rest.Config
+	configClient configclient.Interface
 }
 
 // FIXME(bandini): This needs to be reviewed more in detail. I added sideEffects=none to get it passing but not 100% sure about it
@@ -52,6 +57,11 @@ var _ webhook.CustomValidator = &PurpleStorageValidator{}
 // SetupWebhookWithManager will setup the manager to manage the webhooks
 func (r *PurpleStorageValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	r.Client = mgr.GetClient()
+	r.config = mgr.GetConfig()
+	var err error
+	if r.configClient, err = configclient.NewForConfig(r.config); err != nil {
+		return err
+	}
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&PurpleStorage{}).
 		WithValidator(r).
@@ -75,11 +85,20 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 		return nil, fmt.Errorf("only one PurpleStorage resource is allowed")
 	}
 
+	clusterVersions, err := r.configClient.ConfigV1().ClusterVersions().Get(context.Background(), "version", metav1.GetOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list ClusterVersions: %v", err)
+	}
+
 	// Check if the IBM version we are running is an allowed one
-	//ocpVersion := controller.GetOpenShiftVersion()
-	//if !controller.IsOpenShiftSupported() {
-	//	return nil, fmt.Errorf("IBM CNSA version %s is not supported", controller.GetOpenShiftVersion())
-	//	}
+	ocpVersion, err := utils.GetCurrentClusterVersion(clusterVersions)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current cluster version: %v", err)
+	}
+	ocpString := ocpVersion.String()
+	if !utils.IsOpenShiftSupported(p.Spec.Ibm_spectrum_scale_container_native_version, ocpString) {
+		return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
+	}
 	purplestoragelog.Info("validate create", "name", p.Name)
 	return nil, nil
 }

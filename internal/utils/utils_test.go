@@ -46,7 +46,7 @@ var _ = Describe("GetCurrentClusterVersion", func() {
 		})
 
 		It("should return the completed version", func() {
-			version, err := getCurrentClusterVersion(clusterVersion)
+			version, err := GetCurrentClusterVersion(clusterVersion)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(version.String()).To(Equal("4.6.1"))
 		})
@@ -67,7 +67,7 @@ var _ = Describe("GetCurrentClusterVersion", func() {
 		})
 
 		It("should return the desired version", func() {
-			version, err := getCurrentClusterVersion(clusterVersion)
+			version, err := GetCurrentClusterVersion(clusterVersion)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(version.String()).To(Equal("4.7.0"))
 		})

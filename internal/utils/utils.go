@@ -88,7 +88,7 @@ func IsOpenShiftSupported(ibmStorageScaleVersion string, openShiftVersion string
 // https://pkg.go.dev/github.com/openshift/api/config/v1#ClusterVersionStatus specifies that the ordering is preserved
 // We do have a fallback in case the history does either not exist or it simply has never completed an update:
 // in such cases we just fallback to the status.desired.version
-func getCurrentClusterVersion(clusterversion *configv1.ClusterVersion) (*semver.Version, error) {
+func GetCurrentClusterVersion(clusterversion *configv1.ClusterVersion) (*semver.Version, error) {
 	// First, check the history for completed versions
 	for _, v := range clusterversion.Status.History {
 		if v.State == "Completed" {

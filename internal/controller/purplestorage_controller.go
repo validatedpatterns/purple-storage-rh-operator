@@ -305,7 +305,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		pullString = strings.TrimSpace(purplestorage.Spec.Pull_secret)
 	} else {
 		if pull != "" {
-			log.Log.Info("Pull txt was present")
+			log.Log.Info("Pull txt was present in the build")
 		}
 		pullString = strings.TrimSpace(pull)
 	}

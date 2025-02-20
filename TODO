@@ -13,5 +13,6 @@
 - Tweak our ansible scripts to use the operator
 - Get to 100% unit testing
 - Add pull secret in the build directly (if present)
+- In the filesystem yaml can you pick disks via a label?
 
 [DONE]

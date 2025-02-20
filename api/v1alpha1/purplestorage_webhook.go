@@ -95,8 +95,7 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current cluster version: %v", err)
 	}
-	ocpString := ocpVersion.String()
-	if !utils.IsOpenShiftSupported(p.Spec.Ibm_spectrum_scale_container_native_version, ocpString) {
+	if !utils.IsOpenShiftSupported(p.Spec.Ibm_spectrum_scale_container_native_version, *ocpVersion) {
 		return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
 	}
 	purplestoragelog.Info("validate create", "name", p.Name)

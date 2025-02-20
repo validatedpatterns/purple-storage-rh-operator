@@ -51,14 +51,24 @@ var storageScaleTable = map[string]StorageScaleData{
 	"5.2.2.0": {"2.13.0", []string{"x86_64", "ppc64le", "s390x"}, "5.1.9.0+", "36.00", []string{"4.15", "4.16", "4.17"}},
 }
 
-func IsOpenShiftSupported(ibmStorageScaleVersion string, openShiftVersion string) bool {
-	data, exists := storageScaleTable[ibmStorageScaleVersion]
+func IsOpenShiftSupported(ibmStorageScaleVersion string, openShiftVersion semver.Version) bool {
+	// Strip the leading "v" from the IBM Storage Scale version
+	ibmVer := ibmStorageScaleVersion
+	if strings.HasPrefix(ibmStorageScaleVersion, "v") {
+		ibmVer = ibmStorageScaleVersion[1:] // Remove the first character
+	}
+
+	data, exists := storageScaleTable[ibmVer]
 	if !exists {
 		return false
 	}
 
 	for _, version := range data.OpenShiftLevels {
-		if strings.TrimSpace(version) == openShiftVersion {
+		constraint, err := semver.NewConstraint(fmt.Sprintf("~%s", version))
+		if err != nil {
+			return false
+		}
+		if constraint.Check(&openShiftVersion) {
 			return true
 		}
 	}

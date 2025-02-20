@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -300,12 +301,12 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	var pullString string
 	if purplestorage.Spec.Pull_secret != "" {
-		pullString = purplestorage.Spec.Pull_secret
+		pullString = strings.TrimSpace(purplestorage.Spec.Pull_secret)
 	} else {
 		if pull != "" {
 			log.Log.Info("Pull txt was present", "pull", pull)
 		}
-		pullString = pull
+		pullString = strings.TrimSpace(pull)
 	}
 
 	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":"%s","email":""}}}`, pullString)

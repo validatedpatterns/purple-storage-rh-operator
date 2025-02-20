@@ -300,11 +300,12 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	var pullString string
+	// If the user defined a pull secret in the CR, use that, otherwise use the one from the build
 	if purplestorage.Spec.Pull_secret != "" {
 		pullString = strings.TrimSpace(purplestorage.Spec.Pull_secret)
 	} else {
 		if pull != "" {
-			log.Log.Info("Pull txt was present", "pull", pull)
+			log.Log.Info("Pull txt was present")
 		}
 		pullString = strings.TrimSpace(pull)
 	}

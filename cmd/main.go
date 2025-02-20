@@ -134,7 +134,7 @@ func main() {
 		os.Exit(1)
 	}
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
-		if err = (&purplev1alpha1.PurpleStorage{}).SetupWebhookWithManager(mgr); err != nil {
+		if err = (&purplev1alpha1.PurpleStorageValidator{}).SetupWebhookWithManager(mgr); err != nil {
 			setupLog.Error(err, "unable to create webhook", "webhook", "PurpleStorage")
 			os.Exit(1)
 		}

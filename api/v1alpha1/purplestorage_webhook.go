@@ -33,10 +33,10 @@ import (
 var purplestoragelog = logf.Log.WithName("purplestorage-resource")
 
 // SetupWebhookWithManager will setup the manager to manage the webhooks
-func (r *PurpleStorage) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *PurpleStorageValidator) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(&PurpleStorage{}).
-		WithValidator(&PurpleStorageValidator{}).
+		WithValidator(r).
 		Complete()
 }
 

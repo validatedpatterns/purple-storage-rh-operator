@@ -11,8 +11,8 @@
   - For now we made the IBM Version immutable
 - Tweak our ansible scripts to use the operator
 - Get to 100% unit testing
-- Add pull secret in the build directly (if present)
 - In the filesystem yaml can you pick disks via a label?
 
 [DONE]
 - For the MachineConfig bits do we want to drop all these modules and just render a yaml template and use manifestival?
+- Add pull secret in the build directly (if present)

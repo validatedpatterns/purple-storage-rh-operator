@@ -34,6 +34,7 @@ COPY api/ api/
 COPY internal/ internal/
 COPY files/ /files/
 COPY hack/ hack/
+COPY version/ version/
 # Needed to get the git versions in there
 COPY .git/ .git/
 RUN mkdir /licenses

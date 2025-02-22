@@ -32,3 +32,4 @@ go.work
 **/pull.txt
 /manager
 
+bundle_tmp*/

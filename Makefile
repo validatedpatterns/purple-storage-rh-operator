@@ -342,3 +342,8 @@ config/samples/purplestorage-catalog-$(VERSION).yaml:
 .PHONY: fetchyaml
 fetchyaml: ## Fetches install yaml files
 	./scripts/fetch-install-yamls.sh
+
+.PHONY: rbacs-parse
+rbacs-parse: ## Builds and tests RBACs yaml parser program
+	go test  ./scripts/rbacs/*.go 2>&1
+	go build -o scripts/create-rbacs scripts/create-rbacs.go

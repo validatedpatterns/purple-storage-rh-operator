@@ -31,5 +31,6 @@ go.work
 
 **/pull.txt
 /manager
+/scripts/create-rbacs
 
 bundle_tmp*/

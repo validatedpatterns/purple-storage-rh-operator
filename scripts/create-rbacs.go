@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 
@@ -32,5 +33,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to extract RBAC rules: %v", err)
 	}
-	rbac_script.GenerateRBACMarkers(rules)
+	markers := rbac_script.GenerateRBACMarkers(rules)
+	for _, marker := range markers {
+		fmt.Println(marker)
+	}
 }

@@ -3,6 +3,7 @@ package rbac_script
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -59,6 +60,12 @@ func (s StringSet) Equals(other StringSet) bool {
 	return true
 }
 
+func (s StringSet) SortedList() []string {
+	keys := s.List()
+	sort.Strings(keys)
+	return keys
+}
+
 func convertToPlural(kind string) string {
 	if kind == "" {
 		return kind
@@ -83,24 +90,28 @@ func ExtractRBACRules(yamlContent []byte) (map[schema.GroupVersionResource]Strin
 		// Convert into an Unstructured Kubernetes object
 		obj := &unstructured.Unstructured{Object: raw}
 		apiVersion := obj.GetAPIVersion()
-		kind := obj.GetKind()
-		namespace := obj.GetNamespace()
+		kind := strings.ToLower(obj.GetKind())
+		// namespace := obj.GetNamespace()
+
+		if kind == "" && apiVersion == "" {
+			continue
+		}
 
 		// Parse group and version
-		gv, err := schema.ParseGroupVersion(apiVersion)
+		gVer, err := schema.ParseGroupVersion(apiVersion)
 		if err != nil {
 			return nil, err
 		}
 		resourceName := convertToPlural(kind)
-		fmt.Printf("ZOZZO: %s %s %s\n", gv, resourceName, namespace)
+		gv := schema.GroupVersionResource{
+			Group:   gVer.Group,
+			Version: gVer.Version,
+		}
 
-		defaultVerbs := NewStringSet()
-		for _, s := range []string{"get", "list", "watch", "create", "update", "patch", "delete"} {
-			defaultVerbs.Add(s)
-		}
-		if namespace == "" {
-			defaultVerbs.Add("deletecollection")
-		}
+		defaultVerbs := NewStringSetFromList([]string{"get", "list", "watch", "create", "update", "patch", "delete"})
+		// if namespace == "" {
+		// 	defaultVerbs.Add("deletecollection")
+		// }
 
 		// Special case: If the object is a Role or ClusterRole, extract its rules and
 		// add them to the resources map
@@ -148,13 +159,15 @@ func ExtractRBACRules(yamlContent []byte) (map[schema.GroupVersionResource]Strin
 	return resources, nil
 }
 
-func GenerateRBACMarkers(rules map[schema.GroupVersionResource]StringSet) {
+func GenerateRBACMarkers(rules map[schema.GroupVersionResource]StringSet) []string {
+	s := []string{}
 	for gvr, verbs := range rules {
 		group := gvr.Group
 		if group == "" {
 			group = "core"
 		}
-		fmt.Printf("//+kubebuilder:rbac:groups=%s,resources=%s,verbs=%s\n",
-			group, gvr.Resource, strings.Join(verbs.List(), ","))
+		s = append(s, fmt.Sprintf("//+kubebuilder:rbac:groups=%s,resources=%s,verbs=%s\n",
+			group, gvr.Resource, strings.Join(verbs.SortedList(), ",")))
 	}
+	return s
 }

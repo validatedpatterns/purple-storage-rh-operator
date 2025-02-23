@@ -1,4 +1,5 @@
 - Figure out in which namespace the operator should be installed (don't think using the default 'openshift-operators' is best practice these days)
+  - The main question is "Is this a namespaced operator or a cluster-wide operator"?
 - Create spectrum cluster object with some sane worker label default (if there are no nodes with the label, exposed via CRD, then do nothing)
 - Rewrite create-rbacs.sh in golang and add some unit tests/validation as it will become more important in the future
 - Make sure that the operator is disconnected and fips compliant
@@ -7,8 +8,7 @@
   - Creation webhook is DONE
   - UI bits still missing
 - Think of what fields will be immutable in our CR (list of cluster nodes maybe?)
-  - For now we made the IBM Version immutable
-- Tweak our ansible scripts to use the operator
+  - For now we made the IBM Version immutable. Making it unmutable will depend on the upgrade story
 - Get to 100% unit testing
 - In the filesystem yaml can you pick disks via a label?
 
@@ -16,3 +16,4 @@
 - For the MachineConfig bits do we want to drop all these modules and just render a yaml template and use manifestival?
 - Add pull secret in the build directly (if present)
 - Lookup the openshift clusterversion and check it against the ibm spectrum version hash table (in admission webhook or also in the reconcile loop)
+- Tweak our ansible scripts to use the operator

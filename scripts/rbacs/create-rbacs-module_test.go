@@ -161,3 +161,48 @@ func TestPermission_RBACRule_NonRole(t *testing.T) {
 		t.Errorf("Expected: %q\nGot:      %q", wantSubstr, rules[0])
 	}
 }
+
+func TestPermission_RBACRule_Role(t *testing.T) {
+	roleYAML := map[string]interface{}{
+		"apiVersion": "rbac.authorization.k8s.io/v1",
+		"kind":       "Role",
+		"metadata": map[string]interface{}{
+			"name":      "example-role",
+			"namespace": "default",
+		},
+		"rules": []interface{}{
+			map[string]interface{}{
+				"apiGroups": []interface{}{""},
+				"resources": []interface{}{"pods"},
+				"verbs":     []interface{}{"get", "list", "watch"},
+			},
+			map[string]interface{}{
+				"apiGroups": []interface{}{"apps"},
+				"resources": []interface{}{"deployments"},
+				"verbs":     []interface{}{"create", "delete"},
+			},
+		},
+	}
+
+	p := rbac_script.NewPermission(roleYAML)
+	if p == nil {
+		t.Fatal("Expected a valid Permission for Role")
+	}
+	rules := p.RBACRule()
+	// We expect 2 lines of output (one for pods, one for deployments)
+	if len(rules) != 2 {
+		t.Fatalf("Expected 2 lines of RBAC markers, got %d", len(rules))
+	}
+
+	// Check for pods rule
+	wantPods := "//+kubebuilder:rbac:groups=\"\",namespace=default,resources=pods,verbs=get;list;watch"
+	if rules[0] != wantPods && rules[1] != wantPods {
+		t.Errorf("Could not find pods RBAC rule in output:\n%v", rules)
+	}
+
+	// Check for deployments rule
+	wantDeploy := "//+kubebuilder:rbac:groups=apps,namespace=default,resources=deployments,verbs=create;delete"
+	if rules[0] != wantDeploy && rules[1] != wantDeploy {
+		t.Errorf("Could not find deployments RBAC rule in output:\n%v", rules)
+	}
+}

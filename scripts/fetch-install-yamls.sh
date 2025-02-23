@@ -11,7 +11,6 @@ for VERSION in "${VERSIONS[@]}"; do
     
     FILE_URL="$RAW_FILE_URL/$VERSION/generated/scale/install.yaml"
     curl -L -o "files/$VERSION/install.yaml" "$FILE_URL"
-    
     if [[ $? -eq 0 ]]; then
         echo "Downloaded install.yaml for $VERSION"
     else

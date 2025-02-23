@@ -58,7 +58,8 @@ type PurpleStorageReconciler struct {
 // Operator needs to create some machine configs
 //+kubebuilder:rbac:groups=machineconfiguration.openshift.io,resources=machineconfigs,verbs=get;list;watch;create;update;patch;delete
 
-// Below rules are generated via ./scripts/create-rbacs.sh files/v5.2.2.0/install.yaml | sort | uniq
+// Below rules are inserted via `make rbac-generate` automatically
+// IBM_RBAC_MARKER_START
 //+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
 //+kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=validatingwebhookconfigurations,verbs=list;watch;delete;update;get;create;patch
 //+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=list;watch;delete;update;get;create;patch
@@ -228,6 +229,7 @@ type PurpleStorageReconciler struct {
 //+kubebuilder:rbac:groups=storage.k8s.io,resources=csidrivers,verbs=get;list;watch
 //+kubebuilder:rbac:groups=storage.k8s.io,resources=storageclasses,verbs=create;delete;get;list;patch;update;watch
 //+kubebuilder:rbac:groups=storage.k8s.io,resources=volumeattachments,verbs=create;delete;get;list;patch;update;watch
+// IBM_RBAC_MARKER_END
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

@@ -5,6 +5,9 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 0.0.2
 
+# Version of yaml file to generate rbacs from
+RBAC_VERSION ?= v5.2.2.0
+
 PULLFILE ?= internal/controller/pull.txt
 
 # CHANNELS define the bundle channels used in the bundle.
@@ -115,6 +118,8 @@ vet: ## Run go vet against code.
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) --bin-dir $(LOCALBIN) -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
+	# Test the scripts as well
+	go test -v ./scripts/rbacs/*.go 2>&1
 
 # Utilize Kind or modify the e2e tests to load the image locally, enabling compatibility with other vendors.
 .PHONY: test-e2e  # Run the e2e tests against a Kind k8s instance that is spun up.
@@ -343,7 +348,8 @@ config/samples/purplestorage-catalog-$(VERSION).yaml:
 fetchyaml: ## Fetches install yaml files
 	./scripts/fetch-install-yamls.sh
 
-.PHONY: rbacs-parse
-rbacs-parse: ## Builds and tests RBACs yaml parser program
-	go test -v ./scripts/rbacs/*.go 2>&1
-	go build -o scripts/create-rbacs scripts/create-rbacs.go
+.PHONY: rbacs-generates
+rbacs-generate: ## Generates RBACs and injects them in .go file
+	$(eval CMD_OUTPUT := $(shell go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml")
+	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/purpletorage_controller.go
+	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/purpletorage_controller.go <<< $(CMD_OUTPUT)

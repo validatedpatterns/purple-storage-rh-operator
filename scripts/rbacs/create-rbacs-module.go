@@ -27,7 +27,6 @@ func ConvertToPlural(kind string) string {
 func AddStringUnique(slice []string, value string) []string {
 	for _, v := range slice {
 		if v == value {
-			fmt.Printf("WARNING: Value '%s' already exists in the slice", value)
 			return slice
 		}
 	}

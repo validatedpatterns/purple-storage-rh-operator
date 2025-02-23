@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"log"
 	"os"
 
@@ -29,12 +28,9 @@ func main() {
 	if err := scanner.Err(); err != nil {
 		log.Fatalf("Error reading file: %v", err)
 	}
-	rules, err := rbac_script.ExtractRBACRules(yamlContent.Bytes())
+	p, err := rbac_script.ExtractRBACRules(yamlContent.Bytes())
 	if err != nil {
 		log.Fatalf("Failed to extract RBAC rules: %v", err)
 	}
-	markers := rbac_script.GenerateRBACMarkers(rules)
-	for _, marker := range markers {
-		fmt.Println(marker)
-	}
+	rbac_script.GenerateRBACMarkers(p)
 }

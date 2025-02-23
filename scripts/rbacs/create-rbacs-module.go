@@ -27,7 +27,8 @@ func ConvertToPlural(kind string) string {
 func AddStringUnique(slice []string, value string) []string {
 	for _, v := range slice {
 		if v == value {
-			panic(fmt.Sprintf("Value '%s' already exists in the slice", value))
+			fmt.Printf("WARNING: Value '%s' already exists in the slice", value)
+			return slice
 		}
 	}
 	return append(slice, value)
@@ -48,7 +49,7 @@ type Permission struct {
 func NewPermission(raw map[string]interface{}) *Permission {
 	obj := &unstructured.Unstructured{Object: raw}
 	apiVersion := obj.GetAPIVersion()
-	kind := obj.GetKind()
+	kind := strings.ToLower(obj.GetKind())
 	name := obj.GetName()
 	namespace := obj.GetNamespace()
 	if kind == "" && apiVersion == "" {
@@ -78,13 +79,7 @@ func NewPermission(raw map[string]interface{}) *Permission {
 }
 
 func (p Permission) isRole() bool {
-	return p.Kind == "Role" || p.Kind == "ClusterRole"
-}
-
-func (p Permission) SetDefaultVerbs() {
-	for _, i := range defaultVerbs {
-		p.Verbs[i] = true
-	}
+	return p.Kind == "role" || p.Kind == "clusterrole"
 }
 
 func (p Permission) String() string {
@@ -96,7 +91,7 @@ func (p Permission) RBACRuleFromRole() []string {
 		panic("No rules parsed on :" + p.String())
 	}
 	var ns string
-	if p.Kind == "Role" && p.Namespace != "" {
+	if p.Kind == "role" && p.Namespace != "" {
 		ns = fmt.Sprintf("namespace=%s,", p.Namespace)
 	}
 
@@ -147,11 +142,8 @@ func (p Permission) RBACRule() []string {
 	if p.isRole() {
 		return p.RBACRuleFromRole()
 	}
-	p.SetDefaultVerbs()
 	verbs := []string{}
-	for v := range p.Verbs {
-		verbs = append(verbs, v)
-	}
+	verbs = append(verbs, defaultVerbs...)
 	sort.Strings(verbs)
 	var ns string
 	if p.Namespace != "" {
@@ -164,8 +156,8 @@ func (p Permission) RBACRule() []string {
 	} else {
 		groupStr = p.Group
 	}
-	s := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,resources=%s,%sverbs=%s",
-		groupStr, p.Resource, ns, strings.Join(verbs, ";"))
+	s := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,%sresources=%s,verbs=%s",
+		groupStr, ns, p.Resource, strings.Join(verbs, ";"))
 
 	return strings.Fields(s)
 }
@@ -192,16 +184,13 @@ func ExtractRBACRules(yamlContent []byte) ([]Permission, error) {
 	return resources, nil
 }
 
-func GenerateRBACMarkers(permissions []Permission) {
-	uniques := map[string]bool{}
+func GenerateRBACMarkers(permissions []Permission) []string {
+	uniques := []string{}
 	for _, p := range permissions {
 		rules := p.RBACRule()
 		for _, s := range rules {
-			if _, exists := uniques[s]; exists {
-				continue
-			}
-			uniques[s] = true
-			fmt.Println(s)
+			uniques = AddStringUnique(uniques, s)
 		}
 	}
+	return uniques
 }

@@ -1,6 +1,7 @@
 package rbac_script_test
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -34,7 +35,7 @@ func TestAddStringUnique(t *testing.T) {
 			initial:   []string{"apple", "banana"},
 			value:     "banana",
 			want:      []string{"apple", "banana"},
-			wantPanic: true,
+			wantPanic: false,
 		},
 	}
 
@@ -119,7 +120,7 @@ func TestNewPermission(t *testing.T) {
 		t.Fatal("Expected non-nil Permission")
 	}
 
-	if p.Kind != "Deployment" {
+	if p.Kind != "deployment" {
 		t.Errorf("Expected kind=Deployment, got %s", p.Kind)
 	}
 	if p.Group != "apps" {
@@ -156,7 +157,7 @@ func TestPermission_RBACRule_NonRole(t *testing.T) {
 	}
 
 	// The rule should have default verbs: get, list, watch, create, update, patch, delete
-	wantSubstr := "//+kubebuilder:rbac:groups=\"\",resources=Pods,namespace=default,verbs=create;delete;get;list;patch;update;watch"
+	wantSubstr := "//+kubebuilder:rbac:groups=\"\",namespace=default,resources=pods,verbs=create;delete;get;list;patch;update;watch"
 	if rules[0] != wantSubstr {
 		t.Errorf("Expected: %q\nGot:      %q", wantSubstr, rules[0])
 	}
@@ -204,5 +205,82 @@ func TestPermission_RBACRule_Role(t *testing.T) {
 	wantDeploy := "//+kubebuilder:rbac:groups=apps,namespace=default,resources=deployments,verbs=create;delete"
 	if rules[0] != wantDeploy && rules[1] != wantDeploy {
 		t.Errorf("Could not find deployments RBAC rule in output:\n%v", rules)
+	}
+}
+
+func TestIntegration_ExtractAndGenerateMarkers(t *testing.T) {
+	yamlContent := `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deploy
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: example-role
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: example-clusterrole
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["list", "watch", "create"]
+`
+
+	perms, err := rbac_script.ExtractRBACRules([]byte(yamlContent))
+	if err != nil {
+		t.Fatalf("ExtractRBACRules error: %v", err)
+	}
+	if len(perms) != 4 {
+		t.Fatalf("Expected 4 objects from YAML, got %d", len(perms))
+	}
+
+	rbacs := rbac_script.GenerateRBACMarkers(perms)
+
+	// We expect lines for:
+	// Pod (default verbs)
+	// Deployment (default verbs)
+	// Role (2 lines)
+	// ClusterRole (1+ lines depending on rules)
+	// Let's do a minimal check that some lines appear
+	checks := []string{
+		"//+kubebuilder:rbac:groups=\"\",namespace=default,resources=pods,verbs=create;delete;get;list;patch;update;watch",
+		"//+kubebuilder:rbac:groups=apps,namespace=default,resources=deployments,verbs=create;delete;get;list;patch;update;watch",
+		"//+kubebuilder:rbac:groups=\"\",namespace=default,resources=pods,verbs=get;list;watch",
+		"//+kubebuilder:rbac:groups=apps,namespace=default,resources=deployments,verbs=create;delete",
+		"//+kubebuilder:rbac:groups=\"\",resources=secrets,verbs=create;list;watch", // clusterrole
+	}
+	if len(checks) != len(rbacs) {
+		t.Fatalf("Expected %d RBAC markers, got %d", len(checks), len(rbacs))
+	}
+	for i := range rbacs {
+		fmt.Printf("RBAC : %s\n", rbacs[i])
+		fmt.Printf("CHECK: %v\n", checks[i])
+	}
+
+	for i := 0; i < len(checks); i++ {
+		if rbacs[i] != checks[i] {
+			t.Errorf("Expected %s got %s\n", checks[i], rbacs[i])
+		} else {
+			t.Logf("SAME: %s\n", checks[i])
+		}
 	}
 }

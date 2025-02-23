@@ -59,7 +59,10 @@ func NewPermission(raw map[string]interface{}) *Permission {
 		return nil
 	}
 	resourceName := convertToPlural(kind)
-	rules, _, _ := unstructured.NestedSlice(raw, "rules")
+	rules, _, err := unstructured.NestedSlice(raw, "rules")
+	if err != nil {
+		panic("Could not parse rules")
+	}
 
 	return &Permission{
 		apiVersion: apiVersion,
@@ -92,6 +95,11 @@ func (p Permission) RBACRuleFromRole() []string {
 	if len(p.rules) == 0 {
 		panic("No rules parsed on :" + p.String())
 	}
+	var ns string
+	if p.kind == "Role" && p.namespace != "" {
+		ns = fmt.Sprintf("namespace=%s,", p.namespace)
+	}
+
 	var ok bool
 	var rbacs []string
 	for _, rule := range p.rules {
@@ -99,23 +107,35 @@ func (p Permission) RBACRuleFromRole() []string {
 		if ruleMap, ok = rule.(map[string]interface{}); !ok {
 			panic("Could not parse rule")
 		}
-		apiGroups, _ := ruleMap["apiGroups"].([]interface{})
-		resourcesList, _ := ruleMap["resources"].([]interface{})
-		verbsList, _ := ruleMap["verbs"].([]interface{})
+		apiGroups, ok := ruleMap["apiGroups"].([]interface{})
+		if !ok {
+			panic("Could not parse apiGroups")
+		}
+		resourcesList, ok := ruleMap["resources"].([]interface{})
+		if !ok {
+			panic("Could not parse resourcesList")
+		}
+		verbsList, ok := ruleMap["verbs"].([]interface{})
+		if !ok {
+			panic("Could not parse verbsList")
+		}
 		for _, group := range apiGroups {
 			groupStr, _ := group.(string)
+			if groupStr == "" {
+				groupStr = "\"\""
+			}
 			for _, res := range resourcesList {
 				resStr, _ := res.(string)
 				var verbsArray []string
 				for _, v := range verbsList {
 					if verb, ok := v.(string); ok {
-						AddStringUnique(verbsArray, verb)
+						verbsArray = AddStringUnique(verbsArray, verb)
 					} else {
 						panic("We could not parse a verb as string")
 					}
 				}
 				sort.Strings(verbsArray)
-				rbac := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,resources=%s,verbs=%s", groupStr, resStr, strings.Join(verbsArray, ","))
+				rbac := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,%sresources=%s,verbs=%s", groupStr, ns, resStr, strings.Join(verbsArray, ";"))
 				rbacs = append(rbacs, rbac)
 			}
 		}
@@ -127,6 +147,7 @@ func (p Permission) RBACRule() []string {
 	if p.isRole() {
 		return p.RBACRuleFromRole()
 	}
+	p.SetDefaultVerbs()
 	verbs := []string{}
 	for v := range p.verbs {
 		verbs = append(verbs, v)
@@ -137,8 +158,14 @@ func (p Permission) RBACRule() []string {
 		ns = fmt.Sprintf("namespace=%s,", p.namespace)
 
 	}
+	var groupStr string
+	if p.group == "" {
+		groupStr = "\"\""
+	} else {
+		groupStr = p.group
+	}
 	s := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,resources=%s,%sverbs=%s",
-		p.group, p.resource, ns, strings.Join(verbs, ","))
+		groupStr, p.resource, ns, strings.Join(verbs, ";"))
 
 	return strings.Fields(s)
 }
@@ -155,19 +182,11 @@ func ExtractRBACRules(yamlContent []byte) ([]Permission, error) {
 		}
 
 		p := NewPermission(raw)
-		if p == nil { // could not parse it properly, skip it
+		if p == nil { // Skip if empty piece of yaml
 			continue
 		}
 
-		// Special case: If the object is a Role or ClusterRole, extract its rules and
-		// add them to the resources map
-		if p.isRole() {
-			fmt.Printf("Skipping roles/clusterroles for now\n")
-		} else {
-			fmt.Printf("Adding %v\n", p)
-			p.SetDefaultVerbs()
-			resources = append(resources, *p)
-		}
+		resources = append(resources, *p)
 	}
 
 	return resources, nil

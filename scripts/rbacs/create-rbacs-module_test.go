@@ -104,3 +104,60 @@ func TestConvertToPlural(t *testing.T) {
 		})
 	}
 }
+
+func TestNewPermission(t *testing.T) {
+	raw := map[string]interface{}{
+		"apiVersion": "apps/v1",
+		"kind":       "Deployment",
+		"metadata": map[string]interface{}{
+			"name":      "my-deploy",
+			"namespace": "default",
+		},
+	}
+	p := rbac_script.NewPermission(raw)
+	if p == nil {
+		t.Fatal("Expected non-nil Permission")
+	}
+
+	if p.Kind != "Deployment" {
+		t.Errorf("Expected kind=Deployment, got %s", p.Kind)
+	}
+	if p.Group != "apps" {
+		t.Errorf("Expected group=apps, got %s", p.Group)
+	}
+	if p.Version != "v1" {
+		t.Errorf("Expected version=v1, got %s", p.Version)
+	}
+	if p.Name != "my-deploy" {
+		t.Errorf("Expected name=my-deploy, got %s", p.Name)
+	}
+	if p.Namespace != "default" {
+		t.Errorf("Expected namespace=default, got %s", p.Namespace)
+	}
+}
+
+func TestPermission_RBACRule_NonRole(t *testing.T) {
+	raw := map[string]interface{}{
+		"apiVersion": "v1",
+		"kind":       "Pod",
+		"metadata": map[string]interface{}{
+			"name":      "my-pod",
+			"namespace": "default",
+		},
+	}
+	p := rbac_script.NewPermission(raw)
+	if p == nil {
+		t.Fatal("NewPermission returned nil")
+	}
+	rules := p.RBACRule()
+
+	if len(rules) != 1 {
+		t.Fatalf("Expected 1 RBAC rule, got %d", len(rules))
+	}
+
+	// The rule should have default verbs: get, list, watch, create, update, patch, delete
+	wantSubstr := "//+kubebuilder:rbac:groups=\"\",resources=Pods,namespace=default,verbs=create;delete;get;list;patch;update;watch"
+	if rules[0] != wantSubstr {
+		t.Errorf("Expected: %q\nGot:      %q", wantSubstr, rules[0])
+	}
+}

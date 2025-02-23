@@ -34,15 +34,15 @@ func AddStringUnique(slice []string, value string) []string {
 }
 
 type Permission struct {
-	apiVersion string
-	kind       string
-	group      string
-	version    string
-	resource   string
-	name       string
-	namespace  string
-	rules      []interface{}
-	verbs      map[string]bool
+	ApiVersion string
+	Kind       string
+	Group      string
+	Version    string
+	Resource   string
+	Name       string
+	Namespace  string
+	Rules      []interface{}
+	Verbs      map[string]bool
 }
 
 func NewPermission(raw map[string]interface{}) *Permission {
@@ -65,44 +65,44 @@ func NewPermission(raw map[string]interface{}) *Permission {
 	}
 
 	return &Permission{
-		apiVersion: apiVersion,
-		kind:       kind,
-		group:      gVer.Group,
-		version:    gVer.Version,
-		resource:   resourceName,
-		name:       name,
-		namespace:  namespace,
-		rules:      rules,
-		verbs:      map[string]bool{},
+		ApiVersion: apiVersion,
+		Kind:       kind,
+		Group:      gVer.Group,
+		Version:    gVer.Version,
+		Resource:   resourceName,
+		Name:       name,
+		Namespace:  namespace,
+		Rules:      rules,
+		Verbs:      map[string]bool{},
 	}
 }
 
 func (p Permission) isRole() bool {
-	return p.kind == "Role" || p.kind == "ClusterRole"
+	return p.Kind == "Role" || p.Kind == "ClusterRole"
 }
 
 func (p Permission) SetDefaultVerbs() {
 	for _, i := range defaultVerbs {
-		p.verbs[i] = true
+		p.Verbs[i] = true
 	}
 }
 
 func (p Permission) String() string {
-	return fmt.Sprintf("%s/%s/%s/%s/%s/%v", p.group, p.version, p.resource, p.namespace, p.name, p.verbs)
+	return fmt.Sprintf("%s/%s/%s/%s/%s/%v", p.Group, p.Version, p.Resource, p.Namespace, p.Name, p.Verbs)
 }
 
 func (p Permission) RBACRuleFromRole() []string {
-	if len(p.rules) == 0 {
+	if len(p.Rules) == 0 {
 		panic("No rules parsed on :" + p.String())
 	}
 	var ns string
-	if p.kind == "Role" && p.namespace != "" {
-		ns = fmt.Sprintf("namespace=%s,", p.namespace)
+	if p.Kind == "Role" && p.Namespace != "" {
+		ns = fmt.Sprintf("namespace=%s,", p.Namespace)
 	}
 
 	var ok bool
 	var rbacs []string
-	for _, rule := range p.rules {
+	for _, rule := range p.Rules {
 		var ruleMap map[string]interface{}
 		if ruleMap, ok = rule.(map[string]interface{}); !ok {
 			panic("Could not parse rule")
@@ -149,23 +149,23 @@ func (p Permission) RBACRule() []string {
 	}
 	p.SetDefaultVerbs()
 	verbs := []string{}
-	for v := range p.verbs {
+	for v := range p.Verbs {
 		verbs = append(verbs, v)
 	}
 	sort.Strings(verbs)
 	var ns string
-	if p.namespace != "" {
-		ns = fmt.Sprintf("namespace=%s,", p.namespace)
+	if p.Namespace != "" {
+		ns = fmt.Sprintf("namespace=%s,", p.Namespace)
 
 	}
 	var groupStr string
-	if p.group == "" {
+	if p.Group == "" {
 		groupStr = "\"\""
 	} else {
-		groupStr = p.group
+		groupStr = p.Group
 	}
 	s := fmt.Sprintf("//+kubebuilder:rbac:groups=%s,resources=%s,%sverbs=%s",
-		groupStr, p.resource, ns, strings.Join(verbs, ";"))
+		groupStr, p.Resource, ns, strings.Join(verbs, ";"))
 
 	return strings.Fields(s)
 }

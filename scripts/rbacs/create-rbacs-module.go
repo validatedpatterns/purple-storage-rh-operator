@@ -56,7 +56,7 @@ func NewPermission(raw map[string]interface{}) *Permission {
 	}
 	gVer, err := schema.ParseGroupVersion(apiVersion)
 	if err != nil {
-		return nil
+		panic("Could not parse group version")
 	}
 	resourceName := convertToPlural(kind)
 	rules, _, err := unstructured.NestedSlice(raw, "rules")

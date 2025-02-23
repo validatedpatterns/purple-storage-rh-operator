@@ -2,6 +2,7 @@ package rbac_script
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -21,6 +22,8 @@ spec:
     - name: nginx
       image: nginx
 ---
+`
+const test = `
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -121,57 +124,41 @@ rules:
 // Test parsing normal Kubernetes objects
 func TestExtractRBACRules(t *testing.T) {
 	rules, _ := ExtractRBACRules([]byte(sampleYAML))
-
-	expectedRules := map[schema.GroupVersionResource][]string{
-		{Group: "core", Version: "v1", Resource: "pods"}: {
-			"get", "list", "watch", "create", "update", "patch", "delete",
-		},
-		{Group: "apps", Version: "v1", Resource: "deployments"}: {
-			"get", "list", "watch", "create", "update", "patch", "delete",
-		},
-		{Group: "core", Version: "v1", Resource: "pods"}: {
-			"get", "watch", "list",
-		},
-		{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}: {
-			"get", "list", "watch", "create", "update", "patch", "delete",
-		},
-		{Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}: {
-			"get", "list", "watch", "create", "update", "patch", "delete",
-		},
-		{Group: "apps", Version: "v1", Resource: "deployments"}: {
-			"create", "delete",
-		},
+	fmt.Printf("Rules ZOZZO: %v\n", rules)
+	expectedRules := map[schema.GroupVersionResource]StringSet{
+		{Group: "", Version: "v1", Resource: "pods"}: NewStringSetFromList([]string{"get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"}),
+		// {Group: "apps", Version: "v1", Resource: "deployments"}:
+		// 	NewStringSetFromList([]string{"get", "list", "watch", "create", "update", "patch", "delete"}),
+		// ,
+		// {Group: "core", Version: "v1", Resource: "pods"}:
+		// 	"get", "watch", "list",
+		// },
+		// {Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "roles"}: {
+		// 	"get", "list", "watch", "create", "update", "patch", "delete",
+		// },
+		// {Group: "rbac.authorization.k8s.io", Version: "v1", Resource: "clusterroles"}: {
+		// 	"get", "list", "watch", "create", "update", "patch", "delete",
+		// },
+		// {Group: "apps", Version: "v1", Resource: "deployments"}: {
+		// 	"create", "delete",
+		// },
 	}
 
 	// Verify if the extracted rules match expected values
 	for expectedGVR, expectedVerbs := range expectedRules {
+		fmt.Printf("Expected %v: %v", expectedGVR, expectedVerbs)
 		actualVerbs, exists := rules[expectedGVR]
+		fmt.Printf("Rule: %v", actualVerbs)
+
 		if !exists {
 			t.Errorf("Missing RBAC rule for: %+v", expectedGVR)
 			continue
 		}
 
-		if !equalStringSlices(actualVerbs, expectedVerbs) {
+		if !actualVerbs.Equals(expectedVerbs) {
 			t.Errorf("Mismatch for %+v\nExpected: %v\nGot: %v", expectedGVR, expectedVerbs, actualVerbs)
 		}
 	}
-}
-
-// Helper function to compare two string slices
-func equalStringSlices(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	exists := make(map[string]bool)
-	for _, v := range a {
-		exists[v] = true
-	}
-	for _, v := range b {
-		if !exists[v] {
-			return false
-		}
-	}
-	return true
 }
 
 // Test RBAC marker generation

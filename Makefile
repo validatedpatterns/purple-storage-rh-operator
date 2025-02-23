@@ -350,6 +350,6 @@ fetchyaml: ## Fetches install yaml files
 
 .PHONY: rbacs-generates
 rbacs-generate: ## Generates RBACs and injects them in .go file
-	$(eval CMD_OUTPUT := $(shell go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml")
-	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/purpletorage_controller.go
-	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/purpletorage_controller.go <<< $(CMD_OUTPUT)
+	$(eval CMD_OUTPUT := $(shell go run scripts/create-rbacs.go "files/$(RBAC_VERSION)/install.yaml"))
+	sed -i '/IBM_RBAC_MARKER_START/,/IBM_RBAC_MARKER_END/{//!d}' internal/controller/purplestorage_controller.go
+	sed -i "/IBM_RBAC_MARKER_START/ r /dev/stdin" internal/controller/purplestorage_controller.go <<< $(CMD_OUTPUT)

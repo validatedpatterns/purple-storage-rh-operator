@@ -13,7 +13,7 @@ import (
 
 var defaultVerbs = []string{"get", "list", "watch", "create", "update", "patch", "delete"}
 
-func convertToPlural(kind string) string {
+func ConvertToPlural(kind string) string {
 	if kind == "" {
 		return kind
 	}
@@ -58,7 +58,7 @@ func NewPermission(raw map[string]interface{}) *Permission {
 	if err != nil {
 		panic("Could not parse group version")
 	}
-	resourceName := convertToPlural(kind)
+	resourceName := ConvertToPlural(kind)
 	rules, _, err := unstructured.NestedSlice(raw, "rules")
 	if err != nil {
 		panic("Could not parse rules")

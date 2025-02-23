@@ -345,5 +345,5 @@ fetchyaml: ## Fetches install yaml files
 
 .PHONY: rbacs-parse
 rbacs-parse: ## Builds and tests RBACs yaml parser program
-	go test  ./scripts/rbacs/*.go 2>&1
+	go test -v ./scripts/rbacs/*.go 2>&1
 	go build -o scripts/create-rbacs scripts/create-rbacs.go

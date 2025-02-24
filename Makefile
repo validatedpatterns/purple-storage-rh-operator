@@ -147,7 +147,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 .PHONY: clean
 clean: ## Remove build artifacts and downloaded tools
 	find bin/ -exec chmod +w "{}" \;
-	rm -rf ./manager ./bin/*
+	rm -rf ./manager ./bin/* ./cover.out
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.

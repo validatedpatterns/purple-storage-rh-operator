@@ -341,7 +341,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	if purplestorage.Spec.Cluster.Create {
 		// Create IBM storage cluster
-		cluster := NewSpectrumCluster()
+		cluster := NewSpectrumCluster(purplestorage.Spec.Cluster.Daemon_nodeSelector)
 		gvr = schema.GroupVersionResource{
 			Group:    "scale.spectrum.ibm.com",
 			Version:  "v1beta1",

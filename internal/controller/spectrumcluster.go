@@ -4,7 +4,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func NewSpectrumCluster() *unstructured.Unstructured {
+func NewSpectrumCluster(daemon_nodeSelector map[string]string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]any{
 			"apiVersion": "scale.spectrum.ibm.com/v1beta1",
@@ -15,9 +15,7 @@ func NewSpectrumCluster() *unstructured.Unstructured {
 			},
 			"spec": map[string]any{
 				"daemon": map[string]any{
-					"nodeSelector": map[string]any{
-						"node-role.kubernetes.io/worker": "",
-					},
+					"nodeSelector": daemon_nodeSelector,
 				},
 				"license": map[string]any{
 					"accept":  true,

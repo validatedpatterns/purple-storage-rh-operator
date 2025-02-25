@@ -10,6 +10,7 @@
   - For now we made the IBM Version immutable. Making it unmutable will depend on the upgrade story
 - Get to 100% unit testing
 - In the filesystem yaml can you pick disks via a label?
+- move the yaml resources to an external dir (assets) from golang code (better maintainability?) see https://github.com/openshift/local-storage-operator/blob/fac0f724c984f6d1ca3948236438244c6ce36915/pkg/controllers/localvolumediscovery/localvolumediscovery_controller.go#L159
 
 [DONE]
 - Rewrite create-rbacs.sh in golang and add some unit tests/validation as it will become more important in the future

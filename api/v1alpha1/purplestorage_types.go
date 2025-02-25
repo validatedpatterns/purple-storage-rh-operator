@@ -25,7 +25,8 @@ type MachineConfig struct {
 }
 type IBMSpectrumCluster struct {
 	// Boolean to create the CNSA cluster object
-	Create bool `json:"create,omitempty"`
+	Create              bool              `json:"create,omitempty"`
+	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
 }
 
 // PurpleStorageSpec defines the desired state of PurpleStorage

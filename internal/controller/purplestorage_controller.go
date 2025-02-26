@@ -274,33 +274,33 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
-	// Create machineconfig to enable kernel modules
-	//new_mc := NewMachineConfig(purplestorage.Spec.CustomMco.McoLabels)
-	new_mc := NewMachineConfig(map[string]string{})
-	gvr := schema.GroupVersionResource{
-		Group:    "machineconfiguration.openshift.io",
-		Version:  "v1",
-		Resource: "machineconfigs",
-	}
-
-	old_mc, err := r.dynamicClient.Resource(gvr).Get(ctx, new_mc.GetName(), metav1.GetOptions{})
-	if err != nil {
-		log.Log.Info("Creating machineconfig")
-		err = r.Client.Create(ctx, new_mc)
-		if err != nil {
-			return ctrl.Result{}, err
+	// Create machineconfig to enable kernel modules if needed
+	if purplestorage.Spec.MachineConfig.Create {
+		new_mc := NewMachineConfig(purplestorage.Spec.MachineConfig.Labels)
+		gvr := schema.GroupVersionResource{
+			Group:    "machineconfiguration.openshift.io",
+			Version:  "v1",
+			Resource: "machineconfigs",
 		}
-		log.Log.Info("Created machineconfig")
-	} else {
-		log.Log.Info("Updating machineconfig")
-		new_mc.SetResourceVersion(old_mc.GetResourceVersion())
-		err = r.Client.Update(ctx, new_mc)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Log.Info("Updated machineconfig")
-	}
 
+		old_mc, err := r.dynamicClient.Resource(gvr).Get(ctx, new_mc.GetName(), metav1.GetOptions{})
+		if err != nil {
+			log.Log.Info("Creating machineconfig")
+			err = r.Client.Create(ctx, new_mc)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Log.Info("Created machineconfig")
+		} else {
+			log.Log.Info("Updating machineconfig")
+			new_mc.SetResourceVersion(old_mc.GetResourceVersion())
+			err = r.Client.Update(ctx, new_mc)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Log.Info("Updated machineconfig")
+		}
+	}
 	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, strings.TrimSpace(pull))
 	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
@@ -332,7 +332,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	if purplestorage.Spec.Cluster.Create {
 		// Create IBM storage cluster
 		cluster := NewSpectrumCluster(purplestorage.Spec.Cluster.Daemon_nodeSelector)
-		gvr = schema.GroupVersionResource{
+		gvr := schema.GroupVersionResource{
 			Group:    "scale.spectrum.ibm.com",
 			Version:  "v1beta1",
 			Resource: "clusters",

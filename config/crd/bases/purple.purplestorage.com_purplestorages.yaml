@@ -42,23 +42,29 @@ spec:
               ibm_cnsa_cluster:
                 properties:
                   create:
+                    default: true
                     description: Boolean to create the CNSA cluster object
                     type: boolean
+                  daemon_nodeSelector:
+                    additionalProperties:
+                      type: string
+                    description: Nodes with this label will be part of the cluster,
+                      must have at least 3 nodes with this
+                    type: object
                 type: object
               ibm_cnsa_version:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 type: string
-              machineconfig:
+              mco_config:
+                description: MachineConfig labelling for the installation of kernel-devel
+                  package
                 properties:
-                  labels:
+                  mco_labels:
                     additionalProperties:
                       type: string
+                    description: Labels to be used for the machineconfigpool
                     type: object
                 type: object
-              pull_secret:
-                description: PullSecret is the secret that contains the credentials
-                  to pull the images from the Container Registry
-                type: string
             type: object
           status:
             description: PurpleStorageStatus defines the observed state of PurpleStorage

@@ -275,7 +275,8 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
 	// Create machineconfig to enable kernel modules
-	new_mc := NewMachineConfig(purplestorage.Spec.MachineConfig.Labels)
+	//new_mc := NewMachineConfig(purplestorage.Spec.CustomMco.McoLabels)
+	new_mc := NewMachineConfig(map[string]string{})
 	gvr := schema.GroupVersionResource{
 		Group:    "machineconfiguration.openshift.io",
 		Version:  "v1",

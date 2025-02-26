@@ -14,6 +14,30 @@ spec:
       displayName: Purple Storage
       kind: PurpleStorage
       name: purplestorages.purple.purplestorage.com
+      specDescriptors:
+      - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
+        displayName: Ibm Cnsa Version
+        path: ibm_cnsa_version
+      - description: MachineConfig labelling for the installation of kernel-devel
+          package
+        displayName: Machine Config
+        path: mcoconfig
+      - displayName: Cluster
+        path: ibm_cnsa_cluster
+      - description: Boolean to create the CNSA cluster object
+        displayName: Create
+        path: ibm_cnsa_cluster.create
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: Nodes with this label will be part of the cluster, must have
+          at least 3 nodes with this
+        displayName: Daemon Node Selector
+        path: ibm_cnsa_cluster.daemon_nodeSelector
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
+      - description: Labels to be used for the machineconfigpool
+        displayName: Mco Labels
+        path: mcoconfig.mco_labels
       version: v1alpha1
   description: Purple Storage Setup
   displayName: Purple Storage

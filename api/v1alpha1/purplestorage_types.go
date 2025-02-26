@@ -38,7 +38,7 @@ type MachineConfigLabels struct {
 	// Labels to be used for the machineconfigpool
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=7
 	McoLabels map[string]string `json:"mco_labels,omitempty"`
-	Test      string            `json:"test,omitempty"`
+	//Test      string            `json:"test,omitempty"`
 }
 
 type IBMSpectrumCluster struct {

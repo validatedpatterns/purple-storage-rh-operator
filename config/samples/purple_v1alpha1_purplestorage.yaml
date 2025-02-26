@@ -7,14 +7,10 @@ metadata:
   name: purplestorage-sample
 spec:
   ibm_cnsa_version: "v5.2.2.0"
-  machineconfig:
-    labels:
+  mco_config:
+    mco_labels:
       machineconfiguration.openshift.io/role: "worker"
-  pull_secret: ""
   ibm_cnsa_cluster:
     create: true
     daemon_nodeSelector:
       node-role.kubernetes.io/worker": "" # nodes with this label will be part of the cluster, must have at least 3 nodes with this
-
-
-  # TODO(user): Add fields here

@@ -27,7 +27,7 @@ type PurpleStorageSpec struct {
 	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
 	// MachineConfig labelling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2
-	MachineConfig MachineConfigLabels `json:"machineconfig,omitempty"`
+	MachineConfig MachineConfigLabels `json:"mcoconfig,omitempty"`
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
 	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
 }

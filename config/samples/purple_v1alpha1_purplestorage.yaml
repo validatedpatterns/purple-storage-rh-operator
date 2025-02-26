@@ -1,9 +1,6 @@
 apiVersion: purple.purplestorage.com/v1alpha1
 kind: PurpleStorage
 metadata:
-  labels:
-    app.kubernetes.io/name: purple-storage-rh-operator
-    app.kubernetes.io/managed-by: kustomize
   name: purplestorage-sample
 spec:
   ibm_cnsa_version: "v5.2.2.0"

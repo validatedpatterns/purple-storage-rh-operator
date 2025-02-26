@@ -20,23 +20,29 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type MachineConfig struct {
-	Labels map[string]string `json:"labels,omitempty"`
-}
-type IBMSpectrumCluster struct {
-	// Boolean to create the CNSA cluster object
-	Create              bool              `json:"create,omitempty"`
-	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
-}
-
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
 	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
-	IbmCnsaVersion string        `json:"ibm_cnsa_version,omitempty"`
-	MachineConfig  MachineConfig `json:"machineconfig,omitempty"`
-	// PullSecret is the secret that contains the credentials to pull the images from the Container Registry
-	PullSecret string             `json:"pull_secret,omitempty"`
-	Cluster    IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
+	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2
+	MachineConfig MachineConfig `json:"machineconfig,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
+	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
+}
+
+type IBMSpectrumCluster struct {
+	// Boolean to create the CNSA cluster object
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
+	// +kubebuilder:default:=true
+	Create bool `json:"create,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5
+	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
+}
+
+type MachineConfig struct {
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6
+	Labels map[string]string `json:"mco_labels,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

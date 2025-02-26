@@ -31,21 +31,23 @@ type PurpleStorageSpec struct {
 
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
 	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4
+	YoMama map[string]string `json:"mcoyomama,omitempty"`
 }
 
 type MachineConfigLabels struct {
 	// Labels to be used for the machineconfigpool
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=7
 	McoLabels map[string]string `json:"mco_labels,omitempty"`
 }
 
 type IBMSpectrumCluster struct {
 	// Boolean to create the CNSA cluster object
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=4,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:booleanSwitch"}
 	// +kubebuilder:default:=true
 	Create bool `json:"create,omitempty"`
 	// Nodes with this label will be part of the cluster, must have at least 3 nodes with this
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true"}
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true"}
 	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
 }
 

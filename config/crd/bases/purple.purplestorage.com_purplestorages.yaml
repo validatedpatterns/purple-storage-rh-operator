@@ -59,7 +59,11 @@ spec:
                 description: MachineConfig labelling for the installation of kernel-devel
                   package
                 properties:
-                  mco_labels:
+                  create:
+                    default: true
+                    description: Boolean to create the MachinConfig objects
+                    type: boolean
+                  labels:
                     additionalProperties:
                       type: string
                     description: Labels to be used for the machineconfigpool

@@ -17,13 +17,23 @@ spec:
       specDescriptors:
       - description: MachineConfig labelling for the installation of kernel-devel
           package
-        displayName: Custom Mco
+        displayName: Machine Config
         path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
       - displayName: Cluster
         path: ibm_cnsa_cluster
+      - description: Boolean to create the MachinConfig objects
+        displayName: Create
+        path: mco_config.create
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: Labels to be used for the machineconfigpool
+        displayName: Labels
+        path: mco_config.labels
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true
       - description: Boolean to create the CNSA cluster object
         displayName: Create
         path: ibm_cnsa_cluster.create
@@ -35,9 +45,6 @@ spec:
         path: ibm_cnsa_cluster.daemon_nodeSelector
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
-      - description: Labels to be used for the machineconfigpool
-        displayName: Mco Labels
-        path: mco_config.mco_labels
       version: v1alpha1
   description: Purple Storage Setup
   displayName: Purple Storage

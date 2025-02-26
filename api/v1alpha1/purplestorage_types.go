@@ -25,7 +25,7 @@ type PurpleStorageSpec struct {
 	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
-	// MachineConfig for the installation of kernel-devel package
+	// MachineConfig labelling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2
 	MachineConfig MachineConfigLabels `json:"machineconfig,omitempty"`
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
@@ -45,7 +45,7 @@ type IBMSpectrumCluster struct {
 type MachineConfigLabels struct {
 	// Labels to be used for the machineconfigpool
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6
-	Labels map[string]string `json:"mco_labels,omitempty"`
+	McoLabels map[string]string `json:"mco_labels,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

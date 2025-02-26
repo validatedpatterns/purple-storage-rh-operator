@@ -300,18 +300,7 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		log.Log.Info("Updated machineconfig")
 	}
 
-	var pullString string
-	// If the user defined a pull secret in the CR, use that, otherwise use the one from the build
-	if purplestorage.Spec.PullSecret != "" {
-		pullString = strings.TrimSpace(purplestorage.Spec.PullSecret)
-	} else {
-		if pull != "" {
-			log.Log.Info("Pull txt was present in the build")
-		}
-		pullString = strings.TrimSpace(pull)
-	}
-
-	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, pullString)
+	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, strings.TrimSpace(pull))
 	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{
 		".dockerconfigjson": []byte(secretstring),

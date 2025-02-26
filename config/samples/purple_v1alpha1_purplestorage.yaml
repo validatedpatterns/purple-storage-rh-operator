@@ -5,10 +5,12 @@ metadata:
 spec:
   ibm_cnsa_version: "v5.2.2.0"
   mco_config:
-    mco_labels:
-      machineconfiguration.openshift.io/role: "worker"
+    test: fuck
+    #mco_labels:
+    #  machineconfiguration.openshift.io/role: "worker"
   ibm_cnsa_cluster:
     create: true
-    mcoyomama: testme
+    mcoyomama: 
+      testme: whatever
     daemon_nodeSelector:
       node-role.kubernetes.io/worker: "" # nodes with this label will be part of the cluster, must have at least 3 nodes with this

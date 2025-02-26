@@ -6,8 +6,8 @@ spec:
   ibm_cnsa_version: "v5.2.2.0"
   mco_config:
     test: fuck
-    #mco_labels:
-    #  machineconfiguration.openshift.io/role: "worker"
+    mco_labels:
+      machineconfiguration.openshift.io/role: "worker"
   ibm_cnsa_cluster:
     create: true
     mcoyomama: 

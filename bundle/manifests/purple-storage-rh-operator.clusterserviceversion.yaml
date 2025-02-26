@@ -27,7 +27,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-02-26T08:48:40Z"
+    createdAt: "2025-02-26T08:50:24Z"
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: purple-storage-rh-operator.v0.0.2
@@ -41,13 +41,13 @@ spec:
       kind: PurpleStorage
       name: purplestorages.purple.purplestorage.com
       specDescriptors:
+      - description: MachineConfig labelling for the installation of kernel-devel
+          package
+        displayName: Custom Mco
+        path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
-      - description: MachineConfig labelling for the installation of kernel-devel
-          package
-        displayName: Machine Config
-        path: mcoconfig
       - displayName: Cluster
         path: ibm_cnsa_cluster
       - description: Boolean to create the CNSA cluster object
@@ -63,7 +63,7 @@ spec:
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
       - description: Labels to be used for the machineconfigpool
         displayName: Mco Labels
-        path: mcoconfig.mco_labels
+        path: mco_config.mco_labels
       version: v1alpha1
   description: Purple Storage Setup
   displayName: Purple Storage

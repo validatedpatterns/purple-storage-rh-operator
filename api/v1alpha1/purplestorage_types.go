@@ -22,14 +22,21 @@ import (
 
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
-	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
-	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
 	// MachineConfig labelling for the installation of kernel-devel package
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
+	CustomMco MachineConfigLabels `json:"mco_config,omitempty"`
+	// Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=2
-	MachineConfig MachineConfigLabels `json:"mcoconfig,omitempty"`
+	IbmCnsaVersion string `json:"ibm_cnsa_version,omitempty"`
+
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=3
 	Cluster IBMSpectrumCluster `json:"ibm_cnsa_cluster,omitempty"`
+}
+
+type MachineConfigLabels struct {
+	// Labels to be used for the machineconfigpool
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6
+	McoLabels map[string]string `json:"mco_labels,omitempty"`
 }
 
 type IBMSpectrumCluster struct {
@@ -40,12 +47,6 @@ type IBMSpectrumCluster struct {
 	// Nodes with this label will be part of the cluster, must have at least 3 nodes with this
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=5,xDescriptors={"urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true"}
 	Daemon_nodeSelector map[string]string `json:"daemon_nodeSelector,omitempty"`
-}
-
-type MachineConfigLabels struct {
-	// Labels to be used for the machineconfigpool
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=6
-	McoLabels map[string]string `json:"mco_labels,omitempty"`
 }
 
 // PurpleStorageStatus defines the observed state of PurpleStorage

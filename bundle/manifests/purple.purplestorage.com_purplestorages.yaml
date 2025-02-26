@@ -65,7 +65,7 @@ spec:
               ibm_cnsa_version:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 type: string
-              mcoconfig:
+              mco_config:
                 description: MachineConfig labelling for the installation of kernel-devel
                   package
                 properties:

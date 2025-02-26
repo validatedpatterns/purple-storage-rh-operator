@@ -14,12 +14,13 @@ metadata:
             "ibm_cnsa_cluster": {
               "create": true,
               "daemon_nodeSelector": {
-                "node-role.kubernetes.io/worker\"": ""
+                "node-role.kubernetes.io/worker": ""
               }
             },
             "ibm_cnsa_version": "v5.2.2.0",
             "mco_config": {
-              "mco_labels": {
+              "create": true,
+              "labels": {
                 "machineconfiguration.openshift.io/role": "worker"
               }
             }
@@ -27,10 +28,10 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-02-26T08:50:24Z"
+    createdAt: "2025-02-26T09:29:58Z"
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: purple-storage-rh-operator.v0.0.2
+  name: purple-storage-rh-operator.v0.0.3
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -43,13 +44,23 @@ spec:
       specDescriptors:
       - description: MachineConfig labelling for the installation of kernel-devel
           package
-        displayName: Custom Mco
+        displayName: Machine Config
         path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
         displayName: Ibm Cnsa Version
         path: ibm_cnsa_version
       - displayName: Cluster
         path: ibm_cnsa_cluster
+      - description: Boolean to create the MachinConfig objects
+        displayName: Create
+        path: mco_config.create
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: Labels to be used for the machineconfigpool
+        displayName: Labels
+        path: mco_config.labels
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:fieldDependency:mco_config.create:true
       - description: Boolean to create the CNSA cluster object
         displayName: Create
         path: ibm_cnsa_cluster.create
@@ -61,9 +72,6 @@ spec:
         path: ibm_cnsa_cluster.daemon_nodeSelector
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:fieldDependency:ibm_cnsa_cluster.create:true
-      - description: Labels to be used for the machineconfigpool
-        displayName: Mco Labels
-        path: mco_config.mco_labels
       version: v1alpha1
   description: Purple Storage Setup
   displayName: Purple Storage
@@ -1397,7 +1405,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/hybridcloudpatterns/purple-storage-rh-operator:0.0.2
+                image: quay.io/hybridcloudpatterns/purple-storage-rh-operator:0.0.3
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1523,7 +1531,7 @@ spec:
   minKubeVersion: 1.23.0
   provider:
     name: Purple Team
-  version: 0.0.2
+  version: 0.0.3
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

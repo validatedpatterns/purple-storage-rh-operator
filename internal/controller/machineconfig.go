@@ -80,12 +80,27 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 		return fmt.Errorf("failed to parse MCP conditions: %w", err)
 	}
 
+	machineCountsMatch, countMsg, err := doMachineCountsMatch(mcp)
+	if err != nil {
+		return fmt.Errorf("failed to parse machine counts: %w", err)
+	}
+
+	// 3. Are both conditions satisfied?
+	if updated && machineCountsMatch {
+		fmt.Printf("MachineConfigPool %q is complete:\n  - Updated=True\n  - %s\n", mcpName, countMsg)
+		return nil
+	}
+
+	// Log partial progress
+	fmt.Printf("MachineConfigPool %q not ready yet:\n  - Updated=%v (reason: %s)\n  - %s\n",
+		mcpName, updated, reason, countMsg)
+
 	if updated {
 		fmt.Printf("MachineConfigPool %q has completed (Updated=True)\n", mcpName)
 		return nil
 	}
 
-	return fmt.Errorf("MachineConfigPool %q not updated yet. Reason: %s\n", mcpName, reason)
+	return fmt.Errorf("MachineConfigPool %q not updated yet. Reason: %s", mcpName, reason)
 }
 
 // FIXME(bandini): For now we check for the conditions and if one is of type Updated and status True we return true.
@@ -145,4 +160,61 @@ func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (bool, string, 
 
 	// Not updated yet
 	return false, "Updated=False", nil
+}
+
+// doMachineCountsMatch checks that machineCount == readyMachineCount == updatedMachineCount
+func doMachineCountsMatch(mcp *unstructured.Unstructured) (bool, string, error) {
+	var (
+		machineCount        int64
+		readyMachineCount   int64
+		updatedMachineCount int64
+	)
+
+	// Extract each count field from status
+	mCount, found, err := unstructured.NestedInt64(mcp.Object, "status", "machineCount")
+	if err != nil {
+		return false, "", err
+	}
+	if found {
+		machineCount = mCount
+	} else {
+		// Not found—some clusters may have slightly different field names
+		return false, "status.machineCount not found", nil
+	}
+
+	rCount, found, err := unstructured.NestedInt64(mcp.Object, "status", "readyMachineCount")
+	if err != nil {
+		return false, "", err
+	}
+	if found {
+		readyMachineCount = rCount
+	} else {
+		return false, "status.readyMachineCount not found", nil
+	}
+
+	uCount, found, err := unstructured.NestedInt64(mcp.Object, "status", "updatedMachineCount")
+	if err != nil {
+		return false, "", err
+	}
+	if found {
+		updatedMachineCount = uCount
+	} else {
+		return false, "status.updatedMachineCount not found", nil
+	}
+
+	// Compare
+	if machineCount == readyMachineCount && machineCount == updatedMachineCount {
+		msg := fmt.Sprintf(
+			"machineCount == readyMachineCount == updatedMachineCount == %d",
+			machineCount,
+		)
+		return true, msg, nil
+	}
+
+	// Construct a message with the mismatch
+	msg := fmt.Sprintf(
+		"counts mismatch: machineCount=%d, readyMachineCount=%d, updatedMachineCount=%d",
+		machineCount, readyMachineCount, updatedMachineCount,
+	)
+	return false, msg, nil
 }

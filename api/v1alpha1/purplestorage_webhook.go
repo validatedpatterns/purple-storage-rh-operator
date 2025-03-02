@@ -97,9 +97,12 @@ func (r *PurpleStorageValidator) ValidateCreate(ctx context.Context, obj runtime
 		return nil, fmt.Errorf("failed to get current cluster version: %v", err)
 	}
 	if !utils.IsOpenShiftSupported(p.Spec.IbmCnsaVersion, *ocpVersion) {
-		return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
+		// FIXME(bandini): we currently only log this so QE can test on upcoming versions that are not yet supported by IBM
+		purplestoragelog.Info("IBM CNSA version not supported", "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
+		//return nil, fmt.Errorf("IBM CNSA version %s is not supported", ocpVersion)
+	} else {
+		purplestoragelog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 	}
-	purplestoragelog.Info("validate create", "name", p.Name, "OCP Version", ocpVersion, "IBM CNSA Version", p.Spec.IbmCnsaVersion)
 	return nil, nil
 }
 

@@ -104,7 +104,9 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 }
 
 // FIXME(bandini): For now we check for the conditions and if one is of type Updated and status True we return true.
-// Maybe we should actually check that machineCount == readyMachineCount == updatedMachineCount ?
+// And we also check that machineCount == readyMachineCount == updatedMachineCount. We will need to make sure that this is
+// the correct way to check for the MCP to be updated. Also there might be a small race window still where the MCP is showing
+// update because it has not yet started. If we create the spectrum cluster before that we might hit the race again
 // conditions:
 //   - lastTransitionTime: "2025-03-01T11:31:08Z"
 //     message: ""

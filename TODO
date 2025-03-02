@@ -12,6 +12,7 @@
 - In the filesystem yaml can you pick disks via a label?
 - move the yaml resources to an external dir (assets) from golang code (better maintainability?) see https://github.com/openshift/local-storage-operator/blob/fac0f724c984f6d1ca3948236438244c6ce36915/pkg/controllers/localvolumediscovery/localvolumediscovery_controller.go#L159
 - For now we wait for the "worker" mcp to return a condition type updated and status frue. Because otherwise the IBM cluster deployments starts pods that the MCP is unable to evict and everything gets stuck. We need to make sure this is the proper approach (barring the long-term KMM solution to avoid having MachineConfigs in the first place)
+- Log the list of supported IBM spectrum versions at startup
 
 [DONE]
 - Rewrite create-rbacs.sh in golang and add some unit tests/validation as it will become more important in the future

@@ -135,7 +135,7 @@ func WaitForMachineConfigPoolUpdated(ctx context.Context, client dynamic.Interfa
 //     type: Updating
 //
 // isMachineConfigPoolUpdated checks the MCP's status conditions to see if it has Updated=True
-func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (bool, string, error) {
+func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (updating bool, reason string, err error) {
 	conditions, found, err := unstructured.NestedSlice(mcp.Object, "status", "conditions")
 	if err != nil {
 		return false, "", err
@@ -146,7 +146,7 @@ func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (bool, string, 
 
 	// Parse each condition and see if type=Updated with status=True
 	for _, c := range conditions {
-		cond, ok := c.(map[string]interface{})
+		cond, ok := c.(map[string]any)
 		if !ok {
 			return false, "", errors.New("condition is not in expected map format")
 		}
@@ -165,7 +165,7 @@ func isMachineConfigPoolUpdating(mcp *unstructured.Unstructured) (bool, string, 
 }
 
 // doMachineCountsMatch checks that machineCount == readyMachineCount == updatedMachineCount
-func doMachineCountsMatch(mcp *unstructured.Unstructured) (bool, string, error) {
+func doMachineCountsMatch(mcp *unstructured.Unstructured) (countsMatch bool, reason string, err error) {
 	var (
 		machineCount        int64
 		readyMachineCount   int64
@@ -205,7 +205,7 @@ func doMachineCountsMatch(mcp *unstructured.Unstructured) (bool, string, error) 
 	}
 
 	// Compare
-	if machineCount == readyMachineCount && machineCount == updatedMachineCount {
+	if machineCount == readyMachineCount && readyMachineCount == updatedMachineCount {
 		msg := fmt.Sprintf(
 			"machineCount == readyMachineCount == updatedMachineCount == %d",
 			machineCount,

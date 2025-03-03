@@ -22,7 +22,7 @@ import (
 
 // PurpleStorageSpec defines the desired state of PurpleStorage
 type PurpleStorageSpec struct {
-	// MachineConfig labelling for the installation of kernel-devel package
+	// MachineConfig labeling for the installation of kernel-devel package
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	MachineConfig MachineConfig `json:"mco_config,omitempty"`
 

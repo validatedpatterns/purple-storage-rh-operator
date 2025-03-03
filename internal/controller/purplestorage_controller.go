@@ -300,11 +300,12 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			}
 			log.Log.Info("Updated machineconfig")
 		}
+		err = WaitForMachineConfigPoolUpdated(ctx, r.dynamicClient, "worker")
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 	}
-	err = WaitForMachineConfigPoolUpdated(ctx, r.dynamicClient, "worker")
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+
 	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, strings.TrimSpace(pull))
 	// Create secrets in IBM namespaces to pull images from quay
 	secretData := map[string][]byte{

@@ -118,8 +118,8 @@ type Informer interface {
 	// This function is guaranteed to be idempotent and thread-safe.
 	RemoveEventHandler(handle toolscache.ResourceEventHandlerRegistration) error
 
-	// AddIndexers adds indexers to this store. It is valid to add indexers
-	// after an informer was started.
+	// AddIndexers adds indexers to this store. If this is called after there is already data
+	// in the store, the results are undefined.
 	AddIndexers(indexers toolscache.Indexers) error
 
 	// HasSynced return true if the informers underlying store has synced.
@@ -223,6 +223,7 @@ type Options struct {
 	// DefaultNamespaces.
 	DefaultUnsafeDisableDeepCopy *bool
 
+<<<<<<< HEAD
 	// DefaultEnableWatchBookmarks requests watch events with type "BOOKMARK".
 	// Servers that do not implement bookmarks may ignore this flag and
 	// bookmarks are sent at the server's discretion. Clients should not
@@ -235,6 +236,8 @@ type Options struct {
 	// Defaults to true.
 	DefaultEnableWatchBookmarks *bool
 
+=======
+>>>>>>> 9f3cc0db0 (Add vendoring)
 	// ByObject restricts the cache's ListWatch to the desired fields per GVK at the specified object.
 	// If unset, this will fall through to the Default* settings.
 	ByObject map[client.Object]ByObject
@@ -286,6 +289,7 @@ type ByObject struct {
 	// Be very careful with this, when enabled you must DeepCopy any object before mutating it,
 	// otherwise you will mutate the object in the cache.
 	UnsafeDisableDeepCopy *bool
+<<<<<<< HEAD
 
 	// EnableWatchBookmarks requests watch events with type "BOOKMARK".
 	// Servers that do not implement bookmarks may ignore this flag and
@@ -295,6 +299,8 @@ type ByObject struct {
 	//
 	// Defaults to true.
 	EnableWatchBookmarks *bool
+=======
+>>>>>>> 9f3cc0db0 (Add vendoring)
 }
 
 // Config describes all potential options for a given watch.
@@ -321,6 +327,7 @@ type Config struct {
 	// UnsafeDisableDeepCopy specifies if List and Get requests against the
 	// cache should not DeepCopy. A nil value allows to default this.
 	UnsafeDisableDeepCopy *bool
+<<<<<<< HEAD
 
 	// EnableWatchBookmarks requests watch events with type "BOOKMARK".
 	// Servers that do not implement bookmarks may ignore this flag and
@@ -330,6 +337,8 @@ type Config struct {
 	//
 	// Defaults to true.
 	EnableWatchBookmarks *bool
+=======
+>>>>>>> 9f3cc0db0 (Add vendoring)
 }
 
 // NewCacheFunc - Function for creating a new cache from the options and a rest config.
@@ -399,7 +408,6 @@ func optionDefaultsToConfig(opts *Options) Config {
 		FieldSelector:         opts.DefaultFieldSelector,
 		Transform:             opts.DefaultTransform,
 		UnsafeDisableDeepCopy: opts.DefaultUnsafeDisableDeepCopy,
-		EnableWatchBookmarks:  opts.DefaultEnableWatchBookmarks,
 	}
 }
 
@@ -409,7 +417,6 @@ func byObjectToConfig(byObject ByObject) Config {
 		FieldSelector:         byObject.Field,
 		Transform:             byObject.Transform,
 		UnsafeDisableDeepCopy: byObject.UnsafeDisableDeepCopy,
-		EnableWatchBookmarks:  byObject.EnableWatchBookmarks,
 	}
 }
 
@@ -432,8 +439,12 @@ func newCache(restConfig *rest.Config, opts Options) newCacheFunc {
 				Transform:             config.Transform,
 				WatchErrorHandler:     opts.DefaultWatchErrorHandler,
 				UnsafeDisableDeepCopy: ptr.Deref(config.UnsafeDisableDeepCopy, false),
+<<<<<<< HEAD
 				EnableWatchBookmarks:  ptr.Deref(config.EnableWatchBookmarks, true),
 				NewInformer:           opts.NewInformer,
+=======
+				NewInformer:           opts.newInformer,
+>>>>>>> 9f3cc0db0 (Add vendoring)
 			}),
 			readerFailOnMissingInformer: opts.ReaderFailOnMissingInformer,
 		}
@@ -520,7 +531,6 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 			byObject.Field = defaultedConfig.FieldSelector
 			byObject.Transform = defaultedConfig.Transform
 			byObject.UnsafeDisableDeepCopy = defaultedConfig.UnsafeDisableDeepCopy
-			byObject.EnableWatchBookmarks = defaultedConfig.EnableWatchBookmarks
 		}
 
 		opts.ByObject[obj] = byObject
@@ -562,9 +572,7 @@ func defaultConfig(toDefault, defaultFrom Config) Config {
 	if toDefault.UnsafeDisableDeepCopy == nil {
 		toDefault.UnsafeDisableDeepCopy = defaultFrom.UnsafeDisableDeepCopy
 	}
-	if toDefault.EnableWatchBookmarks == nil {
-		toDefault.EnableWatchBookmarks = defaultFrom.EnableWatchBookmarks
-	}
+
 	return toDefault
 }
 

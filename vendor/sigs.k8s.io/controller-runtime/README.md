@@ -40,6 +40,7 @@ Contributors:
   * [Documentation Changes](/.github/PULL_REQUEST_TEMPLATE/docs.md)
   * [Test/Build/Other Changes](/.github/PULL_REQUEST_TEMPLATE/other.md)
 
+<<<<<<< HEAD
 ## Compatibility
 
 Every minor version of controller-runtime has been tested with a specific minor version of client-go. A controller-runtime minor version *may* be compatible with
@@ -60,6 +61,8 @@ Compatible k8s.io/*, client-go and minimum Go versions can be looked up in our [
 | CR v0.16 |        v0.28        |        1.20        |
 | CR v0.15 |        v0.27        |        1.20        |
 
+=======
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## FAQ
 
 See [FAQ.md](FAQ.md)
@@ -77,7 +80,6 @@ You can reach the maintainers of this project at:
 - Google Group: [kubebuilder@googlegroups.com](https://groups.google.com/forum/#!forum/kubebuilder)
 
 ## Contributing
-
 Contributions are greatly appreciated. The maintainers actively manage the issues list, and try to highlight issues suitable for newcomers.
 The project follows the typical GitHub pull request model. See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 Before starting any work, please either comment on an existing issue, or file a new one.

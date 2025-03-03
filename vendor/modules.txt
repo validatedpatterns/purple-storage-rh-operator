@@ -224,7 +224,16 @@ github.com/onsi/gomega/matchers/support/goraph/edge
 github.com/onsi/gomega/matchers/support/goraph/node
 github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
+<<<<<<< HEAD
 # github.com/openshift/api v0.0.0-20240821141839-566edf361acd
+=======
+# github.com/opencontainers/selinux v1.11.0
+## explicit; go 1.19
+github.com/opencontainers/selinux/go-selinux
+github.com/opencontainers/selinux/go-selinux/label
+github.com/opencontainers/selinux/pkg/pwalkdir
+# github.com/openshift/api v0.0.0-20240710000542-465787efd0d6
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## explicit; go 1.22.0
 github.com/openshift/api/config/v1
 github.com/openshift/api/config/v1alpha1
@@ -426,7 +435,11 @@ gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+<<<<<<< HEAD
 # k8s.io/api v0.32.1 => k8s.io/api v0.30.10
+=======
+# k8s.io/api v0.31.0 => k8s.io/api v0.30.10
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## explicit; go 1.22.0
 k8s.io/api/admission/v1
 k8s.io/api/admission/v1beta1
@@ -484,7 +497,11 @@ k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
 k8s.io/api/storagemigration/v1alpha1
+<<<<<<< HEAD
 # k8s.io/apiextensions-apiserver v0.32.1 => k8s.io/apiextensions-apiserver v0.30.10
+=======
+# k8s.io/apiextensions-apiserver v0.31.0 => k8s.io/apiextensions-apiserver v0.30.10
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## explicit; go 1.22.0
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
@@ -502,7 +519,12 @@ k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/apiextensio
 k8s.io/apiextensions-apiserver/pkg/client/informers/externalversions/internalinterfaces
 k8s.io/apiextensions-apiserver/pkg/client/listers/apiextensions/v1
 k8s.io/apiextensions-apiserver/pkg/client/listers/apiextensions/v1beta1
+<<<<<<< HEAD
 # k8s.io/apimachinery v0.32.1 => k8s.io/apimachinery v0.30.10
+=======
+k8s.io/apiextensions-apiserver/pkg/features
+# k8s.io/apimachinery v0.31.0 => k8s.io/apimachinery v0.30.10
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## explicit; go 1.22.0
 k8s.io/apimachinery/pkg/api/equality
 k8s.io/apimachinery/pkg/api/errors
@@ -554,6 +576,13 @@ k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
+<<<<<<< HEAD
+=======
+# k8s.io/apiserver v0.31.2 => k8s.io/apiserver v0.30.10
+## explicit; go 1.22.0
+k8s.io/apiserver/pkg/features
+k8s.io/apiserver/pkg/util/feature
+>>>>>>> 9f3cc0db0 (Add vendoring)
 # k8s.io/client-go v12.0.0+incompatible => k8s.io/client-go v0.30.10
 ## explicit; go 1.22.0
 k8s.io/client-go/applyconfigurations/admissionregistration/v1
@@ -816,6 +845,25 @@ k8s.io/client-go/util/homedir
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
+<<<<<<< HEAD
+=======
+# k8s.io/cloud-provider v0.27.16 => k8s.io/cloud-provider v0.30.10
+## explicit; go 1.22.0
+k8s.io/cloud-provider
+# k8s.io/component-base v0.31.2 => k8s.io/component-base v0.30.10
+## explicit; go 1.22.0
+k8s.io/component-base/featuregate
+k8s.io/component-base/metrics
+k8s.io/component-base/metrics/legacyregistry
+k8s.io/component-base/metrics/prometheus/feature
+k8s.io/component-base/metrics/prometheusextension
+k8s.io/component-base/version
+# k8s.io/component-helpers v0.31.2 => k8s.io/component-helpers v0.30.10
+## explicit; go 1.22.0
+k8s.io/component-helpers/scheduling/corev1
+k8s.io/component-helpers/scheduling/corev1/nodeaffinity
+k8s.io/component-helpers/storage/volume
+>>>>>>> 9f3cc0db0 (Add vendoring)
 # k8s.io/klog/v2 v2.130.1
 ## explicit; go 1.18
 k8s.io/klog/v2
@@ -836,7 +884,35 @@ k8s.io/kube-openapi/pkg/schemaconv
 k8s.io/kube-openapi/pkg/spec3
 k8s.io/kube-openapi/pkg/util/proto
 k8s.io/kube-openapi/pkg/validation/spec
+<<<<<<< HEAD
 # k8s.io/utils v0.0.0-20241210054802-24370beab758
+=======
+# k8s.io/kubernetes v1.30.2
+## explicit; go 1.22.0
+k8s.io/kubernetes/pkg/api/legacyscheme
+k8s.io/kubernetes/pkg/api/v1/pod
+k8s.io/kubernetes/pkg/apis/core
+k8s.io/kubernetes/pkg/apis/core/helper
+k8s.io/kubernetes/pkg/apis/core/v1/helper
+k8s.io/kubernetes/pkg/features
+k8s.io/kubernetes/pkg/kubelet/server/metrics
+k8s.io/kubernetes/pkg/securitycontext
+k8s.io/kubernetes/pkg/util/filesystem
+k8s.io/kubernetes/pkg/volume
+k8s.io/kubernetes/pkg/volume/util
+k8s.io/kubernetes/pkg/volume/util/fs
+k8s.io/kubernetes/pkg/volume/util/fsquota
+k8s.io/kubernetes/pkg/volume/util/fsquota/common
+k8s.io/kubernetes/pkg/volume/util/hostutil
+k8s.io/kubernetes/pkg/volume/util/recyclerclient
+k8s.io/kubernetes/pkg/volume/util/subpath
+k8s.io/kubernetes/pkg/volume/util/types
+k8s.io/kubernetes/pkg/volume/util/volumepathhandler
+# k8s.io/mount-utils v0.30.2 => k8s.io/mount-utils v0.30.10
+## explicit; go 1.22.0
+k8s.io/mount-utils
+# k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
+>>>>>>> 9f3cc0db0 (Add vendoring)
 ## explicit; go 1.18
 k8s.io/utils/buffer
 k8s.io/utils/clock
@@ -847,8 +923,13 @@ k8s.io/utils/pointer
 k8s.io/utils/ptr
 k8s.io/utils/strings/slices
 k8s.io/utils/trace
+<<<<<<< HEAD
 # sigs.k8s.io/controller-runtime v0.20.1
 ## explicit; go 1.23.0
+=======
+# sigs.k8s.io/controller-runtime v0.18.7
+## explicit; go 1.22.0
+>>>>>>> 9f3cc0db0 (Add vendoring)
 sigs.k8s.io/controller-runtime
 sigs.k8s.io/controller-runtime/pkg/builder
 sigs.k8s.io/controller-runtime/pkg/cache
@@ -890,13 +971,13 @@ sigs.k8s.io/controller-runtime/pkg/manager/signals
 sigs.k8s.io/controller-runtime/pkg/metrics
 sigs.k8s.io/controller-runtime/pkg/metrics/server
 sigs.k8s.io/controller-runtime/pkg/predicate
+sigs.k8s.io/controller-runtime/pkg/ratelimiter
 sigs.k8s.io/controller-runtime/pkg/reconcile
 sigs.k8s.io/controller-runtime/pkg/recorder
 sigs.k8s.io/controller-runtime/pkg/scheme
 sigs.k8s.io/controller-runtime/pkg/source
 sigs.k8s.io/controller-runtime/pkg/webhook
 sigs.k8s.io/controller-runtime/pkg/webhook/admission
-sigs.k8s.io/controller-runtime/pkg/webhook/admission/metrics
 sigs.k8s.io/controller-runtime/pkg/webhook/conversion
 sigs.k8s.io/controller-runtime/pkg/webhook/internal/metrics
 # sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8

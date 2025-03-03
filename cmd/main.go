@@ -138,6 +138,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&lvdcontroller.LocalVolumeDiscoveryReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create LocalVolumeDiscovery controller")
+		os.Exit(1)
+	}
+	if err = (&nodedaemoncontroller.DaemonReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create NodeDaemon controller")
+		os.Exit(1)
+	}
+
 	if err = (&controller.PurpleStorageReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),

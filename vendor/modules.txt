@@ -74,11 +74,11 @@ github.com/coreos/vcontext/validate
 # github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/emicklei/go-restful/v3 v3.11.0
+# github.com/emicklei/go-restful/v3 v3.12.1
 ## explicit; go 1.13
 github.com/emicklei/go-restful/v3
 github.com/emicklei/go-restful/v3/log
-# github.com/evanphx/json-patch v4.12.0+incompatible
+# github.com/evanphx/json-patch v5.8.1+incompatible
 ## explicit
 # github.com/evanphx/json-patch/v5 v5.9.0
 ## explicit; go 1.18
@@ -104,8 +104,8 @@ github.com/go-logr/zapr
 # github.com/go-openapi/jsonpointer v0.21.0
 ## explicit; go 1.20
 github.com/go-openapi/jsonpointer
-# github.com/go-openapi/jsonreference v0.20.2
-## explicit; go 1.13
+# github.com/go-openapi/jsonreference v0.21.0
+## explicit; go 1.20
 github.com/go-openapi/jsonreference
 github.com/go-openapi/jsonreference/internal
 # github.com/go-openapi/swag v0.23.0
@@ -229,20 +229,30 @@ github.com/onsi/gomega/types
 # github.com/openshift/api v0.0.0-20240821141839-566edf361acd
 ## explicit; go 1.22.0
 github.com/openshift/api/config/v1
+github.com/openshift/api/config/v1alpha1
 github.com/openshift/api/console/v1
 github.com/openshift/api/machineconfiguration/v1
 github.com/openshift/api/operator/v1
 github.com/openshift/api/operator/v1alpha1
-# github.com/openshift/client-go v0.0.0-20200827190008-3062137373b5
-## explicit; go 1.13
+# github.com/openshift/client-go v0.0.0-20240528061634-b054aa794d87
+## explicit; go 1.22.0
+github.com/openshift/client-go/config/applyconfigurations/config/v1
+github.com/openshift/client-go/config/applyconfigurations/config/v1alpha1
+github.com/openshift/client-go/config/applyconfigurations/internal
 github.com/openshift/client-go/config/clientset/versioned
 github.com/openshift/client-go/config/clientset/versioned/scheme
 github.com/openshift/client-go/config/clientset/versioned/typed/config/v1
+github.com/openshift/client-go/config/clientset/versioned/typed/config/v1alpha1
 github.com/openshift/client-go/config/informers/externalversions
 github.com/openshift/client-go/config/informers/externalversions/config
 github.com/openshift/client-go/config/informers/externalversions/config/v1
+github.com/openshift/client-go/config/informers/externalversions/config/v1alpha1
 github.com/openshift/client-go/config/informers/externalversions/internalinterfaces
 github.com/openshift/client-go/config/listers/config/v1
+github.com/openshift/client-go/config/listers/config/v1alpha1
+github.com/openshift/client-go/operator/applyconfigurations/internal
+github.com/openshift/client-go/operator/applyconfigurations/operator/v1
+github.com/openshift/client-go/operator/applyconfigurations/operator/v1alpha1
 github.com/openshift/client-go/operator/clientset/versioned
 github.com/openshift/client-go/operator/clientset/versioned/scheme
 github.com/openshift/client-go/operator/clientset/versioned/typed/operator/v1

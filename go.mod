@@ -12,7 +12,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.21.0
 	github.com/onsi/gomega v1.35.1
 	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
-	github.com/openshift/client-go v0.0.0-20200827190008-3062137373b5
+	github.com/openshift/client-go v0.0.0-20240528061634-b054aa794d87
 	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
@@ -36,15 +36,15 @@ require (
 	github.com/coreos/ignition/v2 v2.3.0 // indirect
 	github.com/coreos/vcontext v0.0.0-20191017033345-260217907eb5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
-	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
+	github.com/emicklei/go-restful/v3 v3.12.1 // indirect
+	github.com/evanphx/json-patch v5.8.1+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
-	github.com/go-openapi/jsonreference v0.20.2 // indirect
+	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

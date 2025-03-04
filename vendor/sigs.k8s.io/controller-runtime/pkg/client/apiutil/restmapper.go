@@ -178,10 +178,15 @@ func (m *mapper) addKnownGroupAndReload(groupName string, versions ...string) er
 		if err != nil {
 			return err
 		}
+<<<<<<< HEAD
 		if apiGroup != nil && len(versions) == 0 {
 			for _, version := range apiGroup.Versions {
 				versions = append(versions, version.Version)
 			}
+=======
+		for _, version := range apiGroup.Versions {
+			versions = append(versions, version.Version)
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 		}
 
 		// No need to do anything further if aggregatedDiscovery is supported and we did a lookup
@@ -256,6 +261,7 @@ func (m *mapper) addGroupVersionResourcesToCacheAndReloadLocked(gvr map[schema.G
 		m.knownGroups[groupVersion.Group] = groupResources
 	}
 
+<<<<<<< HEAD
 	// Finally, reload the mapper.
 	updatedGroupResources := make([]*restmapper.APIGroupResources, 0, len(m.knownGroups))
 	for _, agr := range m.knownGroups {
@@ -263,6 +269,14 @@ func (m *mapper) addGroupVersionResourcesToCacheAndReloadLocked(gvr map[schema.G
 	}
 
 	m.mapper = restmapper.NewDiscoveryRESTMapper(updatedGroupResources)
+=======
+	// Update data in the cache.
+	m.knownGroups[groupName] = groupResources
+
+	// Finally, update the group with received information and regenerate the mapper.
+	m.refreshMapper()
+	return nil
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // findAPIGroupByNameAndMaybeAggregatedDiscoveryLocked tries to find the passed apiGroup.
@@ -294,9 +308,23 @@ func (m *mapper) findAPIGroupByNameAndMaybeAggregatedDiscoveryLocked(groupName s
 	}
 
 	// Looking in the cache again.
+<<<<<<< HEAD
 	// Don't return an error here if the API group is not present.
 	// The reloaded RESTMapper will take care of returning a NoMatchError.
 	return m.apiGroups[groupName], didAggregatedDiscovery, nil
+=======
+	{
+		m.mu.RLock()
+		group, ok := m.apiGroups[groupName]
+		m.mu.RUnlock()
+		if ok {
+			return group, nil
+		}
+	}
+
+	// If there is still nothing, return an error.
+	return nil, fmt.Errorf("failed to find API group %q", groupName)
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // fetchGroupVersionResourcesLocked fetches the resources for the specified group and its versions.
@@ -312,14 +340,28 @@ func (m *mapper) fetchGroupVersionResourcesLocked(groupName string, versions ...
 		if apierrors.IsNotFound(err) {
 			// If the version is not found, we remove the group from the cache
 			// so it gets refreshed on the next call.
+<<<<<<< HEAD
 			if m.isAPIGroupCachedLocked(groupVersion) {
+=======
+			cacheInvalidated := false
+			if m.isAPIGroupCached(groupVersion) {
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 				delete(m.apiGroups, groupName)
+				cacheInvalidated = true
 			}
 			if m.isGroupVersionCachedLocked(groupVersion) {
 				delete(m.knownGroups, groupName)
+				cacheInvalidated = true
 			}
-			continue
-		} else if err != nil {
+			// It's important to refresh the mapper after invalidating the cache, since returning an error
+			// aborts the call and leaves the underlying mapper unchanged. If not refreshed, the next call
+			// will still return a match for the NotFound version.
+			if cacheInvalidated {
+				m.refreshMapper()
+			}
+		}
+
+		if err != nil {
 			failedGroups[groupVersion] = err
 		}
 
@@ -361,4 +403,12 @@ func (m *mapper) isAPIGroupCachedLocked(gv schema.GroupVersion) bool {
 	}
 
 	return false
+}
+
+func (m *mapper) refreshMapper() {
+	updatedGroupResources := make([]*restmapper.APIGroupResources, 0, len(m.knownGroups))
+	for _, agr := range m.knownGroups {
+		updatedGroupResources = append(updatedGroupResources, agr)
+	}
+	m.mapper = restmapper.NewDiscoveryRESTMapper(updatedGroupResources)
 }

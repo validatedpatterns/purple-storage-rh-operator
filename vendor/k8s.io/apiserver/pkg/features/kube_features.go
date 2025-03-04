@@ -38,7 +38,6 @@ const (
 	// owner: @ivelichkovich, @tallclair
 	// alpha: v1.27
 	// beta: v1.28
-	// stable: v1.30
 	// kep: https://kep.k8s.io/3716
 	//
 	// Enables usage of MatchConditions fields to use CEL expressions for matching on admission webhooks
@@ -47,7 +46,6 @@ const (
 	// owner: @jefftree @alexzielenski
 	// alpha: v1.26
 	// beta: v1.27
-	// stable: v1.30
 	//
 	// Enables an single HTTP endpoint /discovery/<version> which supports native HTTP
 	// caching with ETags containing all APIResources known to the apiserver.
@@ -56,7 +54,6 @@ const (
 	// owner: @smarterclayton
 	// alpha: v1.8
 	// beta: v1.9
-	// stable: 1.29
 	//
 	// Allow API clients to retrieve resource lists in chunks rather than
 	// all at once.
@@ -65,7 +62,6 @@ const (
 	// owner: @MikeSpreitzer @yue9944882
 	// alpha: v1.18
 	// beta: v1.20
-	// stable: 1.29
 	//
 	// Enables managing request concurrency with prioritization and fairness at each server.
 	// The FeatureGate was introduced in release 1.15 but the feature
@@ -92,19 +88,10 @@ const (
 	// Add support for distributed tracing in the API Server
 	APIServerTracing featuregate.Feature = "APIServerTracing"
 
-	// owner: @linxiulei
-	// beta: v1.30
-	//
-	// Enables serving watch requests in separate goroutines.
-	APIServingWithRoutine featuregate.Feature = "APIServingWithRoutine"
-
 	// owner: @cici37 @jpbetz
 	// kep: http://kep.k8s.io/3488
 	// alpha: v1.26
-	// beta: v1.28
-	// stable: v1.30
 	//
-	// Note: the feature gate can be removed in 1.32
 	// Enables expression validation in Admission Control
 	ValidatingAdmissionPolicy featuregate.Feature = "ValidatingAdmissionPolicy"
 
@@ -112,7 +99,6 @@ const (
 	// kep: https://kep.k8s.io/2876
 	// alpha: v1.23
 	// beta: v1.25
-	// stable: v1.29
 	//
 	// Enables expression validation for Custom Resource
 	CustomResourceValidationExpressions featuregate.Feature = "CustomResourceValidationExpressions"
@@ -135,7 +121,6 @@ const (
 	// kep: https://kep.k8s.io/3299
 	// alpha: v1.25
 	// beta: v1.27
-	// stable: v1.29
 	//
 	// Enables KMS v2 API for encryption at rest.
 	KMSv2 featuregate.Feature = "KMSv2"
@@ -143,17 +128,9 @@ const (
 	// owner: @enj
 	// kep: https://kep.k8s.io/3299
 	// beta: v1.28
-	// stable: v1.29
 	//
 	// Enables the use of derived encryption keys with KMS v2.
 	KMSv2KDF featuregate.Feature = "KMSv2KDF"
-
-	// owner: @alexzielenski, @cici37, @jiahuif
-	// kep: https://kep.k8s.io/3962
-	// alpha: v1.30
-	//
-	// Enables the MutatingAdmissionPolicy in Admission Chain
-	MutatingAdmissionPolicy featuregate.Feature = "MutatingAdmissionPolicy"
 
 	// owner: @jiahuif
 	// kep: https://kep.k8s.io/2887
@@ -164,14 +141,30 @@ const (
 	// in the spec returned from kube-apiserver.
 	OpenAPIEnums featuregate.Feature = "OpenAPIEnums"
 
+	// owner: @jefftree
+	// kep: https://kep.k8s.io/2896
+	// alpha: v1.23
+	// beta: v1.24
+	// stable: v1.27
+	//
+	// Enables kubernetes to publish OpenAPI v3
+	OpenAPIV3 featuregate.Feature = "OpenAPIV3"
+
 	// owner: @caesarxuchao
 	// alpha: v1.15
 	// beta: v1.16
-	// stable: 1.29
 	//
 	// Allow apiservers to show a count of remaining items in the response
 	// to a chunking list request.
 	RemainingItemCount featuregate.Feature = "RemainingItemCount"
+
+	// owner: @wojtek-t
+	// alpha: v1.16
+	// beta: v1.20
+	// GA: v1.24
+	//
+	// Deprecates and removes SelfLink from ObjectMeta and ListMeta.
+	RemoveSelfLink featuregate.Feature = "RemoveSelfLink"
 
 	// owner: @serathius
 	// beta: v1.30
@@ -214,30 +207,6 @@ const (
 	// clients.
 	UnauthenticatedHTTP2DOSMitigation featuregate.Feature = "UnauthenticatedHTTP2DOSMitigation"
 
-	// owner: @jpbetz
-	// alpha: v1.30
-	// Resource create requests using generateName are retried automatically by the apiserver
-	// if the generated name conflicts with an existing resource name, up to a maximum number of 7 retries.
-	RetryGenerateName featuregate.Feature = "RetryGenerateName"
-
-	// owner: @cici37
-	// alpha: v1.30
-	//
-	// StrictCostEnforcementForVAP is used to apply strict CEL cost validation for ValidatingAdmissionPolicy.
-	// It will be set to off by default for certain time of period to prevent the impact on the existing users.
-	// It is strongly recommended to enable this feature gate as early as possible.
-	// The strict cost is specific for the extended libraries whose cost defined under k8s/apiserver/pkg/cel/library.
-	StrictCostEnforcementForVAP featuregate.Feature = "StrictCostEnforcementForVAP"
-
-	// owner: @cici37
-	// alpha: v1.30
-	//
-	// StrictCostEnforcementForWebhooks is used to apply strict CEL cost validation for matchConditions in Webhooks.
-	// It will be set to off by default for certain time of period to prevent the impact on the existing users.
-	// It is strongly recommended to enable this feature gate as early as possible.
-	// The strict cost is specific for the extended libraries whose cost defined under k8s/apiserver/pkg/cel/library.
-	StrictCostEnforcementForWebhooks featuregate.Feature = "StrictCostEnforcementForWebhooks"
-
 	// owner: @caesarxuchao @roycaihw
 	// alpha: v1.20
 	//
@@ -251,22 +220,6 @@ const (
 	// Allow apiservers to expose the storage version hash in the discovery
 	// document.
 	StorageVersionHash featuregate.Feature = "StorageVersionHash"
-
-	// owner: @aramase, @enj, @nabokihms
-	// kep: https://kep.k8s.io/3331
-	// alpha: v1.29
-	// beta: v1.30
-	//
-	// Enables Structured Authentication Configuration
-	StructuredAuthenticationConfiguration featuregate.Feature = "StructuredAuthenticationConfiguration"
-
-	// owner: @palnabarun
-	// kep: https://kep.k8s.io/3221
-	// alpha: v1.29
-	// beta: v1.30
-	//
-	// Enables Structured Authorization Configuration
-	StructuredAuthorizationConfiguration featuregate.Feature = "StructuredAuthorizationConfiguration"
 
 	// owner: @wojtek-t
 	// alpha: v1.15
@@ -301,15 +254,6 @@ const (
 	//
 	// Allow the API server to serve consistent lists from cache
 	ConsistentListFromCache featuregate.Feature = "ConsistentListFromCache"
-
-	// owner: @tkashem
-	// beta: v1.29
-	// GA: v1.30
-	//
-	// Allow Priority & Fairness in the API server to use a zero value for
-	// the 'nominalConcurrencyShares' field of the 'limited' section of a
-	// priority level.
-	ZeroLimitedNominalConcurrencyShares featuregate.Feature = "ZeroLimitedNominalConcurrencyShares"
 )
 
 func init() {
@@ -321,13 +265,13 @@ func init() {
 // available throughout Kubernetes binaries.
 var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureSpec{
 
-	AggregatedDiscoveryEndpoint: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.33
+	AggregatedDiscoveryEndpoint: {Default: true, PreRelease: featuregate.Beta},
 
-	AdmissionWebhookMatchConditions: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.33
+	AdmissionWebhookMatchConditions: {Default: true, PreRelease: featuregate.Beta},
 
-	APIListChunking: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.32
+	APIListChunking: {Default: true, PreRelease: featuregate.Beta},
 
-	APIPriorityAndFairness: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.31
+	APIPriorityAndFairness: {Default: true, PreRelease: featuregate.Beta},
 
 	APIResponseCompression: {Default: true, PreRelease: featuregate.Beta},
 
@@ -335,25 +279,25 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 
 	APIServerTracing: {Default: true, PreRelease: featuregate.Beta},
 
-	APIServingWithRoutine: {Default: false, PreRelease: featuregate.Alpha},
+	ValidatingAdmissionPolicy: {Default: false, PreRelease: featuregate.Beta},
 
-	ValidatingAdmissionPolicy: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.32
-
-	CustomResourceValidationExpressions: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.31
+	CustomResourceValidationExpressions: {Default: true, PreRelease: featuregate.Beta},
 
 	EfficientWatchResumption: {Default: true, PreRelease: featuregate.GA, LockToDefault: true},
 
-	KMSv1: {Default: false, PreRelease: featuregate.Deprecated},
+	KMSv1: {Default: true, PreRelease: featuregate.Deprecated},
 
-	KMSv2: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.31
+	KMSv2: {Default: true, PreRelease: featuregate.Beta},
 
-	KMSv2KDF: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.31
+	KMSv2KDF: {Default: false, PreRelease: featuregate.Beta}, // default and lock to true in 1.29, remove in 1.31
 
 	OpenAPIEnums: {Default: true, PreRelease: featuregate.Beta},
 
-	RemainingItemCount: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.32
+	OpenAPIV3: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.29
 
-	RetryGenerateName: {Default: false, PreRelease: featuregate.Alpha},
+	RemainingItemCount: {Default: true, PreRelease: featuregate.Beta},
+
+	RemoveSelfLink: {Default: true, PreRelease: featuregate.GA, LockToDefault: true},
 
 	SeparateCacheWatchRPC: {Default: true, PreRelease: featuregate.Beta},
 
@@ -365,15 +309,7 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 
 	StorageVersionHash: {Default: true, PreRelease: featuregate.Beta},
 
-	StrictCostEnforcementForVAP: {Default: false, PreRelease: featuregate.Beta},
-
-	StrictCostEnforcementForWebhooks: {Default: false, PreRelease: featuregate.Beta},
-
-	StructuredAuthenticationConfiguration: {Default: true, PreRelease: featuregate.Beta},
-
-	StructuredAuthorizationConfiguration: {Default: true, PreRelease: featuregate.Beta},
-
-	UnauthenticatedHTTP2DOSMitigation: {Default: true, PreRelease: featuregate.Beta},
+	UnauthenticatedHTTP2DOSMitigation: {Default: false, PreRelease: featuregate.Beta},
 
 	WatchBookmark: {Default: true, PreRelease: featuregate.GA, LockToDefault: true},
 
@@ -384,6 +320,4 @@ var defaultKubernetesFeatureGates = map[featuregate.Feature]featuregate.FeatureS
 	WatchList: {Default: false, PreRelease: featuregate.Alpha},
 
 	ConsistentListFromCache: {Default: false, PreRelease: featuregate.Alpha},
-
-	ZeroLimitedNominalConcurrencyShares: {Default: true, PreRelease: featuregate.GA, LockToDefault: true}, // remove in 1.32
 }

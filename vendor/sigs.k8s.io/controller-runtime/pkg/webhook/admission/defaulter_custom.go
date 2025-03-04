@@ -67,10 +67,16 @@ func WithCustomDefaulter(scheme *runtime.Scheme, obj runtime.Object, defaulter C
 }
 
 type defaulterForType struct {
+<<<<<<< HEAD
 	defaulter                     CustomDefaulter
 	object                        runtime.Object
 	decoder                       Decoder
 	removeUnknownOrOmitableFields bool
+=======
+	defaulter CustomDefaulter
+	object    runtime.Object
+	decoder   *Decoder
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // Handle handles admission requests.

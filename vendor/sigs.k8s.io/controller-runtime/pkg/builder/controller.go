@@ -30,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
+	internalsource "sigs.k8s.io/controller-runtime/pkg/internal/source"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -55,7 +56,6 @@ const (
 type Builder struct {
 	forInput         ForInput
 	ownsInput        []OwnsInput
-	rawSources       []source.Source
 	watchesInput     []WatchesInput
 	mgr              manager.Manager
 	globalPredicates []predicate.Predicate
@@ -123,8 +123,8 @@ func (blder *Builder) Owns(object client.Object, opts ...OwnsOption) *Builder {
 
 // WatchesInput represents the information set by Watches method.
 type WatchesInput struct {
-	obj              client.Object
-	handler          handler.EventHandler
+	src              source.Source
+	eventHandler     handler.EventHandler
 	predicates       []predicate.Predicate
 	objectProjection objectProjection
 }
@@ -133,8 +133,9 @@ type WatchesInput struct {
 // update events by *reconciling the object* with the given EventHandler.
 //
 // This is the equivalent of calling
-// WatchesRawSource(source.Kind(cache, object, eventHandler, predicates...)).
+// WatchesRawSource(source.Kind(cache, object), eventHandler, opts...).
 func (blder *Builder) Watches(object client.Object, eventHandler handler.EventHandler, opts ...WatchesOption) *Builder {
+<<<<<<< HEAD
 	input := WatchesInput{
 		obj:     object,
 		handler: handler.WithLowPriorityWhenUnchanged(eventHandler),
@@ -146,6 +147,10 @@ func (blder *Builder) Watches(object client.Object, eventHandler handler.EventHa
 	blder.watchesInput = append(blder.watchesInput, input)
 
 	return blder
+=======
+	src := source.Kind(blder.mgr.GetCache(), object)
+	return blder.WatchesRawSource(src, eventHandler, opts...)
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // WatchesMetadata is the same as Watches, but forces the internal cache to only watch PartialObjectMetadata.
@@ -185,11 +190,13 @@ func (blder *Builder) WatchesMetadata(object client.Object, eventHandler handler
 //
 // STOP! Consider using For(...), Owns(...), Watches(...), WatchesMetadata(...) instead.
 // This method is only exposed for more advanced use cases, most users should use one of the higher level functions.
-//
-// WatchesRawSource does not respect predicates configured through WithEventFilter.
-func (blder *Builder) WatchesRawSource(src source.Source) *Builder {
-	blder.rawSources = append(blder.rawSources, src)
+func (blder *Builder) WatchesRawSource(src source.Source, eventHandler handler.EventHandler, opts ...WatchesOption) *Builder {
+	input := WatchesInput{src: src, eventHandler: eventHandler}
+	for _, opt := range opts {
+		opt.ApplyToWatches(&input)
+	}
 
+	blder.watchesInput = append(blder.watchesInput, input)
 	return blder
 }
 
@@ -280,6 +287,7 @@ func (blder *Builder) doWatch() error {
 			return err
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 		if reflect.TypeFor[request]() != reflect.TypeOf(reconcile.Request{}) {
 			return fmt.Errorf("For() can only be used with reconcile.Request, got %T", *new(request))
@@ -288,12 +296,14 @@ func (blder *Builder) doWatch() error {
 		var hdler handler.TypedEventHandler[client.Object, request]
 		reflect.ValueOf(&hdler).Elem().Set(reflect.ValueOf(handler.WithLowPriorityWhenUnchanged(&handler.EnqueueRequestForObject{})))
 =======
+=======
+		src := source.Kind(blder.mgr.GetCache(), obj)
+>>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 		hdler := &handler.EnqueueRequestForObject{}
 >>>>>>> 9f3cc0db0 (Add vendoring)
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, blder.forInput.predicates...)
-		src := source.Kind(blder.mgr.GetCache(), obj, hdler, allPredicates...)
-		if err := blder.ctrl.Watch(src); err != nil {
+		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {
 			return err
 		}
 	}
@@ -307,6 +317,7 @@ func (blder *Builder) doWatch() error {
 		if err != nil {
 			return err
 		}
+		src := source.Kind(blder.mgr.GetCache(), obj)
 		opts := []handler.OwnerOption{}
 		if !own.matchEveryOwner {
 			opts = append(opts, handler.OnlyControllerOwner())
@@ -328,29 +339,27 @@ func (blder *Builder) doWatch() error {
 >>>>>>> 9f3cc0db0 (Add vendoring)
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, own.predicates...)
-		src := source.Kind(blder.mgr.GetCache(), obj, hdler, allPredicates...)
-		if err := blder.ctrl.Watch(src); err != nil {
+		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {
 			return err
 		}
 	}
 
 	// Do the watch requests
-	if len(blder.watchesInput) == 0 && blder.forInput.object == nil && len(blder.rawSources) == 0 {
-		return errors.New("there are no watches configured, controller will never get triggered. Use For(), Owns(), Watches() or WatchesRawSource() to set them up")
+	if len(blder.watchesInput) == 0 && blder.forInput.object == nil {
+		return errors.New("there are no watches configured, controller will never get triggered. Use For(), Owns() or Watches() to set them up")
 	}
 	for _, w := range blder.watchesInput {
-		projected, err := blder.project(w.obj, w.objectProjection)
-		if err != nil {
-			return fmt.Errorf("failed to project for %T: %w", w.obj, err)
+		// If the source of this watch is of type Kind, project it.
+		if srcKind, ok := w.src.(*internalsource.Kind); ok {
+			typeForSrc, err := blder.project(srcKind.Type, w.objectProjection)
+			if err != nil {
+				return err
+			}
+			srcKind.Type = typeForSrc
 		}
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, w.predicates...)
-		if err := blder.ctrl.Watch(source.Kind(blder.mgr.GetCache(), projected, w.handler, allPredicates...)); err != nil {
-			return err
-		}
-	}
-	for _, src := range blder.rawSources {
-		if err := blder.ctrl.Watch(src); err != nil {
+		if err := blder.ctrl.Watch(w.src, w.eventHandler, allPredicates...); err != nil {
 			return err
 		}
 	}

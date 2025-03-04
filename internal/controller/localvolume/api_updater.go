@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	commontypes "github.com/openshift/local-storage-operator/pkg/common"
+	localv1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	commontypes "github.com/darkdoc/purple-storage-rh-operator/internal/common"
 
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"

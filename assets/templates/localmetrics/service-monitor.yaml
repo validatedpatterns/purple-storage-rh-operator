@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ${OBJECT_NAME}
+  namespace: ${OBJECT_NAMESPACE}
+  labels:
+    app: ${APP_LABEL}
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: ${SERVICE_CERT_NAME}
+spec:
+  namespaceSelector:
+    matchNames:
+      - ${OBJECT_NAMESPACE}
+  selector:
+    matchLabels:
+      app: ${APP_LABEL}
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 1m
+    scheme: https
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    tlsConfig:
+      caFile: /etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt
+      serverName: ${OBJECT_NAME}.${OBJECT_NAMESPACE}.svc

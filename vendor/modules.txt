@@ -277,6 +277,7 @@ github.com/openshift/client-go/operator/listers/operator/v1alpha1
 ## explicit; go 1.22.0
 github.com/openshift/library-go/pkg/operator/resource/resourcemerge
 github.com/openshift/library-go/pkg/operator/resource/resourceread
+<<<<<<< HEAD
 # github.com/openshift/local-storage-operator v0.0.0-20250203203527-fac0f724c984
 ## explicit; go 1.22.0
 github.com/openshift/local-storage-operator/api/v1
@@ -290,6 +291,8 @@ github.com/openshift/local-storage-operator/pkg/controllers/nodedaemon
 github.com/openshift/local-storage-operator/pkg/internal
 github.com/openshift/local-storage-operator/pkg/localmetrics
 >>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
+=======
+>>>>>>> 018761f25 (Remove local-storage-operator code deps)
 # github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000 => github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 ## explicit; go 1.13
 github.com/openshift/machine-config-operator/internal/clients
@@ -307,8 +310,16 @@ github.com/openshift/machine-config-operator/pkg/generated/listers/machineconfig
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors
+<<<<<<< HEAD
 # github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
 ## explicit; go 1.23.0
+=======
+# github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2
+## explicit
+github.com/pmezard/go-difflib/difflib
+# github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2
+## explicit; go 1.21
+>>>>>>> 018761f25 (Remove local-storage-operator code deps)
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring
 github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1
 # github.com/prometheus/client_golang v1.19.1
@@ -329,9 +340,14 @@ github.com/prometheus/common/model
 github.com/prometheus/procfs
 github.com/prometheus/procfs/internal/fs
 github.com/prometheus/procfs/internal/util
+# github.com/rogpeppe/go-internal v1.12.0
+## explicit; go 1.20
 # github.com/spf13/pflag v1.0.5
 ## explicit; go 1.12
 github.com/spf13/pflag
+# github.com/stretchr/testify v1.9.0
+## explicit; go 1.17
+github.com/stretchr/testify/assert
 # github.com/vincent-petithory/dataurl v0.0.0-20160330182126-9a301d65acbb
 ## explicit
 github.com/vincent-petithory/dataurl
@@ -597,6 +613,7 @@ k8s.io/apimachinery/pkg/util/managedfields/internal
 k8s.io/apimachinery/pkg/util/mergepatch
 k8s.io/apimachinery/pkg/util/naming
 k8s.io/apimachinery/pkg/util/net
+k8s.io/apimachinery/pkg/util/rand
 k8s.io/apimachinery/pkg/util/runtime
 k8s.io/apimachinery/pkg/util/sets
 k8s.io/apimachinery/pkg/util/strategicpatch
@@ -858,6 +875,7 @@ k8s.io/client-go/plugin/pkg/client/auth/oidc
 k8s.io/client-go/rest
 k8s.io/client-go/rest/watch
 k8s.io/client-go/restmapper
+k8s.io/client-go/testing
 k8s.io/client-go/tools/auth
 k8s.io/client-go/tools/cache
 k8s.io/client-go/tools/cache/synctrack
@@ -995,6 +1013,8 @@ sigs.k8s.io/controller-runtime/pkg/certwatcher/metrics
 sigs.k8s.io/controller-runtime/pkg/client
 sigs.k8s.io/controller-runtime/pkg/client/apiutil
 sigs.k8s.io/controller-runtime/pkg/client/config
+sigs.k8s.io/controller-runtime/pkg/client/fake
+sigs.k8s.io/controller-runtime/pkg/client/interceptor
 sigs.k8s.io/controller-runtime/pkg/cluster
 sigs.k8s.io/controller-runtime/pkg/config
 sigs.k8s.io/controller-runtime/pkg/config/v1alpha1
@@ -1012,7 +1032,11 @@ sigs.k8s.io/controller-runtime/pkg/internal/field/selector
 sigs.k8s.io/controller-runtime/pkg/internal/flock
 sigs.k8s.io/controller-runtime/pkg/internal/httpserver
 sigs.k8s.io/controller-runtime/pkg/internal/log
+<<<<<<< HEAD
 sigs.k8s.io/controller-runtime/pkg/internal/metrics
+=======
+sigs.k8s.io/controller-runtime/pkg/internal/objectutil
+>>>>>>> 018761f25 (Remove local-storage-operator code deps)
 sigs.k8s.io/controller-runtime/pkg/internal/recorder
 sigs.k8s.io/controller-runtime/pkg/internal/source
 sigs.k8s.io/controller-runtime/pkg/internal/testing/addr

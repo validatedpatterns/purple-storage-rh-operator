@@ -39,6 +39,7 @@ import (
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
@@ -48,6 +49,11 @@ import (
 	lvscontroller "github.com/openshift/local-storage-operator/pkg/controllers/localvolumeset"
 	nodedaemoncontroller "github.com/openshift/local-storage-operator/pkg/controllers/nodedaemon"
 >>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
+=======
+	lvcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolume"
+	lvdcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolumediscovery"
+	nodedaemoncontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/nodedaemon"
+>>>>>>> 018761f25 (Remove local-storage-operator code deps)
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
@@ -167,14 +173,14 @@ func main() {
 		setupLog.Error(err, "unable to create LocalVolume controller")
 		os.Exit(1)
 	}
-	if err = (&lvscontroller.LocalVolumeSetReconciler{
-		Client: mgr.GetClient(),
-		// LvSetMap: &common.StorageClassOwnerMap{},
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create LocalVolumeSet controller")
-		os.Exit(1)
-	}
+	// if err = (&lvscontroller.LocalVolumeSetReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	// LvSetMap: &common.StorageClassOwnerMap{},
+	// 	Scheme: mgr.GetScheme(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	setupLog.Error(err, "unable to create LocalVolumeSet controller")
+	// 	os.Exit(1)
+	// }
 
 	if err = (&controller.PurpleStorageReconciler{
 		Client: mgr.GetClient(),

@@ -18,7 +18,6 @@ package v1alpha1
 
 import (
 	operatorv1 "github.com/openshift/api/operator/v1"
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -90,7 +89,7 @@ type LocalVolumeSetSpec struct {
 	// VolumeMode determines whether the PV created is Block or Filesystem.
 	// It will default to Filesystem.
 	// +optional
-	VolumeMode localv1.PersistentVolumeMode `json:"volumeMode,omitempty"`
+	VolumeMode PersistentVolumeMode `json:"volumeMode,omitempty"`
 	// FSType type to create when volumeMode is Filesystem
 	// +optional
 	FSType string `json:"fsType,omitempty"`

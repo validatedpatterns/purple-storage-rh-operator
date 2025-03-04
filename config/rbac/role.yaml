@@ -578,6 +578,20 @@ rules:
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
   - clusterroles
   verbs:
   - '*'
@@ -1322,6 +1336,7 @@ rules:
   resources:
   - storageclasses
   verbs:
+  - '*'
   - create
   - delete
   - get
@@ -1379,6 +1394,27 @@ rules:
   verbs:
   - update
 - apiGroups:
+<<<<<<< HEAD
+=======
+  - local.storage.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+>>>>>>> 018761f25 (Remove local-storage-operator code deps)
   - rbac.authorization.k8s.io
   resources:
   - roles

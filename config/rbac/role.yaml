@@ -1395,6 +1395,7 @@ rules:
   - update
 - apiGroups:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   - local.storage.openshift.io
   resources:
@@ -1415,6 +1416,8 @@ rules:
   - watch
 - apiGroups:
 >>>>>>> 018761f25 (Remove local-storage-operator code deps)
+=======
+>>>>>>> aed513a53 (Fix controller permission issues)
   - rbac.authorization.k8s.io
   resources:
   - roles

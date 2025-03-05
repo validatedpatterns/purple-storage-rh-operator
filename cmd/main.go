@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -73,9 +74,12 @@ func init() {
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(scheme))
+<<<<<<< HEAD
 
 	utilruntime.Must(consolev1.AddToScheme(scheme))
 
+=======
+>>>>>>> aed513a53 (Fix controller permission issues)
 	//+kubebuilder:scaffold:scheme
 }
 

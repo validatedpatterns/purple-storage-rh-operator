@@ -19,9 +19,9 @@ const (
 	defaultlocalDiskLocation     = "/mnt/local-storage"
 
 	// OwnerNamespaceLabel references the owning object's namespace
-	OwnerNamespaceLabel = "local.storage.openshift.io/owner-namespace"
+	OwnerNamespaceLabel = "purple.purplestorage.com/owner-namespace"
 	// OwnerNameLabel references the owning object
-	OwnerNameLabel = "local.storage.openshift.io/owner-name"
+	OwnerNameLabel = "purple.purplestorage.com/owner-name"
 
 	// DiskMakerImageEnv is used by the operator to read the DISKMAKER_IMAGE from the environment
 	DiskMakerImageEnv = "DISKMAKER_IMAGE"

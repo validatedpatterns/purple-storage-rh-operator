@@ -59,6 +59,8 @@ type LocalVolumeDiscoveryReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries,verbs=get;list;watch;create;update;patch;delete
+
 // Reconcile reads that state of the cluster for a LocalVolumeDiscovery object and makes changes based on the state read
 // and what is in the LocalVolumeDiscovery.Spec
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or

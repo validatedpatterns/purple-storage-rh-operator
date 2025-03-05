@@ -50,8 +50,8 @@ type localDiskData map[string]map[string]string
 const (
 	componentName       = "local-storage-operator"
 	localDiskLocation   = "/mnt/local-storage"
-	ownerNamespaceLabel = "local.storage.openshift.io/owner-namespace"
-	ownerNameLabel      = "local.storage.openshift.io/owner-name"
+	ownerNamespaceLabel = "purple.purplestorage.com/owner-namespace"
+	ownerNameLabel      = "purple.purplestorage.com/owner-name"
 
 	localVolumeFinalizer = "storage.openshift.com/local-volume-protection"
 )
@@ -74,11 +74,12 @@ func (r *LocalVolumeReconciler) deregisterLVFromStorageClass(lv localv1.LocalVol
 	}
 }
 
-//+kubebuilder:rbac:groups=local.storage.openshift.io,namespace=default,resources=*,verbs=*
+//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumes,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumesets,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",namespace=default,resources=pods;services;services/finalizers;endpoints;persistentvolumeclaims;events;configmaps;secrets,verbs="*"
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,namespace=default,resources=roles,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,namespace=default,resources=deployments;daemonsets;replicasets;statefulsets,verbs=*
-//+kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,namespace=default,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resourceNames=local-storage-operator,namespace=default,resources=deployments/finalizers,verbs=update
 //+kubebuilder:rbac:groups=storage.k8s.io,resources=storageclasses,verbs=*
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles;clusterrolebindings;rolebindings,verbs=get;list;watch;create;update;patch;delete

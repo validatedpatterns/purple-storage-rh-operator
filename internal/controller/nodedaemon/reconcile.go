@@ -40,7 +40,7 @@ const (
 
 	controllerName = "localvolumesetdaemon-controller"
 
-	dataHashAnnotationKey = "local.storage.openshift.io/configMapDataHash"
+	dataHashAnnotationKey = "purple.purplestorage.com/configMapDataHash"
 
 	orphanLSOServiceMonitorName = "local-storage-operator-metrics"
 )

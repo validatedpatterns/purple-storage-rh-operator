@@ -1,14 +1,16 @@
-FROM registry.access.redhat.com/ubi9/nodejs-18:latest AS build
+FROM registry.access.redhat.com/ubi9/nodejs-18:latest AS builder
+ARG VERSION=0.0.1
 USER root
-RUN command -v yarn || npm i -g yarn
+RUN npm install -g corepack
+RUN corepack enable yarn
 
-ADD . /usr/src/app
-WORKDIR /usr/src/app
-RUN yarn install && yarn build
+COPY . /opt/app-root/src
+# replace version in package.json
+RUN sed -r -i "s|\"version\": \"0.0.0\"|\"version\": \"${VERSION}\"|;" ./package.json
+RUN yarn install --frozen-lockfile && yarn build
 
 FROM registry.access.redhat.com/ubi9/nginx-120:latest
-
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
+COPY default.conf "${NGINX_CONFIGURATION_PATH}"
+COPY --from=builder /opt/app-root/src/dist .
 USER 1001
-
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD /usr/libexec/s2i/run

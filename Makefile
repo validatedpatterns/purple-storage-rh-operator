@@ -307,7 +307,7 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 
 .PHONY: add-console-plugin-annotation
 add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV
-	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"purple-storage-rh-operator-console-plugin\"]"' ${CSV}
+	$(YQ) -i '.metadata.annotations."console.openshift.io/plugins" = "[\"purple-storage-rh-operator-console-plugin\"]"' "./bundle/manifests/purple-storage-rh-operator.clusterserviceversion.yaml"
 
 
 .PHONY: bundle-build

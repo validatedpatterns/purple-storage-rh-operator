@@ -31,9 +31,9 @@ import (
 
 const (
 	// PluginName is the name of the plugin and used at several places
-	PluginName = "node-remediation-console-plugin"
+	PluginName = "purple-storage-rh-operator-console-plugin"
 	// ServiceName is the name of the console plugin Service and must match the name of the Service in /bundle/manifests!
-	ServiceName = "node-healthcheck-node-remediation-console-plugin"
+	ServiceName = "purple-storage-rh-operator-console-plugin"
 	// ServicePort is the port of the console plugin Service and must match the port of the Service in /bundle/manifests!
 	ServicePort = 9443
 )

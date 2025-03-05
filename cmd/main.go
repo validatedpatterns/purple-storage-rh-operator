@@ -38,6 +38,9 @@ import (
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 
+	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
+	consolev1 "github.com/openshift/api/console/v1"
+
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
 	"github.com/darkdoc/purple-storage-rh-operator/version"
@@ -55,6 +58,8 @@ func init() {
 	utilruntime.Must(purplev1alpha1.AddToScheme(scheme))
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
+	utilruntime.Must(consolev1.AddToScheme(scheme))
+
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -144,6 +149,13 @@ func main() {
 		}
 	}
 	//+kubebuilder:scaffold:builder
+
+	// Do some initialization
+	initializer := initializer.New(mgr, ctrl.Log.WithName("Initializer"))
+	if err = mgr.Add(initializer); err != nil {
+		setupLog.Error(err, "failed to add initializer to the manager")
+		os.Exit(1)
+	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")

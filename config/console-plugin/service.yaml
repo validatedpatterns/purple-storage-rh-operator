@@ -12,7 +12,7 @@ spec:
   - name: 9443-tcp
     port: 9443
     protocol: TCP
-    targetPort: purple-storage-console-plugin-server
+    targetPort: pscp-server
   selector:
     app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
   sessionAffinity: None

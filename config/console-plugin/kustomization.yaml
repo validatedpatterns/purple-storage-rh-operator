@@ -7,9 +7,9 @@ resources:
 - deployment.yaml
 - consoleplugin.yaml
 
-components:
-- ../../patches/affinity
-- ../../patches/common
+# components:
+# - ../../patches/affinity
+# - ../../patches/common
 
 generatorOptions:
   disableNameSuffixHash: true

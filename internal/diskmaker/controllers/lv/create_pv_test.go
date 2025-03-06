@@ -229,7 +229,7 @@ func TestCreatePV(t *testing.T) {
 		}
 		pv := &corev1.PersistentVolume{}
 		err = r.Client.Get(context.TODO(), types.NamespacedName{Name: common.GeneratePVName(filepath.Base(tc.symlinkpath), tc.node.GetName(), tc.sc.GetName())}, pv)
-
+		assert.Nil(t, err)
 		// provisioned-by annotation accurate
 		actualProvName, found := pv.ObjectMeta.Annotations[provCommon.AnnProvisionedBy]
 		assert.True(t, found)

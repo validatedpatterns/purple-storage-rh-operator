@@ -522,7 +522,7 @@ func ignoreDevices(dev internal.BlockDevice) bool {
 		return true
 	}
 
-	if hasChildren, err := dev.HasChildren(); err != nil || hasChildren {
+	if len(dev.Children) > 0 {
 		klog.InfoS("ignoring root device", "devName", dev.Name)
 		return true
 	}

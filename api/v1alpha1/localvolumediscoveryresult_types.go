@@ -60,6 +60,8 @@ type DiscoveredDevice struct {
 	FSType string `json:"fstype"`
 	// Status defines whether the device is available for use or not
 	Status DeviceStatus `json:"status"`
+	// WWN defines the WWN value of the device. For multipath devices, this is mandatory
+	WWN string `json:"WWN"`
 }
 
 // LocalVolumeDiscoveryResultSpec defines the desired state of LocalVolumeDiscoveryResult
@@ -80,6 +82,7 @@ type LocalVolumeDiscoveryResultStatus struct {
 	// - it should not be mounted anywhere
 	// - it should not be a boot device
 	// - it should not have child partitions
+	// - it should have a WWN value
 	// +optional
 	DiscoveredDevices []DiscoveredDevice `json:"discoveredDevices"`
 }

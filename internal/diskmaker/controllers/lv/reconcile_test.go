@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	v1alpha1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+
 	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
@@ -312,7 +312,7 @@ func getFakeDiskMaker(t *testing.T, symlinkLocation string, objs ...runtime.Obje
 	err = v1alpha1.AddToScheme(scheme)
 	assert.NoErrorf(t, err, "creating scheme")
 
-	err = v1alpha1alpha1.AddToScheme(scheme)
+	err = v1alpha1.AddToScheme(scheme)
 	assert.NoErrorf(t, err, "creating scheme")
 
 	err = corev1.AddToScheme(scheme)
@@ -361,12 +361,6 @@ func getFakeDiskMaker(t *testing.T, symlinkLocation string, objs ...runtime.Obje
 
 	return lvReconciler, tc
 
-}
-
-func getDeiveIDs() []string {
-	return []string{
-		"/dev/disk/by-id/xyz",
-	}
 }
 
 func createTmpDir(t *testing.T, dir, prefix string) string {

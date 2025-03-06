@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"reflect"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -28,7 +29,7 @@ const (
 	resultCRName                  = "discovery-result-%s"
 )
 
-var supportedDeviceTypes = sets.NewString("disk", "part", "lvm", "mpath")
+var supportedDeviceTypes = sets.NewString("mpath")
 
 // DeviceDiscovery instance
 type DeviceDiscovery struct {
@@ -193,6 +194,7 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 			Size:     size,
 			Property: parseDeviceProperty(blockDevice.Rotational),
 			Status:   getDeviceStatus(blockDevice),
+			WWN:      blockDevice.WWN,
 		}
 		discoveredDevices = append(discoveredDevices, discoveredDevice)
 	}
@@ -226,7 +228,7 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 		return true
 	}
 
-	if hasChildren, err := dev.HasChildren(); err != nil || hasChildren {
+	if len(dev.Children) > 0 {
 		klog.Infof("ignoring root device %q", dev.Name)
 		return true
 	}
@@ -237,8 +239,12 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 	}
 
 	if !supportedDeviceTypes.Has(dev.Type) {
-		klog.Infof("ignoring device %q with invalid type %q", dev.Name, dev.Type)
+		klog.Infof("ignoring device %q with unsupported type %q", dev.Name, dev.Type)
 		return true
+	}
+
+	if strings.Trim(dev.WWN, " ") == "" {
+		klog.Infof("ignoring device %q with undefined WWN", dev.Name)
 	}
 
 	return false
@@ -293,27 +299,28 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 }
 
 func parseDeviceProperty(property string) v1alpha1.DeviceMechanicalProperty {
-	switch {
-	case property == "1":
+	switch property {
+	case "1":
 		return v1alpha1.Rotational
-	case property == "0":
+	case "0":
 		return v1alpha1.NonRotational
+	default:
+		return ""
 	}
 
-	return ""
 }
 
 func parseDeviceType(deviceType string) v1alpha1.DiscoveredDeviceType {
-	switch {
-	case deviceType == "disk":
+	switch deviceType {
+	case "disk":
 		return v1alpha1.DiskType
-	case deviceType == "part":
+	case "part":
 		return v1alpha1.PartType
-	case deviceType == "lvm":
+	case "lvm":
 		return v1alpha1.LVMType
-	case deviceType == "mpath":
+	case "mpath":
 		return v1alpha1.MultiPathType
+	default:
+		return ""
 	}
-
-	return ""
 }

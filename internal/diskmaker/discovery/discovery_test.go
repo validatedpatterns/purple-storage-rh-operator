@@ -237,8 +237,9 @@ func TestValidBlockDevices(t *testing.T) {
 		{
 			label:              "Case 1: ignore readonly device sda",
 			fakeblkidCmdOutput: "",
-			fakeLsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="1" RM="0" STATE="running" SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE=""  SERIAL=""`,
+			fakeLsblkCmdOutput: `{"blockdevices": [
+				{"name": "sda", "rota": "1", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "1", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
@@ -248,8 +249,13 @@ func TestValidBlockDevices(t *testing.T) {
 		{
 			label:              "Case 2: ignore root device sda",
 			fakeblkidCmdOutput: "",
-			fakeLsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="0" STATE="running" SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="" SERIAL=""`,
+			fakeLsblkCmdOutput: `{"blockdevices": [
+      {"name": "sda", "rota": "0", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254",
+         "children": [
+            {"name": "sda1", "rota": "0", "type": "part", "size": "1073741824", "model": null, "vendor": null, "ro": "0", "rm": "0", "state": null, "kname": "sda1", "serial": null, "partlabel": null, "wwn": "0x500a07512b9f5254"}
+		]
+      },
+      {"name": "sdb", "rota": "0", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdb", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem", "sda"}, nil
 			},
@@ -257,10 +263,15 @@ func TestValidBlockDevices(t *testing.T) {
 			errMessage:                   fmt.Errorf("failed to ignore root device sda with partition"),
 		},
 		{
-			label:              "Case 3: ignore loop device",
+			label:              "Case 3: ignore invalid device types: disk, part, loop, lvm",
 			fakeblkidCmdOutput: "",
-			fakeLsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="loop" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="0" STATE="running" SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="" SERIAL=""`,
+			fakeLsblkCmdOutput: `{"blockdevices": [
+				{"name": "sda", "rota": "1", "type": "loop", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": "1", "type": "disk", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdb", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdc", "rota": "1", "type": "part", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdc", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdd", "rota": "1", "type": "lvm", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdd", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sde", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
@@ -270,13 +281,14 @@ func TestValidBlockDevices(t *testing.T) {
 		{
 			label:              "Case 4: ignore device is suspended state",
 			fakeblkidCmdOutput: "",
-			fakeLsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="0" STATE="running"  SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="suspended" SERIAL=""`,
+			fakeLsblkCmdOutput: `{"blockdevices": [
+				{"name": "sda", "rota": "1", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "suspended", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
 			expectedDiscoveredDeviceSize: 1,
-			errMessage:                   fmt.Errorf("failed to ignore child device sda1 in suspended state"),
+			errMessage:                   fmt.Errorf("failed to ignore device sda1 in suspended state"),
 		},
 	}
 
@@ -333,6 +345,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					Property: "Rotational",
 					FSType:   "ext4",
 					Status:   v1alpha1.DeviceStatus{State: "NotAvailable"},
+					WWN:      "aff-bcdd",
 				},
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
@@ -483,6 +496,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					// (first for getting by-id path and second for /dev/mapper path) so we pretend the by-id path is already set.
 					// That way we can test only /dev/mapper globbing and symlink evaluation.
 					PathByID: "/dev/disk/by-id/dm-name-mpatha",
+					WWN:      "mpathID",
 				},
 			},
 			expected: []v1alpha1.DiscoveredDevice{
@@ -497,6 +511,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					Property: "NonRotational",
 					FSType:   "",
 					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Unknown},
+					WWN:      "mpathID",
 				},
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
@@ -524,6 +539,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					State:      "running",
 					PartLabel:  "",
 					PathByID:   "/dev/disk/by-id/dm-name-mpatha",
+					WWN:        "a",
 				},
 				{
 					Name:       "mpatha",
@@ -540,6 +556,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					State:      "running",
 					PartLabel:  "",
 					PathByID:   "/dev/disk/by-id/dm-name-mpatha",
+					WWN:        "a",
 				},
 			},
 			expected: []v1alpha1.DiscoveredDevice{
@@ -554,6 +571,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					Property: "NonRotational",
 					FSType:   "",
 					Status:   v1alpha1.DeviceStatus{State: v1alpha1.Unknown},
+					WWN:      "a",
 				},
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
@@ -590,6 +608,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 			assert.Equalf(t, tc.expected[i].Property, actual[i].Property, "[%s: Discovered Device: %d]: invalid device property", tc.label, i+1)
 			assert.Equalf(t, tc.expected[i].FSType, actual[i].FSType, "[%s: Discovered Device: %d]: invalid device filesystem", tc.label, i+1)
 			assert.Equalf(t, tc.expected[i].Status, actual[i].Status, "[%s: Discovered Device: %d]: invalid device status", tc.label, i+1)
+			assert.Equalf(t, tc.expected[i].WWN, actual[i].WWN, "[%s: Discovered Device: %d]: invalid WWN status", tc.label, i+1)
 		}
 	}
 }

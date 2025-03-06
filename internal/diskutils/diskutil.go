@@ -43,22 +43,27 @@ func (e IDPathNotFoundError) Error() string {
 // BlockDevice is the a block device as output by lsblk.
 // All the fields are lsblk columns.
 
+type BlockDeviceList struct {
+	BlockDevices []BlockDevice `json:"blockdevices"`
+}
+
 type BlockDevice struct {
-	Name       string `json:"NAME"`
-	Rotational string `json:"ROTA"`
-	Type       string `json:"TYPE"`
-	Size       string `json:"SIZE"`
-	Model      string `json:"MODEL,omitempty"`
-	Vendor     string `json:"VENDOR,omitempty"`
-	ReadOnly   string `json:"RO,omitempty"`
-	Removable  string `json:"RM,omitempty"`
-	State      string `json:"STATE,omitempty"`
-	KName      string `json:"KNAME"`
-	FSType     string `json:"fsType"`
-	Serial     string `json:"SERIAL,omitempty"`
-	PartLabel  string `json:"PARTLABEL,omitempty"`
-	PathByID   string `json:"pathByID,omitempty"` // Fetched from introspecting /dev
-	WWN        string `json:"WWN,omitempty"`      // Purple unicorn storage fields
+	Name       string        `json:"NAME"`
+	Rotational string        `json:"ROTA"`
+	Type       string        `json:"TYPE"`
+	Size       string        `json:"SIZE"`
+	Model      string        `json:"MODEL,omitempty"`
+	Vendor     string        `json:"VENDOR,omitempty"`
+	ReadOnly   string        `json:"RO,omitempty"`
+	Removable  string        `json:"RM,omitempty"`
+	State      string        `json:"STATE,omitempty"`
+	KName      string        `json:"KNAME"`
+	FSType     string        `json:"fsType"`
+	Serial     string        `json:"SERIAL,omitempty"`
+	PartLabel  string        `json:"PARTLABEL,omitempty"`
+	PathByID   string        `json:"pathByID,omitempty"` // Fetched from introspecting /dev
+	WWN        string        `json:"WWN,omitempty"`      // Purple unicorn storage fields
+	Children   []BlockDevice `json:"children,omitempty"`
 }
 
 // IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
@@ -251,7 +256,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 		return []BlockDevice{}, []BlockDevice{}, errors.Wrap(err, "failed to list block devices")
 	}
 
-	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL"
+	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL,WWN"
 	args := []string{"--json", "-b", "-o", columns}
 	cmd := ExecCommand("lsblk", args...)
 	klog.Infof("Executing command: %#v", cmd)
@@ -259,14 +264,14 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 	if err != nil {
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to run command: %s", err)
 	}
-	lDevices := []BlockDevice{}
+	lDevices := BlockDeviceList{}
 	err = json.Unmarshal([]byte(output), &lDevices)
 	if err != nil {
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
 	}
 
 	badRows := []BlockDevice{}
-	for _, row := range lDevices {
+	for _, row := range lDevices.BlockDevices {
 		// only use device if name is populated, and non-empty
 		if len(strings.Trim(row.Name, " ")) == 0 {
 			badRows = append(badRows, row)
@@ -286,7 +291,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 		blockDevices = append(blockDevices, row)
 	}
 
-	if len(badRows) == len(lDevices) {
+	if len(badRows) == len(lDevices.BlockDevices) {
 		return []BlockDevice{}, badRows, fmt.Errorf("could not parse any of the lsblk entries")
 	}
 

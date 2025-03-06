@@ -80,7 +80,7 @@ spec:
           name: metrics-serving-cert
       hostPID: true
       priorityClassName: ${PRIORITY_CLASS_NAME}
-      serviceAccountName: local-storage-admin
+      serviceAccountName: purple-storage-rh-operator-controller-manager
       volumes:
       - hostPath:
           path: /mnt/local-storage

@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	"github.com/openshift/local-storage-operator/pkg/common"
-	"github.com/openshift/local-storage-operator/pkg/diskmaker"
-	"github.com/openshift/local-storage-operator/pkg/localmetrics"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/client-go/util/workqueue"
@@ -71,7 +71,7 @@ type LocalVolumeReconciler struct {
 	Client          client.Client
 	Scheme          *runtime.Scheme
 	symlinkLocation string
-	localVolume     *localv1.LocalVolume
+	localVolume     *v1alpha1.LocalVolume
 	eventSync       *eventReporter
 	cacheSynced     bool
 
@@ -215,9 +215,9 @@ func (r *LocalVolumeReconciler) generateConfig() *DiskConfig {
 		Disks:           map[string]*Disks{},
 		OwnerName:       r.localVolume.Name,
 		OwnerNamespace:  r.localVolume.Namespace,
-		OwnerKind:       localv1.LocalVolumeKind,
+		OwnerKind:       v1alpha1.LocalVolumeKind,
 		OwnerUID:        string(r.localVolume.UID),
-		OwnerAPIVersion: localv1.GroupVersion.String(),
+		OwnerAPIVersion: v1alpha1.GroupVersion.String(),
 	}
 
 	storageClassDevices := r.localVolume.Spec.StorageClassDevices
@@ -232,19 +232,19 @@ func (r *LocalVolumeReconciler) generateConfig() *DiskConfig {
 
 	return configMapData
 }
-func addOwner(meta *metav1.ObjectMeta, cr *localv1.LocalVolume) {
+func addOwner(meta *metav1.ObjectMeta, cr *v1alpha1.LocalVolume) {
 	trueVal := true
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
-			APIVersion: localv1.GroupVersion.String(),
-			Kind:       localv1.LocalVolumeKind,
+			APIVersion: v1alpha1.GroupVersion.String(),
+			Kind:       v1alpha1.LocalVolumeKind,
 			Name:       cr.Name,
 			UID:        cr.UID,
 			Controller: &trueVal,
 		},
 	}
 }
-func addOwnerLabels(meta *metav1.ObjectMeta, cr *localv1.LocalVolume) bool {
+func addOwnerLabels(meta *metav1.ObjectMeta, cr *v1alpha1.LocalVolume) bool {
 	changed := false
 	if meta.Labels == nil {
 		meta.Labels = map[string]string{}
@@ -270,7 +270,7 @@ func addOwnerLabels(meta *metav1.ObjectMeta, cr *localv1.LocalVolume) bool {
 func (r *LocalVolumeReconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.Result, error) {
 	requeueTime := defaultRequeueTime
 
-	lv := &localv1.LocalVolume{}
+	lv := &v1alpha1.LocalVolume{}
 	err := r.Client.Get(ctx, request.NamespacedName, lv)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -326,7 +326,7 @@ func (r *LocalVolumeReconciler) Reconcile(ctx context.Context, request ctrl.Requ
 	// Cleanup symlinks for deleted PV's
 	klog.InfoS("Looking for symlinks to cleanup", "namespace", request.Namespace, "name", request.Name)
 	ownerLabels := map[string]string{
-		common.PVOwnerKindLabel:      localv1.LocalVolumeKind,
+		common.PVOwnerKindLabel:      v1alpha1.LocalVolumeKind,
 		common.PVOwnerNamespaceLabel: lv.Namespace,
 		common.PVOwnerNameLabel:      lv.Name,
 	}
@@ -684,10 +684,10 @@ func (r *LocalVolumeReconciler) WithManager(mgr ctrl.Manager) error {
 	err := ctrl.NewControllerManagedBy(mgr).
 		// set to 1 explicitly, despite it being the default, as the reconciler is not thread-safe.
 		WithOptions(controller.Options{MaxConcurrentReconciles: 1}).
-		For(&localv1.LocalVolume{}).
+		For(&v1alpha1.LocalVolume{}).
 		Watches(
 			&corev1.ConfigMap{},
-			handler.EnqueueRequestForOwner(mgr.GetScheme(), mgr.GetRESTMapper(), &localv1.LocalVolume{})).
+			handler.EnqueueRequestForOwner(mgr.GetScheme(), mgr.GetRESTMapper(), &v1alpha1.LocalVolume{})).
 		// update owned-pv cache used by provisioner/deleter libs and enequeue owning lvset
 		// only the cache is touched by
 		Watches(&corev1.PersistentVolume{}, &handler.Funcs{

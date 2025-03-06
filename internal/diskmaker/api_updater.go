@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	"github.com/openshift/local-storage-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -23,7 +22,7 @@ const componentName = "local-storage-diskmaker"
 
 type ApiUpdater interface {
 	recordEvent(obj runtime.Object, e *DiskEvent)
-	getLocalVolume(lv *localv1.LocalVolume) (*localv1.LocalVolume, error)
+	getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error)
 	CreateDiscoveryResult(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error
 	GetDiscoveryResult(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error)
 	UpdateDiscoveryResultStatus(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error
@@ -91,7 +90,7 @@ func (s *sdkAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	s.recorder.Eventf(obj, e.EventType, e.EventReason, message)
 }
 
-func (s *sdkAPIUpdater) getLocalVolume(lv *localv1.LocalVolume) (*localv1.LocalVolume, error) {
+func (s *sdkAPIUpdater) getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error) {
 	newLocalVolume := lv.DeepCopy()
 	err := s.client.Get(context.TODO(), types.NamespacedName{Name: newLocalVolume.GetName(), Namespace: newLocalVolume.GetNamespace()}, newLocalVolume)
 	return lv, err

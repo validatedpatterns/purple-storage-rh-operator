@@ -5,10 +5,10 @@ import (
 	"os"
 	"sync"
 
+	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/record"
 
-	"github.com/openshift/local-storage-operator/pkg/diskmaker"
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 

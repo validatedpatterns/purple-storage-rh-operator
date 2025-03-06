@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
-	"github.com/openshift/local-storage-operator/pkg/diskmaker"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 
-	"github.com/openshift/local-storage-operator/pkg/localmetrics"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
@@ -101,7 +101,7 @@ func (r *LocalVolumeSetReconciler) Reconcile(ctx context.Context, request ctrl.R
 	// Cleanup symlinks for deleted PV's
 	klog.InfoS("Looking for symlinks to cleanup", "namespace", request.Namespace, "name", request.Name)
 	ownerLabels := map[string]string{
-		common.PVOwnerKindLabel:      localv1.LocalVolumeSetKind,
+		common.PVOwnerKindLabel:      v1alpha1.LocalVolumeSetKind,
 		common.PVOwnerNamespaceLabel: lvset.Namespace,
 		common.PVOwnerNameLabel:      lvset.Name,
 	}
@@ -552,7 +552,7 @@ func (r *LocalVolumeSetReconciler) WithManager(mgr ctrl.Manager) error {
 		For(&localv1alpha1.LocalVolumeSet{}).
 		Watches(
 			&corev1.ConfigMap{},
-			handler.EnqueueRequestForOwner(mgr.GetScheme(), mgr.GetRESTMapper(), &localv1.LocalVolume{})).
+			handler.EnqueueRequestForOwner(mgr.GetScheme(), mgr.GetRESTMapper(), &v1alpha1.LocalVolume{})).
 		// update owned-pv cache used by provisioner/deleter libs and enequeue owning lvset
 		// only the cache is touched by
 		Watches(&corev1.PersistentVolume{}, &handler.Funcs{

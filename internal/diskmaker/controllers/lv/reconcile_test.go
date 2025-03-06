@@ -13,14 +13,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	v1alpha1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
-	"github.com/openshift/local-storage-operator/pkg/common"
 
-	test "github.com/openshift/local-storage-operator/test/framework"
-	"github.com/openshift/local-storage-operator/test/framework/util"
+	test "github.com/darkdoc/purple-storage-rh-operator/test/framework"
+	"github.com/darkdoc/purple-storage-rh-operator/test/framework/util"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -161,11 +161,11 @@ func TestLoadConfig(t *testing.T) {
 		},
 		OwnerName:       "foobar",
 		OwnerNamespace:  "default",
-		OwnerKind:       localv1.LocalVolumeKind,
+		OwnerKind:       v1alpha1.LocalVolumeKind,
 		OwnerUID:        "foobar",
-		OwnerAPIVersion: localv1.GroupVersion.String(),
+		OwnerAPIVersion: v1alpha1.GroupVersion.String(),
 	}
-	lv := &localv1.LocalVolume{
+	lv := &v1alpha1.LocalVolume{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "local.storage.openshift.io",
 			Kind:       "LocalVolume",
@@ -209,7 +209,7 @@ func TestCreateSymLinkByDeviceID(t *testing.T) {
 	defer os.Remove(fakeDisk.Name())
 	defer os.Remove(fakeDiskByID.Name())
 
-	lv := &localv1.LocalVolume{
+	lv := &v1alpha1.LocalVolume{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "local.storage.openshift.io",
 			Kind:       "LocalVolume",
@@ -275,7 +275,7 @@ func TestWipeDeviceWhenCreateSymLinkByDeviceName(t *testing.T) {
 			defer os.Remove(fname)
 			defer os.RemoveAll(tmpSymLinkTargetDir)
 
-			lv := &localv1.LocalVolume{
+			lv := &v1alpha1.LocalVolume{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "local.storage.openshift.io",
 					Kind:       "LocalVolume",
@@ -306,13 +306,13 @@ func TestWipeDeviceWhenCreateSymLinkByDeviceName(t *testing.T) {
 }
 
 func getFakeDiskMaker(t *testing.T, symlinkLocation string, objs ...runtime.Object) (*LocalVolumeReconciler, *testContext) {
-	scheme, err := localv1.SchemeBuilder.Build()
+	scheme, err := v1alpha1.SchemeBuilder.Build()
 	assert.NoErrorf(t, err, "creating scheme")
 
-	err = localv1.AddToScheme(scheme)
+	err = v1alpha1.AddToScheme(scheme)
 	assert.NoErrorf(t, err, "creating scheme")
 
-	err = localv1alpha1.AddToScheme(scheme)
+	err = v1alpha1alpha1.AddToScheme(scheme)
 	assert.NoErrorf(t, err, "creating scheme")
 
 	err = corev1.AddToScheme(scheme)
@@ -471,7 +471,7 @@ func makePersistentVolumeList(symLinkDir string, params []PVConfigParams) *corev
 					provCommon.AnnProvisionedBy: p.PVAnnotation,
 				},
 				Labels: map[string]string{
-					common.PVOwnerKindLabel: localv1.LocalVolumeKind,
+					common.PVOwnerKindLabel: v1alpha1.LocalVolumeKind,
 				},
 				Name: p.PVName,
 			},
@@ -658,7 +658,7 @@ func TestDeleteReconcile(t *testing.T) {
 			cmNamespace := configMap.GetObjectMeta().GetNamespace()
 			cmName := configMap.GetObjectMeta().GetName()
 
-			lv := &localv1.LocalVolume{
+			lv := &v1alpha1.LocalVolume{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "local.storage.openshift.io",
 					Kind:       "LocalVolume",

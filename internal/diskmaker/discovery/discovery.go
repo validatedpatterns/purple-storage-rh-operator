@@ -9,13 +9,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lvset"
 	diskutil "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	v1 "github.com/openshift/local-storage-operator/api/v1"
-	"github.com/openshift/local-storage-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 
-	"github.com/openshift/local-storage-operator/pkg/localmetrics"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -42,7 +41,6 @@ type DeviceDiscovery struct {
 // NewDeviceDiscovery returns a new DeviceDiscovery instance
 func NewDeviceDiscovery() (*DeviceDiscovery, error) {
 	scheme := scheme.Scheme
-	v1.AddToScheme(scheme)
 	v1alpha1.AddToScheme(scheme)
 	//api.AddToScheme(scheme)
 	apiUpdater, err := diskmaker.NewAPIUpdater(scheme)

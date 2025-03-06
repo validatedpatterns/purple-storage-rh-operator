@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/openshift/local-storage-operator/pkg/diskmaker/discovery"
-	"github.com/openshift/local-storage-operator/pkg/localmetrics"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/discovery"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

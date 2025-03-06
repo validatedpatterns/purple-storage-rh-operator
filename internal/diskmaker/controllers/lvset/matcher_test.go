@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
 
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/resource"

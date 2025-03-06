@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	"github.com/openshift/local-storage-operator/api/v1alpha1"
 
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	"github.com/stretchr/testify/assert"

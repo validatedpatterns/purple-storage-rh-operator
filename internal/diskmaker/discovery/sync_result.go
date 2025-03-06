@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
-	"github.com/openshift/local-storage-operator/api/v1alpha1"
-	"github.com/openshift/local-storage-operator/pkg/common"
 
 	"github.com/pkg/errors"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

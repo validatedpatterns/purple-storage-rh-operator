@@ -1,8 +1,7 @@
 package diskmaker
 
 import (
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	"github.com/openshift/local-storage-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -22,7 +21,7 @@ func (f *MockAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	f.events = append(f.events, e)
 }
 
-func (f *MockAPIUpdater) getLocalVolume(lv *localv1.LocalVolume) (*localv1.LocalVolume, error) {
+func (f *MockAPIUpdater) getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error) {
 	return lv, nil
 }
 

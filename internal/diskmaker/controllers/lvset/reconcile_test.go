@@ -3,10 +3,9 @@ package lvset
 import (
 	"testing"
 
+	v1alphav1api "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	test "github.com/darkdoc/purple-storage-rh-operator/test/framework"
 	"github.com/openshift/client-go/security/clientset/versioned/scheme"
-	v1api "github.com/openshift/local-storage-operator/api/v1"
-	v1alphav1api "github.com/openshift/local-storage-operator/api/v1alpha1"
-	test "github.com/openshift/local-storage-operator/test/framework"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -42,10 +41,7 @@ type testContext struct {
 func newFakeLocalVolumeSetReconciler(t *testing.T, objs ...runtime.Object) (*LocalVolumeSetReconciler, *testContext) {
 	scheme := scheme.Scheme
 
-	err := v1api.AddToScheme(scheme)
-	assert.NoErrorf(t, err, "creating scheme")
-
-	err = v1alphav1api.AddToScheme(scheme)
+	err := v1alphav1api.AddToScheme(scheme)
 	assert.NoErrorf(t, err, "creating scheme")
 
 	err = corev1.AddToScheme(scheme)

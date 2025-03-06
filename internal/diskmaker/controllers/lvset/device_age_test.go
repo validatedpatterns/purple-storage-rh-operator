@@ -5,9 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
+	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +22,7 @@ func (f *fakeClock) getCurrentTime() time.Time {
 func TestDeviceAge(t *testing.T) {
 	// empty the filters and matchers
 	oldFilterMap := FilterMap
-	FilterMap = make(map[string]func(diskutils.BlockDevice, *localv1alpha1.DeviceInclusionSpec) (bool, error), 0)
+	FilterMap = make(map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclusionSpec) (bool, error), 0)
 
 	oldMatcherMap := matcherMap
 	matcherMap = make(map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclusionSpec) (bool, error), 0)

@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	"github.com/stretchr/testify/assert"
 
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	"github.com/openshift/local-storage-operator/pkg/common"
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -25,7 +25,7 @@ func TestCreatePV(t *testing.T) {
 	testTable := []struct {
 		desc      string
 		shouldErr bool
-		lv        localv1.LocalVolume
+		lv        v1alpha1.LocalVolume
 		node      corev1.Node
 		sc        storagev1.StorageClass
 		// device stuff
@@ -39,7 +39,7 @@ func TestCreatePV(t *testing.T) {
 	}{
 		{
 			desc: "basic creation: block on block",
-			lv: localv1.LocalVolume{
+			lv: v1alpha1.LocalVolume{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lv-a",
 					// Namespace: "a",
@@ -57,8 +57,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeBlock),
-			desiredVolMode: string(localv1.PersistentVolumeBlock),
+			actualVolMode:  string(v1alpha1.PersistentVolumeBlock),
+			desiredVolMode: string(v1alpha1.PersistentVolumeBlock),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -67,7 +67,7 @@ func TestCreatePV(t *testing.T) {
 		{
 			desc:      "basic creation: block on fs",
 			shouldErr: true,
-			lv: localv1.LocalVolume{
+			lv: v1alpha1.LocalVolume{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lv-a",
 					// Namespace: "a",
@@ -85,8 +85,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeBlock),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeBlock),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -94,7 +94,7 @@ func TestCreatePV(t *testing.T) {
 		},
 		{
 			desc: "basic creation: fs on block",
-			lv: localv1.LocalVolume{
+			lv: v1alpha1.LocalVolume{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lv-a",
 					// Namespace: "a",
@@ -112,8 +112,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeBlock),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeBlock),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -121,7 +121,7 @@ func TestCreatePV(t *testing.T) {
 		},
 		{
 			desc: "basic creation: fs",
-			lv: localv1.LocalVolume{
+			lv: v1alpha1.LocalVolume{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lv-a",
 					// Namespace: "a",
@@ -139,8 +139,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString("/mnt/local-storage/storageclass-a/device-a"),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -149,7 +149,7 @@ func TestCreatePV(t *testing.T) {
 		{
 			desc:      "actual volume mode is fs, but is not mountpoint",
 			shouldErr: true,
-			lv: localv1.LocalVolume{
+			lv: v1alpha1.LocalVolume{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lv-b",
 					// Namespace: "a",
@@ -167,8 +167,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString("a", "b"), // device not present
 			symlinkpath:    "/mnt/local-storage/storageclass-b/device-b",
 			deviceCapacity: 10 * common.GiB,
@@ -183,7 +183,7 @@ func TestCreatePV(t *testing.T) {
 		if tc.lv.Namespace == "" {
 			tc.lv.Namespace = "default"
 		}
-		tc.lv.Kind = localv1.LocalVolumeKind
+		tc.lv.Kind = v1alpha1.LocalVolumeKind
 		r, testConfig := getFakeDiskMaker(t, "/mnt/local-storage", &tc.lv, &tc.node, &tc.sc)
 		testConfig.runtimeConfig.Node = &tc.node
 		testConfig.runtimeConfig.Name = common.GetProvisionedByValue(tc.node)

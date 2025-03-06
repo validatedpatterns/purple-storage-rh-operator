@@ -8,9 +8,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
-	"github.com/openshift/local-storage-operator/pkg/common"
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	v1alpha1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
+
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -26,7 +27,7 @@ func TestCreatePV(t *testing.T) {
 	testTable := []struct {
 		desc      string
 		shouldErr bool
-		lvset     localv1alpha1.LocalVolumeSet
+		lvset     v1alpha1alpha1.LocalVolumeSet
 		node      corev1.Node
 		sc        storagev1.StorageClass
 		// device stuff
@@ -40,12 +41,12 @@ func TestCreatePV(t *testing.T) {
 	}{
 		{
 			desc: "basic creation: block on block",
-			lvset: localv1alpha1.LocalVolumeSet{
+			lvset: v1alpha1alpha1.LocalVolumeSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lvset-a",
 					// Namespace: "a",
 				},
-				Spec: localv1alpha1.LocalVolumeSetSpec{
+				Spec: v1alpha1alpha1.LocalVolumeSetSpec{
 					StorageClassName: "storageclass-a",
 				},
 			},
@@ -61,8 +62,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeBlock),
-			desiredVolMode: string(localv1.PersistentVolumeBlock),
+			actualVolMode:  string(v1alpha1.PersistentVolumeBlock),
+			desiredVolMode: string(v1alpha1.PersistentVolumeBlock),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -71,12 +72,12 @@ func TestCreatePV(t *testing.T) {
 		{
 			desc:      "basic creation: block on fs",
 			shouldErr: true,
-			lvset: localv1alpha1.LocalVolumeSet{
+			lvset: v1alpha1alpha1.LocalVolumeSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lvset-a",
 					// Namespace: "a",
 				},
-				Spec: localv1alpha1.LocalVolumeSetSpec{
+				Spec: v1alpha1alpha1.LocalVolumeSetSpec{
 					StorageClassName: "storageclass-a",
 				},
 			},
@@ -92,8 +93,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeBlock),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeBlock),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -101,12 +102,12 @@ func TestCreatePV(t *testing.T) {
 		},
 		{
 			desc: "basic creation: fs on block",
-			lvset: localv1alpha1.LocalVolumeSet{
+			lvset: v1alpha1alpha1.LocalVolumeSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lvset-a",
 					// Namespace: "a",
 				},
-				Spec: localv1alpha1.LocalVolumeSetSpec{
+				Spec: v1alpha1alpha1.LocalVolumeSetSpec{
 					StorageClassName: "storageclass-a",
 				},
 			},
@@ -122,8 +123,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeBlock),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeBlock),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString(),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -131,12 +132,12 @@ func TestCreatePV(t *testing.T) {
 		},
 		{
 			desc: "basic creation: fs",
-			lvset: localv1alpha1.LocalVolumeSet{
+			lvset: v1alpha1alpha1.LocalVolumeSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lvset-a",
 					// Namespace: "a",
 				},
-				Spec: localv1alpha1.LocalVolumeSetSpec{
+				Spec: v1alpha1alpha1.LocalVolumeSetSpec{
 					StorageClassName: "storageclass-a",
 				},
 			},
@@ -152,8 +153,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString("/mnt/local-storage/storageclass-a/device-a"),
 			symlinkpath:    "/mnt/local-storage/storageclass-a/device-a",
 			deviceCapacity: 10 * common.GiB,
@@ -162,12 +163,12 @@ func TestCreatePV(t *testing.T) {
 		{
 			desc:      "actual volume mode is fs, but is not mountpoint",
 			shouldErr: true,
-			lvset: localv1alpha1.LocalVolumeSet{
+			lvset: v1alpha1alpha1.LocalVolumeSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "lvset-b",
 					// Namespace: "a",
 				},
-				Spec: localv1alpha1.LocalVolumeSetSpec{
+				Spec: v1alpha1alpha1.LocalVolumeSetSpec{
 					StorageClassName: "storageclass-b",
 				},
 			},
@@ -183,8 +184,8 @@ func TestCreatePV(t *testing.T) {
 				},
 				ReclaimPolicy: &reclaimPolicyDelete,
 			},
-			actualVolMode:  string(localv1.PersistentVolumeFilesystem),
-			desiredVolMode: string(localv1.PersistentVolumeFilesystem),
+			actualVolMode:  string(v1alpha1.PersistentVolumeFilesystem),
+			desiredVolMode: string(v1alpha1.PersistentVolumeFilesystem),
 			mountPoints:    sets.NewString("a", "b"), // device not present
 			symlinkpath:    "/mnt/local-storage/storageclass-b/device-b",
 			deviceCapacity: 10 * common.GiB,
@@ -196,11 +197,11 @@ func TestCreatePV(t *testing.T) {
 		t.Logf("Test Case #%d: %q", i, tc.desc)
 
 		// fake setup
-		tc.lvset.Spec.VolumeMode = localv1.PersistentVolumeMode(tc.desiredVolMode)
+		tc.lvset.Spec.VolumeMode = v1alpha1.PersistentVolumeMode(tc.desiredVolMode)
 		if tc.lvset.Namespace == "" {
 			tc.lvset.Namespace = "default"
 		}
-		tc.lvset.Kind = localv1alpha1.LocalVolumeSetKind
+		tc.lvset.Kind = v1alpha1alpha1.LocalVolumeSetKind
 		r, testConfig := newFakeLocalVolumeSetReconciler(t, &tc.lvset, &tc.node, &tc.sc)
 		r.nodeName = tc.node.Name
 		testConfig.runtimeConfig.Node = &tc.node

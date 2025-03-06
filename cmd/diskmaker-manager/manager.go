@@ -7,12 +7,11 @@ import (
 	provCommon "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/common"
 	provUtil "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/util"
 
-	localv1 "github.com/openshift/local-storage-operator/api/v1"
-	localv1alpha1 "github.com/openshift/local-storage-operator/api/v1alpha1"
-	"github.com/openshift/local-storage-operator/pkg/common"
-	diskmakerControllerLv "github.com/openshift/local-storage-operator/pkg/diskmaker/controllers/lv"
-	diskmakerControllerLvSet "github.com/openshift/local-storage-operator/pkg/diskmaker/controllers/lvset"
-	"github.com/openshift/local-storage-operator/pkg/localmetrics"
+	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
+	diskmakerControllerLv "github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lv"
+	diskmakerControllerLvSet "github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lvset"
+	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	zaplog "go.uber.org/zap"
@@ -38,7 +37,6 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(localv1.AddToScheme(scheme))
 	utilruntime.Must(localv1alpha1.AddToScheme(scheme))
 }
 

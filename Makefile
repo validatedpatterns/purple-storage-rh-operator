@@ -303,7 +303,7 @@ bundle: manifests kustomize operator-sdk ## Generate bundle manifests and metada
 	cd config/console-plugin && $(KUSTOMIZE) edit set image console-plugin=${CONSOLE_PLUGIN_IMAGE}
 	$(KUSTOMIZE) build config/manifests | $(OPERATOR_SDK) generate bundle $(BUNDLE_GEN_FLAGS)
 	$(OPERATOR_SDK) bundle validate ./bundle
-	$(MAKE) add-console-plugin-annotation
+##	$(MAKE) add-console-plugin-annotation
 
 .PHONY: add-console-plugin-annotation
 add-console-plugin-annotation: yq ## Add console-plugin annotation to the CSV

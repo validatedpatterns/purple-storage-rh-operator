@@ -17,9 +17,16 @@ require (
 >>>>>>> 018761f25 (Remove local-storage-operator code deps)
 	github.com/manifestival/controller-runtime-client v0.4.0
 	github.com/manifestival/manifestival v0.7.2
+<<<<<<< HEAD
 	github.com/onsi/ginkgo/v2 v2.21.0
 	github.com/onsi/gomega v1.35.1
 	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
+=======
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/onsi/ginkgo/v2 v2.19.0
+	github.com/onsi/gomega v1.33.1
+	github.com/openshift/api v0.0.0-20240710000542-465787efd0d6
+>>>>>>> 01baede81 (Removed dependencies to local-storage-operator code)
 	github.com/openshift/client-go v0.0.0-20240528061634-b054aa794d87
 <<<<<<< HEAD
 	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
@@ -31,16 +38,20 @@ require (
 	sigs.k8s.io/controller-runtime v0.20.1
 =======
 	github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232
-	github.com/openshift/local-storage-operator v0.0.0-20250305162415-7d76adf7febb
 	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
+	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.71.2
 	github.com/prometheus/client_golang v1.19.1
+	github.com/rogpeppe/go-internal v1.12.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
+	golang.org/x/net v0.33.0
 	golang.org/x/sys v0.28.0
 	k8s.io/api v0.31.0
+	k8s.io/apiextensions-apiserver v0.31.0
 	k8s.io/apimachinery v0.31.0
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/component-helpers v0.31.2
@@ -101,7 +112,6 @@ require (
 <<<<<<< HEAD
 =======
 	github.com/miekg/dns v1.1.61 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/moby/sys/mountinfo v0.7.1 // indirect
 >>>>>>> c0791e857 (Update vendor)
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -111,20 +121,23 @@ require (
 	github.com/prometheus/client_golang v1.19.1 // indirect
 =======
 	github.com/opencontainers/selinux v1.11.0 // indirect
-	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 >>>>>>> 018761f25 (Remove local-storage-operator code deps)
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vincent-petithory/dataurl v0.0.0-20160330182126-9a301d65acbb // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go4.org v0.0.0-20200104003542-c7e774b10ea0 // indirect
+<<<<<<< HEAD
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
+=======
+	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
+	golang.org/x/mod v0.19.0 // indirect
+	golang.org/x/oauth2 v0.21.0 // indirect
+>>>>>>> 01baede81 (Removed dependencies to local-storage-operator code)
 	golang.org/x/sync v0.10.0 // indirect
 <<<<<<< HEAD
 	golang.org/x/sys v0.29.0 // indirect
@@ -141,6 +154,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 <<<<<<< HEAD
+<<<<<<< HEAD
 	k8s.io/apiextensions-apiserver v0.32.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241105132330-32ad38e42d3f // indirect
@@ -149,6 +163,8 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.5.0 // indirect
 =======
 	k8s.io/apiextensions-apiserver v0.31.0 // indirect
+=======
+>>>>>>> 01baede81 (Removed dependencies to local-storage-operator code)
 	k8s.io/apiserver v0.31.2 // indirect
 	k8s.io/cloud-provider v0.27.16 // indirect
 	k8s.io/component-base v0.31.2 // indirect

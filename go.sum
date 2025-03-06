@@ -1356,11 +1356,14 @@ github.com/openshift/library-go v0.0.0-20200831114015-2ab0c61c15de/go.mod h1:6vw
 github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232 h1:Gzs50qkTPO6dYr8iHnGNKCbzY/6y4k8aGIcgo4dAd1Y=
 github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232/go.mod h1:PdASVamWinll2BPxiUpXajTwZxV8A1pQbWEsCN1od7I=
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 018761f25 (Remove local-storage-operator code deps)
 =======
 github.com/openshift/local-storage-operator v0.0.0-20250305162415-7d76adf7febb h1:Irbqo0UCu+0Xql3AyUMw8XAuJs0IuX2fypEwPLIVUWM=
 github.com/openshift/local-storage-operator v0.0.0-20250305162415-7d76adf7febb/go.mod h1:jNHfImchRmm5u7ur5WbtDJ0E8pL6zjYtNKWj4W/89zI=
 >>>>>>> c0791e857 (Update vendor)
+=======
+>>>>>>> 01baede81 (Removed dependencies to local-storage-operator code)
 github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9 h1:O9mVxLtdsSVzYEv4WGtBamzhLOjKipD0nEZungMug+E=
 github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9/go.mod h1:fjKreLaKEeUKsyIkT4wlzIQwUVJ2ZKDUh3CI73ckYIY=
 github.com/openshift/runtime-utils v0.0.0-20200415173359-c45d4ff3f912/go.mod h1:0OXNy7VoqFexkxKqyQbHJLPwn1MFp1/CxRJAgKHM+/o=

@@ -42,22 +42,23 @@ func (e IDPathNotFoundError) Error() string {
 
 // BlockDevice is the a block device as output by lsblk.
 // All the fields are lsblk columns.
+
 type BlockDevice struct {
-	Name   string `json:"name"`
-	KName  string `json:"kname"`
-	Type   string `json:"type"`
-	Model  string `json:"model,omitempty"`
-	Vendor string `json:"vendor,omitempty"`
-	State  string `json:"state,omitempty"`
-	FSType string `json:"fsType"`
-	Size   string `json:"size"`
-	// Children   []BlockDevice `json:"children,omitempty"`
-	Rotational string `json:"rota"`
-	ReadOnly   string `json:"ro,omitempty"`
-	Removable  string `json:"rm,omitempty"`
-	PathByID   string `json:"pathByID,omitempty"`
-	Serial     string `json:"serial,omitempty"`
-	PartLabel  string `json:"partLabel,omitempty"`
+	Name       string `json:"NAME"`
+	Rotational string `json:"ROTA"`
+	Type       string `json:"TYPE"`
+	Size       string `json:"SIZE"`
+	Model      string `json:"MODEL,omitempty"`
+	Vendor     string `json:"VENDOR,omitempty"`
+	ReadOnly   string `json:"RO,omitempty"`
+	Removable  string `json:"RM,omitempty"`
+	State      string `json:"STATE,omitempty"`
+	KName      string `json:"KNAME"`
+	FSType     string `json:"fsType"`
+	Serial     string `json:"SERIAL,omitempty"`
+	PartLabel  string `json:"PARTLABEL,omitempty"`
+	PathByID   string `json:"pathByID,omitempty"` // Fetched from introspecting /dev
+	WWN        string `json:"WWN,omitempty"`      // Purple unicorn storage fields
 }
 
 // IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
@@ -241,79 +242,52 @@ func PathEvalsToDiskLabel(path, devName string) (bool, error) {
 }
 
 // ListBlockDevices using the lsblk command
-func ListBlockDevices(devices []string) ([]BlockDevice, []string, error) {
+func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 	// var output bytes.Buffer
 	var blockDevices []BlockDevice
 
 	deviceFSMap, err := GetDeviceFSMap(devices)
 	if err != nil {
-		return []BlockDevice{}, []string{}, errors.Wrap(err, "failed to list block devices")
+		return []BlockDevice{}, []BlockDevice{}, errors.Wrap(err, "failed to list block devices")
 	}
 
 	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL"
-	args := []string{"--pairs", "-b", "-o", columns}
+	args := []string{"--json", "-b", "-o", columns}
 	cmd := ExecCommand("lsblk", args...)
 	klog.Infof("Executing command: %#v", cmd)
 	output, err := executeCmdWithCombinedOutput(cmd)
 	if err != nil {
-		return []BlockDevice{}, []string{output}, err
+		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to run command: %s", err)
 	}
-	badRows := make([]string, 0)
-	// convert to json and then Marshal.
-	outputMapList := make([]map[string]interface{}, 0)
-	rowList := strings.Split(output, "\n")
-	for _, row := range rowList {
-		if len(strings.Trim(row, " ")) == 0 {
-			break
-		}
-		outputMap := make(map[string]interface{})
-		// split by `" ` to avoid splitting on spaces in MODEL,VENDOR
-		keyValues := strings.Split(row, `" `)
-		for _, keyValue := range keyValues {
-			keyValueList := strings.Split(keyValue, "=")
-			if len(keyValueList) != 2 {
-				continue
-			}
-			key := strings.ToLower(keyValueList[0])
-			value := strings.Replace(keyValueList[1], `"`, "", -1)
-			outputMap[key] = strings.TrimSpace(value)
-		}
+	lDevices := []BlockDevice{}
+	err = json.Unmarshal([]byte(output), &lDevices)
+	if err != nil {
+		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to unmarshal JSON %s: %s", output, err)
+	}
 
+	badRows := []BlockDevice{}
+	for _, row := range lDevices {
 		// only use device if name is populated, and non-empty
-		v, found := outputMap["name"]
-		if !found {
+		if len(strings.Trim(row.Name, " ")) == 0 {
 			badRows = append(badRows, row)
+			e, err := json.Marshal(badRows)
+			m := fmt.Sprintf("Found an entry with empty name: %s.", e)
+			if err != nil {
+				m = fmt.Sprintf(m+" Failed to marshal ", err)
+			}
+			klog.Warning(m)
 			break
-		}
-		name := v.(string)
-		if len(strings.Trim(name, " ")) == 0 {
-			badRows = append(badRows, row)
-			break
-		}
-		if len(badRows) > 0 {
-			klog.Warningf("failed to parse all the lsblk rows. Bad rows: %+v", badRows)
 		}
 
 		// Update device filesystem using `blkid`
-		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", name)]; ok {
-			outputMap["fsType"] = fs
+		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", row.Name)]; ok {
+			row.FSType = fs
 		}
-
-		outputMapList = append(outputMapList, outputMap)
+		blockDevices = append(blockDevices, row)
 	}
 
-	if len(badRows) == len(rowList) {
-		return []BlockDevice{}, badRows, fmt.Errorf("could not parse any of the lsblk rows")
-	}
-
-	jsonBytes, err := json.Marshal(outputMapList)
-	if err != nil {
-		return []BlockDevice{}, badRows, err
-	}
-
-	err = json.Unmarshal(jsonBytes, &blockDevices)
-	if err != nil {
-		return []BlockDevice{}, badRows, err
+	if len(badRows) == len(lDevices) {
+		return []BlockDevice{}, badRows, fmt.Errorf("could not parse any of the lsblk entries")
 	}
 
 	return blockDevices, badRows, nil

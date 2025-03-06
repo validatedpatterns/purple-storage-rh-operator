@@ -40,6 +40,7 @@ import (
 
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
+	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
@@ -58,6 +59,8 @@ func init() {
 	utilruntime.Must(purplev1alpha1.AddToScheme(scheme))
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
+	utilruntime.Must(monitoringv1.AddToScheme(scheme))
+
 	utilruntime.Must(consolev1.AddToScheme(scheme))
 
 	//+kubebuilder:scaffold:scheme

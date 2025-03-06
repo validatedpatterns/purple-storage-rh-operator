@@ -28,22 +28,33 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-03-02T09:26:18Z"
-    operators.operatorframework.io/builder: operator-sdk-v1.38.0
+    createdAt: "2025-03-06T10:35:31Z"
+    operators.operatorframework.io/builder: operator-sdk-v1.37.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
-  name: purple-storage-rh-operator.v0.0.4
+  name: purple-storage-rh-operator.v6.6.6
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+    - kind: LocalVolumeDiscovery
+      name: localvolumediscoveries.purple.purplestorage.com
+      version: v1alpha1
+    - kind: LocalVolumeDiscoveryResult
+      name: localvolumediscoveryresults.purple.purplestorage.com
+      version: v1alpha1
+    - kind: LocalVolume
+      name: localvolumes.purple.purplestorage.com
+      version: v1alpha1
+    - kind: LocalVolumeSet
+      name: localvolumesets.purple.purplestorage.com
+      version: v1alpha1
     - description: PurpleStorage is the Schema for the purplestorages API
       displayName: Purple Storage
       kind: PurpleStorage
       name: purplestorages.purple.purplestorage.com
       specDescriptors:
-      - description: MachineConfig labelling for the installation of kernel-devel
-          package
+      - description: MachineConfig labeling for the installation of kernel-devel package
         displayName: Machine Config
         path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
@@ -424,6 +435,18 @@ spec:
           - list
           - watch
         - apiGroups:
+          - console.openshift.io
+          resources:
+          - consoleplugins
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
           - coordination.k8s.io
           resources:
           - configmaps
@@ -513,7 +536,12 @@ spec:
           - servicemonitors
           verbs:
           - create
+          - delete
           - get
+          - list
+          - patch
+          - update
+          - watch
         - apiGroups:
           - networking.k8s.io
           resources:
@@ -564,6 +592,42 @@ spec:
         - apiGroups:
           - purple.purplestorage.com
           resources:
+          - localvolumediscoveries
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - purple.purplestorage.com
+          resources:
+          - localvolumes
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - purple.purplestorage.com
+          resources:
+          - localvolumesets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - purple.purplestorage.com
+          resources:
           - purplestorages
           verbs:
           - create
@@ -593,6 +657,20 @@ spec:
           - clusterrolebindings
           verbs:
           - '*'
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterrolebindings
+          - clusterroles
+          - rolebindings
+          verbs:
           - create
           - delete
           - get
@@ -1347,6 +1425,7 @@ spec:
           resources:
           - storageclasses
           verbs:
+          - '*'
           - create
           - delete
           - get
@@ -1381,6 +1460,47 @@ spec:
         serviceAccountName: purple-storage-rh-operator-controller-manager
       deployments:
       - label:
+          app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
+        name: purple-storage-rh-operator-console-plugin
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                app.kubernetes.io/component: purple-storage-rh-operator-console-plugin
+            spec:
+              containers:
+              - image: quay.io/hybridcloudpatterns/purple-storage-rh-operator-console:v6.6.6
+                name: purple-storage-rh-operator-console-plugin
+                ports:
+                - containerPort: 9443
+                  name: pscp-server
+                  protocol: TCP
+                resources:
+                  requests:
+                    cpu: 10m
+                    memory: 50Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+                  capabilities:
+                    drop:
+                    - ALL
+                volumeMounts:
+                - mountPath: /var/serving-cert
+                  name: purplestorage-plugin-cert
+                  readOnly: true
+              securityContext:
+                runAsNonRoot: true
+              volumes:
+              - name: purplestorage-plugin-cert
+                secret:
+                  defaultMode: 420
+                  secretName: purplestorage-plugin-cert
+      - label:
           app.kubernetes.io/managed-by: kustomize
           app.kubernetes.io/name: purple-storage-rh-operator
           control-plane: controller-manager
@@ -1405,7 +1525,12 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/hybridcloudpatterns/purple-storage-rh-operator:0.0.4
+                env:
+                - name: DEPLOYMENT_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                image: quay.io/aeros/purple-storage-rh-operator:6.6.6
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -1531,7 +1656,7 @@ spec:
   minKubeVersion: 1.23.0
   provider:
     name: Purple Team
-  version: 0.0.4
+  version: 6.6.6
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

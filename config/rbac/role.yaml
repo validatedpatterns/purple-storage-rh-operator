@@ -346,6 +346,18 @@ rules:
   - list
   - watch
 - apiGroups:
+  - console.openshift.io
+  resources:
+  - consoleplugins
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - coordination.k8s.io
   resources:
   - configmaps
@@ -435,7 +447,12 @@ rules:
   - servicemonitors
   verbs:
   - create
+  - delete
   - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
   - networking.k8s.io
   resources:
@@ -482,6 +499,42 @@ rules:
   - get
   - list
   - patch
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumediscoveries
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumesets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - purple.purplestorage.com
@@ -1280,6 +1333,55 @@ rules:
   - storage.k8s.io
   resources:
   - volumeattachments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: manager-role
+  namespace: default
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - events
+  - persistentvolumeclaims
+  - pods
+  - secrets
+  - services
+  - services/finalizers
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resourceNames:
+  - local-storage-operator
+  resources:
+  - deployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
   verbs:
   - create
   - delete

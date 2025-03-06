@@ -117,3 +117,19 @@ func parseAndReturnVersion(versionStr string) (*semver.Version, error) {
 	}
 	return s, nil
 }
+
+// GetDeploymentNamespace returns the Namespace this operator is deployed on.
+func GetDeploymentNamespace() (string, error) {
+	// deployNamespaceEnvVar is the constant for env variable DEPLOYMENT_NAMESPACE
+	// which specifies the Namespace to watch.
+	// An empty value means the operator is running with cluster scope.
+	return "openshift-operators", nil
+	// TODO: fix the below part
+	// var deployNamespaceEnvVar = "DEPLOYMENT_NAMESPACE"
+
+	// ns, found := os.LookupEnv(deployNamespaceEnvVar)
+	// if !found {
+	// 	return "", fmt.Errorf("%s must be set", deployNamespaceEnvVar)
+	// }
+	// return ns, nil
+}

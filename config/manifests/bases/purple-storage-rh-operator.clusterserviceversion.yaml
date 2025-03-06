@@ -15,8 +15,7 @@ spec:
       kind: PurpleStorage
       name: purplestorages.purple.purplestorage.com
       specDescriptors:
-      - description: MachineConfig labelling for the installation of kernel-devel
-          package
+      - description: MachineConfig labeling for the installation of kernel-devel package
         displayName: Machine Config
         path: mco_config
       - description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native

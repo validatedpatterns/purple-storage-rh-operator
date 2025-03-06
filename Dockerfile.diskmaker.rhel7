@@ -1,0 +1,27 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest AS builder
+RUN microdnf install make git-core jq tar -y && microdnf clean all
+WORKDIR /workspace
+COPY . .
+
+# use latest Go z release
+ENV GOTOOLCHAIN=auto
+ENV GO_INSTALL_DIR=/golang
+
+RUN export GO_VERSION=$(grep -E "go [[:digit:]]\.[[:digit:]][[:digit:]]" go.mod | awk '{print $2}') && \
+    export GO_FILENAME=$(curl -sL 'https://go.dev/dl/?mode=json&include=all' | jq -r "[.[] | select(.version | startswith(\"go${GO_VERSION}\"))][0].files[] | select(.os == \"linux\" and .arch == \"amd64\") | .filename") && \
+    curl -sL -o go.tar.gz "https://golang.org/dl/${GO_FILENAME}" && \
+    mkdir -p ${GO_INSTALL_DIR} && \
+    tar -C ${GO_INSTALL_DIR} -xzf go.tar.gz && \
+    rm go.tar.gz && ln -sf ${GO_INSTALL_DIR}/go/bin/go /usr/bin/go
+
+RUN make build-diskmaker
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+COPY --from=builder /workspace/_output/bin/diskmaker /usr/bin/
+# COPY --from=builder /workspace/hack/scripts /scripts
+# COPY config/manifests /manifests
+
+# RUN microdnf install -y e2fsprogs xfsprogs && microdnf clean all
+
+ENTRYPOINT ["/usr/bin/diskmaker"]

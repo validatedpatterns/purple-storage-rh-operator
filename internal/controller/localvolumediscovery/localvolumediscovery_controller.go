@@ -60,6 +60,7 @@ type LocalVolumeDiscoveryReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries/status,verbs=get;list;watch;create;update;patch;delete
 // This is needed for the binary running in the containers (daemonset) to sync the results
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults/status,verbs=get;list;watch;create;update;patch;delete

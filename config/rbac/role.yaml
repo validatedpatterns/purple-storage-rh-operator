@@ -224,6 +224,16 @@ rules:
   - '*'
   - update
 - apiGroups:
+  - ""
+  - storage.k8s.io
+  resources:
+  - configmaps
+  - persistentvolumeclaims
+  - persistentvolumes
+  - storageclasses
+  verbs:
+  - '*'
+- apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
@@ -504,6 +514,42 @@ rules:
   - purple.purplestorage.com
   resources:
   - localvolumediscoveries
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumediscoveries/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumediscoveryresults
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - purple.purplestorage.com
+  resources:
+  - localvolumediscoveryresults/status
   verbs:
   - create
   - delete
@@ -1320,6 +1366,14 @@ rules:
   - use
   - watch
 - apiGroups:
+  - security.openshift.io
+  resourceNames:
+  - privileged
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use
+- apiGroups:
   - storage.k8s.io
   resources:
   - csidrivers
@@ -1393,6 +1447,16 @@ rules:
   - deployments/finalizers
   verbs:
   - update
+- apiGroups:
+  - local.storage.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:

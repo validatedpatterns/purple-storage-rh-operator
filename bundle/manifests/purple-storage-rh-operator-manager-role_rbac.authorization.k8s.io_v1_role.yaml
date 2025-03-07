@@ -35,6 +35,16 @@ rules:
   verbs:
   - update
 - apiGroups:
+  - local.storage.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
   - rbac.authorization.k8s.io
   resources:
   - roles

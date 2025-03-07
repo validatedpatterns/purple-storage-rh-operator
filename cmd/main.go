@@ -37,10 +37,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
+	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
-	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+
+	lvcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolume"
+	lvdcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolumediscovery"
+	nodedaemoncontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/nodedaemon"
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
@@ -137,6 +141,37 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
+
+	if err = (&lvdcontroller.LocalVolumeDiscoveryReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create LocalVolumeDiscovery controller")
+		os.Exit(1)
+	}
+	if err = (&nodedaemoncontroller.DaemonReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create NodeDaemon controller")
+		os.Exit(1)
+	}
+	if err = (&lvcontroller.LocalVolumeReconciler{
+		Client: mgr.GetClient(),
+		// LvMap:  &common.StorageClassOwnerMap{},
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create LocalVolume controller")
+		os.Exit(1)
+	}
+	// if err = (&lvscontroller.LocalVolumeSetReconciler{
+	// 	Client: mgr.GetClient(),
+	// 	// LvSetMap: &common.StorageClassOwnerMap{},
+	// 	Scheme: mgr.GetScheme(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	setupLog.Error(err, "unable to create LocalVolumeSet controller")
+	// 	os.Exit(1)
+	// }
 
 	if err = (&controller.PurpleStorageReconciler{
 		Client: mgr.GetClient(),

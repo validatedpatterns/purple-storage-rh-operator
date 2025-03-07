@@ -56,7 +56,7 @@ spec:
                 description: Version of IBMs installation manifests found at https://github.com/IBM/ibm-spectrum-scale-container-native
                 type: string
               mco_config:
-                description: MachineConfig labelling for the installation of kernel-devel
+                description: MachineConfig labeling for the installation of kernel-devel
                   package
                 properties:
                   create:

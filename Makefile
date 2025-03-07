@@ -50,6 +50,11 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 # BUNDLE_GEN_FLAGS are the flags passed to the operator-sdk generate bundle command
 BUNDLE_GEN_FLAGS ?= -q --overwrite --version $(VERSION) $(BUNDLE_METADATA_OPTS)
 
+DISKMAKER_IMAGE ?= $(IMAGE_TAG_BASE)-diskmaker:v$(VERSION)
+REV=$(shell git describe --long --tags --match='v*' --dirty 2>/dev/null || git rev-list -n1 HEAD)
+CURPATH=$(PWD)
+TARGET_DIR=$(CURPATH)/_output/bin
+
 # USE_IMAGE_DIGESTS defines if images are resolved via tags or digests
 # You can enable this value if you would like to use SHA Based Digests
 # To enable set flag to true
@@ -143,6 +148,10 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 ##@ Build
 
+.PHONY: build-diskmaker
+build-diskmaker: ## Build diskmaker binary.
+	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=vendor -ldflags '-X main.version=$(REV)' -o $(TARGET_DIR)/diskmaker $(CURPATH)/cmd/diskmaker-manager
+
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
 	GOOS=${GOOS} GOARCH=${GOARCH} hack/build.sh
@@ -167,6 +176,14 @@ docker-build: ## Build docker image with the manager.
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
 	$(CONTAINER_TOOL) push ${IMG}
+
+.PHONY: diskmaker-docker-build
+diskmaker-docker-build: ## Build docker image of the diskmaker
+	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel7 .
+
+.PHONY: diskmaker-docker-push
+diskmaker-docker-push: ## Push docker image of the diskmaker
+	$(CONTAINER_TOOL) push $(DISKMAKER_IMAGE)
 
 # PLATFORMS defines the target platforms for the manager image be built to provide support to multiple
 # architectures. (i.e. make docker-buildx IMG=myregistry/mypoperator:0.0.1). To use this option you need to:

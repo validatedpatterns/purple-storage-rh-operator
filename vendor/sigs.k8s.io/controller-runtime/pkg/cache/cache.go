@@ -19,15 +19,10 @@ package cache
 import (
 	"context"
 	"fmt"
-	"maps"
 	"net/http"
-<<<<<<< HEAD
-	"slices"
-	"sort"
-=======
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 	"time"
 
+	"golang.org/x/exp/maps"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -214,28 +209,12 @@ type Options struct {
 	// DefaultNamespaces.
 	DefaultUnsafeDisableDeepCopy *bool
 
-<<<<<<< HEAD
-	// DefaultEnableWatchBookmarks requests watch events with type "BOOKMARK".
-	// Servers that do not implement bookmarks may ignore this flag and
-	// bookmarks are sent at the server's discretion. Clients should not
-	// assume bookmarks are returned at any specific interval, nor may they
-	// assume the server will send any BOOKMARK event during a session.
-	//
-	// This will be used for all object types, unless it is set in ByObject or
-	// DefaultNamespaces.
-	//
-	// Defaults to true.
-	DefaultEnableWatchBookmarks *bool
-
-=======
->>>>>>> 9f3cc0db0 (Add vendoring)
 	// ByObject restricts the cache's ListWatch to the desired fields per GVK at the specified object.
 	// object, this will fall through to Default* settings.
 	ByObject map[client.Object]ByObject
 
-	// NewInformer allows overriding of NewSharedIndexInformer, for example for testing
-	// or if someone wants to write their own Informer.
-	NewInformer func(toolscache.ListerWatcher, runtime.Object, time.Duration, toolscache.Indexers) toolscache.SharedIndexInformer
+	// newInformer allows overriding of NewSharedIndexInformer for testing.
+	newInformer *func(toolscache.ListerWatcher, runtime.Object, time.Duration, toolscache.Indexers) toolscache.SharedIndexInformer
 }
 
 // ByObject offers more fine-grained control over the cache's ListWatch by object.
@@ -280,18 +259,6 @@ type ByObject struct {
 	// Be very careful with this, when enabled you must DeepCopy any object before mutating it,
 	// otherwise you will mutate the object in the cache.
 	UnsafeDisableDeepCopy *bool
-<<<<<<< HEAD
-
-	// EnableWatchBookmarks requests watch events with type "BOOKMARK".
-	// Servers that do not implement bookmarks may ignore this flag and
-	// bookmarks are sent at the server's discretion. Clients should not
-	// assume bookmarks are returned at any specific interval, nor may they
-	// assume the server will send any BOOKMARK event during a session.
-	//
-	// Defaults to true.
-	EnableWatchBookmarks *bool
-=======
->>>>>>> 9f3cc0db0 (Add vendoring)
 }
 
 // Config describes all potential options for a given watch.
@@ -318,18 +285,6 @@ type Config struct {
 	// UnsafeDisableDeepCopy specifies if List and Get requests against the
 	// cache should not DeepCopy. A nil value allows to default this.
 	UnsafeDisableDeepCopy *bool
-<<<<<<< HEAD
-
-	// EnableWatchBookmarks requests watch events with type "BOOKMARK".
-	// Servers that do not implement bookmarks may ignore this flag and
-	// bookmarks are sent at the server's discretion. Clients should not
-	// assume bookmarks are returned at any specific interval, nor may they
-	// assume the server will send any BOOKMARK event during a session.
-	//
-	// Defaults to true.
-	EnableWatchBookmarks *bool
-=======
->>>>>>> 9f3cc0db0 (Add vendoring)
 }
 
 // NewCacheFunc - Function for creating a new cache from the options and a rest config.
@@ -414,18 +369,8 @@ func newCache(restConfig *rest.Config, opts Options) newCacheFunc {
 					Field: config.FieldSelector,
 				},
 				Transform:             config.Transform,
-<<<<<<< HEAD
-				WatchErrorHandler:     opts.DefaultWatchErrorHandler,
-				UnsafeDisableDeepCopy: ptr.Deref(config.UnsafeDisableDeepCopy, false),
-<<<<<<< HEAD
-				EnableWatchBookmarks:  ptr.Deref(config.EnableWatchBookmarks, true),
-				NewInformer:           opts.NewInformer,
-=======
-=======
 				UnsafeDisableDeepCopy: pointer.BoolDeref(config.UnsafeDisableDeepCopy, false),
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 				NewInformer:           opts.newInformer,
->>>>>>> 9f3cc0db0 (Add vendoring)
 			}),
 			readerFailOnMissingInformer: opts.ReaderFailOnMissingInformer,
 		}
@@ -461,10 +406,6 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 		}
 	}
 
-<<<<<<< HEAD
-	opts.ByObject = maps.Clone(opts.ByObject)
-	opts.DefaultNamespaces = maps.Clone(opts.DefaultNamespaces)
-=======
 	for namespace, cfg := range opts.DefaultNamespaces {
 		cfg = defaultConfig(cfg, optionDefaultsToConfig(&opts))
 		if namespace == metav1.NamespaceAll {
@@ -473,7 +414,6 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 		opts.DefaultNamespaces[namespace] = cfg
 	}
 
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 	for obj, byObject := range opts.ByObject {
 		isNamespaced, err := apiutil.IsObjectNamespaced(obj, opts.Scheme, opts.Mapper)
 		if err != nil {
@@ -483,21 +423,11 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 			return opts, fmt.Errorf("type %T is not namespaced, but its ByObject.Namespaces setting is not nil", obj)
 		}
 
-<<<<<<< HEAD
-		if isNamespaced && byObject.Namespaces == nil {
-			byObject.Namespaces = maps.Clone(opts.DefaultNamespaces)
-		} else {
-			byObject.Namespaces = maps.Clone(byObject.Namespaces)
-		}
-
-		// Default the namespace-level configs first, because they need to use the undefaulted type-level config
-		// to be able to potentially fall through to settings from DefaultNamespaces.
-=======
 		// Default the namespace-level configs first, because they need to use the undefaulted type-level config.
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 		for namespace, config := range byObject.Namespaces {
 			// 1. Default from the undefaulted type-level config
 			config = defaultConfig(config, byObjectToConfig(byObject))
+
 			// 2. Default from the namespace-level config. This was defaulted from the global default config earlier, but
 			//    might not have an entry for the current namespace.
 			if defaultNamespaceSettings, hasDefaultNamespace := opts.DefaultNamespaces[namespace]; hasDefaultNamespace {
@@ -510,7 +440,7 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 			if namespace == metav1.NamespaceAll {
 				config.FieldSelector = fields.AndSelectors(
 					appendIfNotNil(
-						namespaceAllSelector(slices.Collect(maps.Keys(byObject.Namespaces))),
+						namespaceAllSelector(maps.Keys(byObject.Namespaces)),
 						config.FieldSelector,
 					)...,
 				)
@@ -532,25 +462,6 @@ func defaultOpts(config *rest.Config, opts Options) (Options, error) {
 		opts.ByObject[obj] = byObject
 	}
 
-<<<<<<< HEAD
-	// Default namespaces after byObject has been defaulted, otherwise a namespace without selectors
-	// will get the `Default` selectors, then get copied to byObject and then not get defaulted from
-	// byObject, as it already has selectors.
-	for namespace, cfg := range opts.DefaultNamespaces {
-		cfg = defaultConfig(cfg, optionDefaultsToConfig(&opts))
-		if namespace == metav1.NamespaceAll {
-			cfg.FieldSelector = fields.AndSelectors(
-				appendIfNotNil(
-					namespaceAllSelector(slices.Collect(maps.Keys(opts.DefaultNamespaces))),
-					cfg.FieldSelector,
-				)...,
-			)
-		}
-		opts.DefaultNamespaces[namespace] = cfg
-	}
-
-=======
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 	// Default the resync period to 10 hours if unset
 	if opts.SyncPeriod == nil {
 		opts.SyncPeriod = &defaultSyncPeriod

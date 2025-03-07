@@ -117,28 +117,6 @@ func newClient(config *rest.Config, options Options) (*client, error) {
 		config.UserAgent = rest.DefaultKubernetesUserAgent()
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	if config.WarningHandler == nil {
-		// By default, we surface warnings.
-		config.WarningHandler = log.NewKubeAPIWarningLogger(
-			log.Log.WithName("KubeAPIWarningLogger"),
-			log.KubeAPIWarningLoggerOptions{
-				Deduplicate: false,
-			},
-		)
-=======
-	// By default, we de-duplicate and surface warnings.
-	config.WarningHandler = log.NewKubeAPIWarningLogger(
-		log.Log.WithName("KubeAPIWarningLogger"),
-		log.KubeAPIWarningLoggerOptions{
-			Deduplicate: !options.WarningHandler.AllowDuplicateLogs,
-		},
-	)
-	if options.WarningHandler.SuppressWarnings {
-		config.WarningHandler = rest.NoWarnings{}
->>>>>>> 9f3cc0db0 (Add vendoring)
-=======
 	if !options.WarningHandler.SuppressWarnings {
 		// surface warnings
 		logger := log.Log.WithName("KubeAPIWarningLogger")
@@ -152,7 +130,6 @@ func newClient(config *rest.Config, options Options) (*client, error) {
 				Deduplicate: !options.WarningHandler.AllowDuplicateLogs,
 			},
 		)
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 	}
 
 	// Use the rest HTTP client for the provided config if unset

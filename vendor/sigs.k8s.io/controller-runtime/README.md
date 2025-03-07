@@ -40,29 +40,6 @@ Contributors:
   * [Documentation Changes](/.github/PULL_REQUEST_TEMPLATE/docs.md)
   * [Test/Build/Other Changes](/.github/PULL_REQUEST_TEMPLATE/other.md)
 
-<<<<<<< HEAD
-## Compatibility
-
-Every minor version of controller-runtime has been tested with a specific minor version of client-go. A controller-runtime minor version *may* be compatible with
-other client-go minor versions, but this is by chance and neither supported nor tested. In general, we create one minor version of controller-runtime
-for each minor version of client-go and other k8s.io/* dependencies.
-
-The minimum Go version of controller-runtime is the highest minimum Go version of our Go dependencies. Usually, this will
-be identical to the minimum Go version of the corresponding k8s.io/* dependencies.
-
-Compatible k8s.io/*, client-go and minimum Go versions can be looked up in our [go.mod](go.mod) file.
-
-|          | k8s.io/*, client-go | minimum Go version |
-|----------|:-------------------:|:------------------:|
-| CR v0.20 |        v0.32        |        1.23        |
-| CR v0.19 |        v0.31        |        1.22        |
-| CR v0.18 |        v0.30        |        1.22        |
-| CR v0.17 |        v0.29        |        1.21        |
-| CR v0.16 |        v0.28        |        1.20        |
-| CR v0.15 |        v0.27        |        1.20        |
-
-=======
->>>>>>> 9f3cc0db0 (Add vendoring)
 ## FAQ
 
 See [FAQ.md](FAQ.md)

@@ -16,6 +16,15 @@ limitations under the License.
 
 package metrics
 
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"k8s.io/client-go/util/workqueue"
+)
+
+// This file is copied and adapted from k8s.io/component-base/metrics/prometheus/workqueue
+// which registers metrics to the k8s legacy Registry. We require very
+// similar functionality, but must register metrics to a different Registry.
+
 // Metrics subsystem and all keys used by the workqueue.
 const (
 	WorkQueueSubsystem         = "workqueue"
@@ -27,8 +36,6 @@ const (
 	LongestRunningProcessorKey = "longest_running_processor_seconds"
 	RetriesKey                 = "retries_total"
 )
-<<<<<<< HEAD
-=======
 
 var (
 	depth = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -121,4 +128,3 @@ func (workqueueMetricsProvider) NewLongestRunningProcessorSecondsMetric(name str
 func (workqueueMetricsProvider) NewRetriesMetric(name string) workqueue.CounterMetric {
 	return retries.WithLabelValues(name)
 }
->>>>>>> 9f3cc0db0 (Add vendoring)

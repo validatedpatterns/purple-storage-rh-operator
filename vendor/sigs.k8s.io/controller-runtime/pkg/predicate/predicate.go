@@ -143,8 +143,7 @@ func (ResourceVersionChangedPredicate) Update(e event.UpdateEvent) bool {
 // The metadata.generation field of an object is incremented by the API server when writes are made to the spec field of an object.
 // This allows a controller to ignore update events where the spec is unchanged, and only the metadata and/or status fields are changed.
 //
-// For CustomResource objects the Generation is incremented when spec is changed, or status changed and status not modeled as subresource.
-// subresource status update will not increase Generation.
+// For CustomResource objects the Generation is only incremented when the status subresource is enabled.
 //
 // Caveats:
 //
@@ -154,32 +153,8 @@ func (ResourceVersionChangedPredicate) Update(e event.UpdateEvent) bool {
 //
 // * With this predicate, any update events with writes only to the status field will not be reconciled.
 // So in the event that the status block is overwritten or wiped by someone else the controller will not self-correct to restore the correct status.
-<<<<<<< HEAD
-type GenerationChangedPredicate = TypedGenerationChangedPredicate[client.Object]
-
-// TypedGenerationChangedPredicate implements a default update predicate function on Generation change.
-//
-// This predicate will skip update events that have no change in the object's metadata.generation field.
-// The metadata.generation field of an object is incremented by the API server when writes are made to the spec field of an object.
-// This allows a controller to ignore update events where the spec is unchanged, and only the metadata and/or status fields are changed.
-//
-// For CustomResource objects the Generation is incremented when spec is changed, or status changed and status not modeled as subresource.
-// subresource status update will not increase Generation.
-//
-// Caveats:
-//
-// * The assumption that the Generation is incremented only on writing to the spec does not hold for all APIs.
-// E.g For Deployment objects the Generation is also incremented on writes to the metadata.annotations field.
-// For object types other than CustomResources be sure to verify which fields will trigger a Generation increment when they are written to.
-//
-// * With this predicate, any update events with writes only to the status field will not be reconciled.
-// So in the event that the status block is overwritten or wiped by someone else the controller will not self-correct to restore the correct status.
-type TypedGenerationChangedPredicate[T metav1.Object] struct {
-	TypedFuncs[T]
-=======
 type GenerationChangedPredicate struct {
 	Funcs
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // Update implements default UpdateEvent filter for validating generation change.

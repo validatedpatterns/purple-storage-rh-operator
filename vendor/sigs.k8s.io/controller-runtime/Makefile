@@ -24,14 +24,6 @@
 SHELL:=/usr/bin/env bash
 .DEFAULT_GOAL:=help
 
-<<<<<<< HEAD
-#
-# Go.
-#
-GO_VERSION ?= 1.23.2
-
-=======
->>>>>>> 9f3cc0db0 (Add vendoring)
 # Use GOPROXY environment variable if set
 GOPROXY := $(shell go env GOPROXY)
 ifeq ($(GOPROXY),)

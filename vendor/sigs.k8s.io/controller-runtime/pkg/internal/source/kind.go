@@ -44,11 +44,7 @@ func (ks *Kind) Start(ctx context.Context, handler handler.EventHandler, queue w
 	// cache.GetInformer will block until its context is cancelled if the cache was already started and it can not
 	// sync that informer (most commonly due to RBAC issues).
 	ctx, ks.startCancel = context.WithCancel(ctx)
-<<<<<<< HEAD
-	ks.startedErr = make(chan error, 1) // Buffer chan to not leak goroutines if WaitForSync isn't called
-=======
 	ks.started = make(chan error)
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 	go func() {
 		var (
 			i       cache.Informer

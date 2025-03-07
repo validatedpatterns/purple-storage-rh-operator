@@ -5,13 +5,13 @@ linters:
     - asciicheck
     - bidichk
     - bodyclose
-    - copyloopvar
     - dogsled
     - dupl
     - errcheck
     - errchkjson
     - errorlint
     - exhaustive
+    - exportloopref
     - ginkgolinter
     - goconst
     - gocritic
@@ -19,6 +19,7 @@ linters:
     - gofmt
     - goimports
     - goprintffuncname
+    - gosec
     - gosimple
     - govet
     - importas
@@ -160,20 +161,8 @@ issues:
     - linters:
         - dupl
       path: _test\.go
-    - linters:
-        - revive
-      path: .*/internal/.*
-    - linters:
-        - unused
-      # Seems to incorrectly trigger on the two implementations that are only
-      # used through an interface and not directly..?
-      path: pkg/controller/priorityqueue/metrics\.go
 
 run:
-<<<<<<< HEAD
-  go: "1.23"
-=======
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
   timeout: 10m
   skip-files:
     - "zz_generated.*\\.go$"

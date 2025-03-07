@@ -272,7 +272,7 @@ func (s *defaultServer) createListener(ctx context.Context, log logr.Logger) (ne
 		return net.Listen("tcp", s.options.BindAddress)
 	}
 
-	cfg := &tls.Config{
+	cfg := &tls.Config{ //nolint:gosec
 		NextProtos: []string{"h2"},
 	}
 	// fallback TLS config ready, will now mutate if passer wants full control over it

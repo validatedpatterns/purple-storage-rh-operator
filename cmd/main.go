@@ -39,22 +39,12 @@ import (
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
-	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
-=======
-	lvcontroller "github.com/openshift/local-storage-operator/pkg/controllers/localvolume"
-	lvdcontroller "github.com/openshift/local-storage-operator/pkg/controllers/localvolumediscovery"
-	lvscontroller "github.com/openshift/local-storage-operator/pkg/controllers/localvolumeset"
-	nodedaemoncontroller "github.com/openshift/local-storage-operator/pkg/controllers/nodedaemon"
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
-=======
+
 	lvcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolume"
 	lvdcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolumediscovery"
 	nodedaemoncontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/nodedaemon"
->>>>>>> 018761f25 (Remove local-storage-operator code deps)
 
 	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
@@ -74,12 +64,9 @@ func init() {
 
 	utilruntime.Must(machineconfigv1.AddToScheme(scheme))
 	utilruntime.Must(monitoringv1.AddToScheme(scheme))
-<<<<<<< HEAD
 
 	utilruntime.Must(consolev1.AddToScheme(scheme))
 
-=======
->>>>>>> aed513a53 (Fix controller permission issues)
 	//+kubebuilder:scaffold:scheme
 }
 

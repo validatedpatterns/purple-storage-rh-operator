@@ -135,22 +135,8 @@ type WatchesInput struct {
 // This is the equivalent of calling
 // WatchesRawSource(source.Kind(cache, object), eventHandler, opts...).
 func (blder *Builder) Watches(object client.Object, eventHandler handler.EventHandler, opts ...WatchesOption) *Builder {
-<<<<<<< HEAD
-	input := WatchesInput{
-		obj:     object,
-		handler: handler.WithLowPriorityWhenUnchanged(eventHandler),
-	}
-	for _, opt := range opts {
-		opt.ApplyToWatches(&input)
-	}
-
-	blder.watchesInput = append(blder.watchesInput, input)
-
-	return blder
-=======
 	src := source.Kind(blder.mgr.GetCache(), object)
 	return blder.WatchesRawSource(src, eventHandler, opts...)
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 }
 
 // WatchesMetadata is the same as Watches, but forces the internal cache to only watch PartialObjectMetadata.
@@ -286,21 +272,8 @@ func (blder *Builder) doWatch() error {
 		if err != nil {
 			return err
 		}
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-		if reflect.TypeFor[request]() != reflect.TypeOf(reconcile.Request{}) {
-			return fmt.Errorf("For() can only be used with reconcile.Request, got %T", *new(request))
-		}
-
-		var hdler handler.TypedEventHandler[client.Object, request]
-		reflect.ValueOf(&hdler).Elem().Set(reflect.ValueOf(handler.WithLowPriorityWhenUnchanged(&handler.EnqueueRequestForObject{})))
-=======
-=======
 		src := source.Kind(blder.mgr.GetCache(), obj)
->>>>>>> fb4abb0ab (Add more localvolumediscovery bits, fix vendoring)
 		hdler := &handler.EnqueueRequestForObject{}
->>>>>>> 9f3cc0db0 (Add vendoring)
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, blder.forInput.predicates...)
 		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {
@@ -322,21 +295,11 @@ func (blder *Builder) doWatch() error {
 		if !own.matchEveryOwner {
 			opts = append(opts, handler.OnlyControllerOwner())
 		}
-<<<<<<< HEAD
-
-		var hdler handler.TypedEventHandler[client.Object, request]
-		reflect.ValueOf(&hdler).Elem().Set(reflect.ValueOf(handler.WithLowPriorityWhenUnchanged(handler.EnqueueRequestForOwner(
-			blder.mgr.GetScheme(), blder.mgr.GetRESTMapper(),
-			blder.forInput.object,
-			opts...,
-		))))
-=======
 		hdler := handler.EnqueueRequestForOwner(
 			blder.mgr.GetScheme(), blder.mgr.GetRESTMapper(),
 			blder.forInput.object,
 			opts...,
 		)
->>>>>>> 9f3cc0db0 (Add vendoring)
 		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
 		allPredicates = append(allPredicates, own.predicates...)
 		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {

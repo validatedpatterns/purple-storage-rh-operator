@@ -60,6 +60,8 @@ type LocalVolumeDiscoveryReconciler struct {
 }
 
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveries,verbs=get;list;watch;create;update;patch;delete
+// This is needed for the binary running in the containers (daemonset) to sync the results
+//+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile reads that state of the cluster for a LocalVolumeDiscovery object and makes changes based on the state read
 // and what is in the LocalVolumeDiscovery.Spec

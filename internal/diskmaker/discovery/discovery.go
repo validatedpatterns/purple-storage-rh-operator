@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"reflect"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -29,7 +28,7 @@ const (
 	resultCRName                  = "discovery-result-%s"
 )
 
-var supportedDeviceTypes = sets.NewString("mpath")
+var supportedDeviceTypes = sets.NewString("mpath", "disk")
 
 // DeviceDiscovery instance
 type DeviceDiscovery struct {
@@ -174,7 +173,7 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 			deviceID = ""
 		}
 
-		size, err := strconv.ParseInt(blockDevice.Size, 10, 64)
+		size, err := blockDevice.Size, nil
 		if err != nil {
 			klog.Warningf("failed to parse size for the device %q. Error %v", blockDevice.Name, err)
 		}
@@ -298,11 +297,11 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 	return status
 }
 
-func parseDeviceProperty(property string) v1alpha1.DeviceMechanicalProperty {
+func parseDeviceProperty(property bool) v1alpha1.DeviceMechanicalProperty {
 	switch property {
-	case "1":
+	case true:
 		return v1alpha1.Rotational
-	case "0":
+	case false:
 		return v1alpha1.NonRotational
 	default:
 		return ""

@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"k8s.io/klog/v2"
@@ -49,13 +48,13 @@ type BlockDeviceList struct {
 
 type BlockDevice struct {
 	Name       string        `json:"NAME"`
-	Rotational string        `json:"ROTA"`
+	Rotational bool          `json:"ROTA"`
 	Type       string        `json:"TYPE"`
-	Size       string        `json:"SIZE"`
+	Size       int64         `json:"SIZE"`
 	Model      string        `json:"MODEL,omitempty"`
 	Vendor     string        `json:"VENDOR,omitempty"`
-	ReadOnly   string        `json:"RO,omitempty"`
-	Removable  string        `json:"RM,omitempty"`
+	ReadOnly   bool          `json:"RO,omitempty"`
+	Removable  bool          `json:"RM,omitempty"`
 	State      string        `json:"STATE,omitempty"`
 	KName      string        `json:"KNAME"`
 	FSType     string        `json:"fsType"`
@@ -70,29 +69,32 @@ type BlockDevice struct {
 
 // GetRotational as bool
 func (b BlockDevice) GetRotational() (bool, error) {
-	v, err := parseBitBool(b.Rotational)
-	if err != nil {
-		err = errors.Wrapf(err, "failed to parse rotational property %q as bool", b.Rotational)
-	}
-	return v, err
+	return b.Rotational, nil
+	// v, err := parseBitBool(b.Rotational)
+	// if err != nil {
+	// 	err = errors.Wrapf(err, "failed to parse rotational property %q as bool", b.Rotational)
+	// }
+	// return v, err
 }
 
 // GetReadOnly as bool
 func (b BlockDevice) GetReadOnly() (bool, error) {
-	v, err := parseBitBool(b.ReadOnly)
-	if err != nil {
-		err = errors.Wrapf(err, "failed to parse readOnly property %q as bool", b.ReadOnly)
-	}
-	return v, err
+	return b.ReadOnly, nil
+	// v, err := parseBitBool(b.ReadOnly)
+	// if err != nil {
+	// 	err = errors.Wrapf(err, "failed to parse readOnly property %q as bool", b.ReadOnly)
+	// }
+	// return v, err
 }
 
 // GetRemovable as bool
 func (b BlockDevice) GetRemovable() (bool, error) {
-	v, err := parseBitBool(b.Removable)
-	if err != nil {
-		err = errors.Wrapf(err, "failed to parse removable property %q as bool", b.Removable)
-	}
-	return v, err
+	return b.Removable, nil
+	// v, err := parseBitBool(b.Removable)
+	// if err != nil {
+	// 	err = errors.Wrapf(err, "failed to parse removable property %q as bool", b.Removable)
+	// }
+	// return v, err
 }
 
 func parseBitBool(s string) (bool, error) {
@@ -106,11 +108,12 @@ func parseBitBool(s string) (bool, error) {
 
 // GetSize as int64
 func (b BlockDevice) GetSize() (int64, error) {
-	v, err := strconv.ParseInt(b.Size, 10, 64)
-	if err != nil {
-		err = errors.Wrapf(err, "failed to parse size property %q as int64", b.Size)
-	}
-	return v, err
+	return b.Size, nil
+	// v, err := strconv.ParseInt(b.Size, 10, 64)
+	// if err != nil {
+	// 	err = errors.Wrapf(err, "failed to parse size property %q as int64", b.Size)
+	// }
+	// return v, err
 }
 
 // HasChildren check on BlockDevice

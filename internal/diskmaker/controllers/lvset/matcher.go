@@ -2,6 +2,7 @@ package lvset
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
@@ -103,7 +104,7 @@ var matcherMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceIncl
 			return true, nil
 		}
 		matched := false
-		quantity, err := resource.ParseQuantity(dev.Size)
+		quantity, err := resource.ParseQuantity(strconv.FormatInt(dev.Size, 10))
 		if err != nil {
 			return false, fmt.Errorf("could not parse device size: %w", err)
 		}

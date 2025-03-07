@@ -9,7 +9,6 @@ import (
 
 	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
-	diskmakerControllerLv "github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lv"
 	diskmakerControllerLvSet "github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lvset"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	"github.com/pkg/errors"
@@ -95,17 +94,6 @@ func startManager(cmd *cobra.Command, args []string) error {
 	})
 	if err != nil {
 		klog.ErrorS(err, "failed to create controller manager")
-		return err
-	}
-
-	if err = diskmakerControllerLv.NewLocalVolumeReconciler(
-		mgr.GetClient(),
-		mgr.GetScheme(),
-		common.GetLocalDiskLocationPath(),
-		&provDeleter.CleanupStatusTracker{ProcTable: provDeleter.NewProcTable()},
-		getRuntimeConfig(diskmakerControllerLv.ComponentName, mgr),
-	).WithManager(mgr); err != nil {
-		klog.ErrorS(err, "unable to create LocalVolume diskmaker controller")
 		return err
 	}
 

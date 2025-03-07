@@ -80,19 +80,10 @@ type LocalVolumeSetSpec struct {
 	// Nodes on which the automatic detection policies must run.
 	// +optional
 	NodeSelector *corev1.NodeSelector `json:"nodeSelector,omitempty"`
-	// StorageClassName to use for set of matched devices
-	StorageClassName string `json:"storageClassName"`
 	// MaxDeviceCount is the maximum number of Devices that needs to be detected per node.
 	// If it is not specified, there will be no limit to the number of provisioned devices.
 	// +optional
 	MaxDeviceCount *int32 `json:"maxDeviceCount,omitempty"`
-	// VolumeMode determines whether the PV created is Block or Filesystem.
-	// It will default to Filesystem.
-	// +optional
-	VolumeMode PersistentVolumeMode `json:"volumeMode,omitempty"`
-	// FSType type to create when volumeMode is Filesystem
-	// +optional
-	FSType string `json:"fsType,omitempty"`
 	// If specified, a list of tolerations to pass to the discovery daemons.
 	// +optional
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`

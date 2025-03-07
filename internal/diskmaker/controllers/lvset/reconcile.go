@@ -18,15 +18,11 @@ import (
 	storagev1 "k8s.io/api/storage/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/event"
-	"sigs.k8s.io/controller-runtime/pkg/handler"
 	provCommon "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/common"
 	provDeleter "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/deleter"
 )
@@ -134,21 +130,20 @@ func (r *LocalVolumeSetReconciler) Reconcile(ctx context.Context, request ctrl.R
 	localmetrics.RemoveLVSDeletionTimestampMetric(lvset.GetName())
 
 	klog.InfoS("Looking for valid block devices", "namespace", request.Namespace, "name", request.Name)
-	// get associated storageclass
-	storageClassName := lvset.Spec.StorageClassName
-	storageClass := &storagev1.StorageClass{}
-	err = r.Client.Get(ctx, types.NamespacedName{Name: storageClassName}, storageClass)
-	if err != nil {
-		klog.ErrorS(err, "could not get storageclass")
-		return ctrl.Result{}, err
-	}
+	// // get associated storageclass
+	// storageClass := &storagev1.StorageClass{}
+	// err = r.Client.Get(ctx, types.NamespacedName{Name: storageClassName}, storageClass)
+	// if err != nil {
+	// 	klog.ErrorS(err, "could not get storageclass")
+	// 	return ctrl.Result{}, err
+	// }
 
 	// get symlinkdir
-	symLinkConfig, ok := r.runtimeConfig.DiscoveryMap[storageClassName]
-	if !ok {
-		return ctrl.Result{}, fmt.Errorf("could not find storageclass entry %q in provisioner config: %+v", storageClassName, r.runtimeConfig.DiscoveryMap)
-	}
-	symLinkDir := symLinkConfig.HostDir
+	// symLinkConfig, ok := r.runtimeConfig.DiscoveryMap[storageClassName]
+	// if !ok {
+	// 	return ctrl.Result{}, fmt.Errorf("could not find storageclass entry %q in provisioner config: %+v", storageClassName, r.runtimeConfig.DiscoveryMap)
+	// }
+	// symLinkDir := symLinkConfig.HostDir
 
 	// list block devices
 	blockDevices, badRows, err := internal.ListBlockDevices([]string{})
@@ -167,92 +162,92 @@ func (r *LocalVolumeSetReconciler) Reconcile(ctx context.Context, request ctrl.R
 	validDevices, delayedDevices := r.getValidDevices(lvset, blockDevices)
 
 	// update metrics for unmatched disks
-	localmetrics.SetLVSUnmatchedDiskMetric(nodeName, storageClassName, len(blockDevices)-len(validDevices))
+	localmetrics.SetLVSUnmatchedDiskMetric(nodeName, len(blockDevices)-len(validDevices))
 
-	// process valid devices
-	var totalProvisionedPVs int
-	var noMatch []string
-	for _, blockDevice := range validDevices {
-		existingSymlink, err := getSymlinkedForCurrentSC(symLinkDir, blockDevice)
-		if err != nil {
-			klog.ErrorS(err, "error reading existing symlinks for device",
-				"blockDevice", blockDevice.Name)
-			continue
-		}
+	// // process valid devices
+	// var totalProvisionedPVs int
+	// var noMatch []string
+	// for _, blockDevice := range validDevices {
+	// 	existingSymlink, err := getSymlinkedForCurrentSC(symLinkDir, blockDevice)
+	// 	if err != nil {
+	// 		klog.ErrorS(err, "error reading existing symlinks for device",
+	// 			"blockDevice", blockDevice.Name)
+	// 		continue
+	// 	}
 
-		symlinkSourcePath, symlinkPath, idExists, err := common.GetSymLinkSourceAndTarget(blockDevice, symLinkDir, existingSymlink)
-		if err != nil {
-			klog.ErrorS(err, "error discovering symlink source and target",
-				"blockDevice", blockDevice.Name)
-			continue
-		}
-		if !idExists {
-			klog.InfoS("Using real device path, this could have problems if device name changes",
-				"blockDevice", blockDevice.Name)
-		}
+	// 	symlinkSourcePath, symlinkPath, idExists, err := common.GetSymLinkSourceAndTarget(blockDevice, symLinkDir, existingSymlink)
+	// 	if err != nil {
+	// 		klog.ErrorS(err, "error discovering symlink source and target",
+	// 			"blockDevice", blockDevice.Name)
+	// 		continue
+	// 	}
+	// 	if !idExists {
+	// 		klog.InfoS("Using real device path, this could have problems if device name changes",
+	// 			"blockDevice", blockDevice.Name)
+	// 	}
 
-		// validate MaxDeviceCount
-		var alreadyProvisionedCount int
-		var currentDeviceSymlinked bool
-		alreadyProvisionedCount, currentDeviceSymlinked, noMatch, err = getAlreadySymlinked(symLinkDir, blockDevice, blockDevices)
+	// 	// validate MaxDeviceCount
+	// 	var alreadyProvisionedCount int
+	// 	var currentDeviceSymlinked bool
+	// 	alreadyProvisionedCount, currentDeviceSymlinked, noMatch, err = getAlreadySymlinked(symLinkDir, blockDevice, blockDevices)
 
-		totalProvisionedPVs = alreadyProvisionedCount
+	// 	totalProvisionedPVs = alreadyProvisionedCount
 
-		if err != nil && lvset.Spec.MaxDeviceCount != nil {
-			r.eventReporter.Report(lvset, newDiskEvent(ErrorListingExistingSymlinks, "error determining already provisioned disks", "", corev1.EventTypeWarning))
-			return ctrl.Result{}, fmt.Errorf("could not determine how many devices are already provisioned: %w", err)
-		}
-		withinMax := true
-		if lvset.Spec.MaxDeviceCount != nil {
-			withinMax = int32(alreadyProvisionedCount) < *lvset.Spec.MaxDeviceCount
-		}
-		// skip this device if this device is not already symlinked and provisioning it would exceed the maxDeviceCount
-		if !(withinMax || currentDeviceSymlinked) {
-			break
-		}
+	// 	if err != nil && lvset.Spec.MaxDeviceCount != nil {
+	// 		r.eventReporter.Report(lvset, newDiskEvent(ErrorListingExistingSymlinks, "error determining already provisioned disks", "", corev1.EventTypeWarning))
+	// 		return ctrl.Result{}, fmt.Errorf("could not determine how many devices are already provisioned: %w", err)
+	// 	}
+	// 	withinMax := true
+	// 	if lvset.Spec.MaxDeviceCount != nil {
+	// 		withinMax = int32(alreadyProvisionedCount) < *lvset.Spec.MaxDeviceCount
+	// 	}
+	// 	// skip this device if this device is not already symlinked and provisioning it would exceed the maxDeviceCount
+	// 	if !(withinMax || currentDeviceSymlinked) {
+	// 		break
+	// 	}
 
-		mountPointMap, err := common.GenerateMountMap(r.runtimeConfig)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
+	// 	mountPointMap, err := common.GenerateMountMap(r.runtimeConfig)
+	// 	if err != nil {
+	// 		return ctrl.Result{}, err
+	// 	}
 
-		klog.InfoS("provisioning PV", "blockDevice", blockDevice.Name)
-		r.eventReporter.Report(lvset, newDiskEvent(diskmaker.FoundMatchingDisk, "provisioning matching disk", blockDevice.KName, corev1.EventTypeNormal))
-		err = r.provisionPV(lvset, blockDevice, *storageClass, mountPointMap, symlinkSourcePath, symlinkPath, idExists)
-		if err == common.ErrTryAgain {
-			requeueTime = fastRequeueTime
-		} else if err != nil {
-			msg := fmt.Sprintf("provisioning failed for %s: %v", blockDevice.Name, err)
-			r.eventReporter.Report(lvset, newDiskEvent(diskmaker.ErrorProvisioningDisk, msg, blockDevice.KName, corev1.EventTypeWarning))
-			klog.Error(msg)
-			continue
-		}
+	// 	klog.InfoS("provisioning PV", "blockDevice", blockDevice.Name)
+	// 	r.eventReporter.Report(lvset, newDiskEvent(diskmaker.FoundMatchingDisk, "provisioning matching disk", blockDevice.KName, corev1.EventTypeNormal))
+	// 	err = r.provisionPV(lvset, blockDevice, *storageClass, mountPointMap, symlinkSourcePath, symlinkPath, idExists)
+	// 	if err == common.ErrTryAgain {
+	// 		requeueTime = fastRequeueTime
+	// 	} else if err != nil {
+	// 		msg := fmt.Sprintf("provisioning failed for %s: %v", blockDevice.Name, err)
+	// 		r.eventReporter.Report(lvset, newDiskEvent(diskmaker.ErrorProvisioningDisk, msg, blockDevice.KName, corev1.EventTypeWarning))
+	// 		klog.Error(msg)
+	// 		continue
+	// 	}
 
-		klog.InfoS("provisioning succeeded", "blockDevice", blockDevice.Name)
-	}
+	// 	klog.InfoS("provisioning succeeded", "blockDevice", blockDevice.Name)
+	// }
 
-	klog.InfoS("total devices provisioned", "storagecClass", storageClassName, "count", totalProvisionedPVs)
+	// klog.InfoS("total devices provisioned", "count", totalProvisionedPVs)
 
 	// update metrics for total persistent volumes provisioned
-	localmetrics.SetLVSProvisionedPVMetric(nodeName, storageClassName, totalProvisionedPVs)
+	// localmetrics.SetLVSProvisionedPVMetric(nodeName, storageClassName, totalProvisionedPVs)
 
-	orphanSymlinkDevices, err := internal.GetOrphanedSymlinks(symLinkDir, validDevices)
-	if err != nil {
-		klog.ErrorS(err, "failed to get orphaned symlink devices in current reconcile")
-	}
+	// orphanSymlinkDevices, err := internal.GetOrphanedSymlinks(symLinkDir, validDevices)
+	// if err != nil {
+	// 	klog.ErrorS(err, "failed to get orphaned symlink devices in current reconcile")
+	// }
 
-	if len(orphanSymlinkDevices) > 0 {
-		klog.InfoS("found orphan symlinked devices in current reconcile",
-			"orphanedDevices", orphanSymlinkDevices)
-	}
+	// if len(orphanSymlinkDevices) > 0 {
+	// 	klog.InfoS("found orphan symlinked devices in current reconcile",
+	// 		"orphanedDevices", orphanSymlinkDevices)
+	// }
 
-	// update metrics for orphaned symlink devices
-	localmetrics.SetLVSOrphanedSymlinksMetric(nodeName, storageClassName, len(orphanSymlinkDevices))
+	// // update metrics for orphaned symlink devices
+	// localmetrics.SetLVSOrphanedSymlinksMetric(nodeName, storageClassName, len(orphanSymlinkDevices))
 
-	if len(noMatch) > 0 {
-		klog.InfoS("found stale symLink entries", "storageClass", storageClassName,
-			"paths", noMatch, "directory", symLinkDir)
-	}
+	// if len(noMatch) > 0 {
+	// 	klog.InfoS("found stale symLink entries", "storageClass", storageClassName,
+	// 		"paths", noMatch, "directory", symLinkDir)
+	// }
 
 	// shorten the requeueTime if there are delayed devices
 	if len(delayedDevices) > 1 && requeueTime == defaultRequeueTime {
@@ -550,37 +545,6 @@ func (r *LocalVolumeSetReconciler) WithManager(mgr ctrl.Manager) error {
 		// set to 1 explicitly, despite it being the default, as the reconciler is not thread-safe.
 		WithOptions(controller.Options{MaxConcurrentReconciles: 1}).
 		For(&localv1alpha1.LocalVolumeSet{}).
-		Watches(
-			&corev1.ConfigMap{},
-			handler.EnqueueRequestForOwner(mgr.GetScheme(), mgr.GetRESTMapper(), &v1alpha1.LocalVolume{})).
-		// update owned-pv cache used by provisioner/deleter libs and enequeue owning lvset
-		// only the cache is touched by
-		Watches(&corev1.PersistentVolume{}, &handler.Funcs{
-			GenericFunc: func(ctx context.Context, e event.GenericEvent, q workqueue.RateLimitingInterface) {
-				pv, ok := e.Object.(*corev1.PersistentVolume)
-				if ok && common.IsLocalVolumeSetPV(pv) {
-					common.HandlePVChange(r.runtimeConfig, pv, q, watchNamespace, false)
-				}
-			},
-			CreateFunc: func(ctx context.Context, e event.CreateEvent, q workqueue.RateLimitingInterface) {
-				pv, ok := e.Object.(*corev1.PersistentVolume)
-				if ok && common.IsLocalVolumeSetPV(pv) {
-					common.HandlePVChange(r.runtimeConfig, pv, q, watchNamespace, false)
-				}
-			},
-			UpdateFunc: func(ctx context.Context, e event.UpdateEvent, q workqueue.RateLimitingInterface) {
-				pv, ok := e.ObjectNew.(*corev1.PersistentVolume)
-				if ok && common.IsLocalVolumeSetPV(pv) {
-					common.HandlePVChange(r.runtimeConfig, pv, q, watchNamespace, false)
-				}
-			},
-			DeleteFunc: func(ctx context.Context, e event.DeleteEvent, q workqueue.RateLimitingInterface) {
-				pv, ok := e.Object.(*corev1.PersistentVolume)
-				if ok && common.IsLocalVolumeSetPV(pv) {
-					common.HandlePVChange(r.runtimeConfig, pv, q, watchNamespace, true)
-				}
-			},
-		}).
 		Complete(r)
 
 	return err

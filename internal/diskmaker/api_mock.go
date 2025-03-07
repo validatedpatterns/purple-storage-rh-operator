@@ -21,10 +21,6 @@ func (f *MockAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	f.events = append(f.events, e)
 }
 
-func (f *MockAPIUpdater) getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error) {
-	return lv, nil
-}
-
 // GetDiscoveryResult mocks GetDiscoveryResult
 func (f *MockAPIUpdater) GetDiscoveryResult(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error) {
 	if f.MockGetDiscoveryResult != nil {

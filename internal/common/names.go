@@ -9,7 +9,6 @@ import (
 	"k8s.io/klog/v2"
 	provCommon "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/common"
 
-	localv1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -86,11 +85,6 @@ func GetLocalDiskLocationPath() string {
 		return localDiskLocationEnvImage
 	}
 	return defaultlocalDiskLocation
-}
-
-// LocalVolumeKey returns key for the localvolume
-func LocalVolumeKey(lv *localv1.LocalVolume) string {
-	return fmt.Sprintf("%s/%s", lv.Namespace, lv.Name)
 }
 
 // LocalVolumeSetKey returns key for the localvolumeset

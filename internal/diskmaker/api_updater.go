@@ -22,7 +22,6 @@ const componentName = "local-storage-diskmaker"
 
 type ApiUpdater interface {
 	recordEvent(obj runtime.Object, e *DiskEvent)
-	getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error)
 	CreateDiscoveryResult(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error
 	GetDiscoveryResult(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error)
 	UpdateDiscoveryResultStatus(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error
@@ -88,12 +87,6 @@ func (s *sdkAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	}
 
 	s.recorder.Eventf(obj, e.EventType, e.EventReason, message)
-}
-
-func (s *sdkAPIUpdater) getLocalVolume(lv *v1alpha1.LocalVolume) (*v1alpha1.LocalVolume, error) {
-	newLocalVolume := lv.DeepCopy()
-	err := s.client.Get(context.TODO(), types.NamespacedName{Name: newLocalVolume.GetName(), Namespace: newLocalVolume.GetNamespace()}, newLocalVolume)
-	return lv, err
 }
 
 func (s *sdkAPIUpdater) GetDiscoveryResult(name, namespace string) (*v1alpha1.LocalVolumeDiscoveryResult, error) {

@@ -22,6 +22,6 @@ COPY --from=builder /workspace/_output/bin/diskmaker /usr/bin/
 # COPY --from=builder /workspace/hack/scripts /scripts
 # COPY config/manifests /manifests
 
-# RUN microdnf install -y e2fsprogs xfsprogs && microdnf clean all
+RUN microdnf install -y util-linux util-linux-core && microdnf clean all
 
 ENTRYPOINT ["/usr/bin/diskmaker"]

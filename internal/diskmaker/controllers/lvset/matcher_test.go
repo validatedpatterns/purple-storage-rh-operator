@@ -1,7 +1,6 @@
 package lvset
 
 import (
-	"fmt"
 	"testing"
 
 	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
@@ -26,40 +25,19 @@ func TestNotReadOnly(t *testing.T) {
 		// true, no error
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "0"},
+			dev:         internal.BlockDevice{ReadOnly: false},
 			expectMatch: true, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: ""},
+			dev:         internal.BlockDevice{ReadOnly: false},
 			expectMatch: true, expectErr: false,
 		},
 		// false, no error
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "1"},
+			dev:         internal.BlockDevice{ReadOnly: true},
 			expectMatch: false, expectErr: false,
-		},
-		// true, err
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "-1"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "2"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "100"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{ReadOnly: "-100"},
-			expectMatch: true, expectErr: true,
 		},
 	}
 	assertAll(t, results)
@@ -72,40 +50,19 @@ func TestNotRemovable(t *testing.T) {
 		// true, no error
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "0"},
+			dev:         internal.BlockDevice{Removable: false},
 			expectMatch: true, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: ""},
+			dev:         internal.BlockDevice{Removable: true},
 			expectMatch: true, expectErr: false,
 		},
 		// false, no error
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "1"},
+			dev:         internal.BlockDevice{Removable: true},
 			expectMatch: false, expectErr: false,
-		},
-		// true, err
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "-1"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "2"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "100"},
-			expectMatch: true, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Removable: "-100"},
-			expectMatch: true, expectErr: true,
 		},
 	}
 	assertAll(t, results)
@@ -243,41 +200,41 @@ func TestInSizeRange(t *testing.T) {
 		// in size range lower limit
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 10*Gi)},
+			dev:         internal.BlockDevice{Size: 10 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: true, expectErr: false,
 		},
 		// in size range upper limit
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 50*Gi)},
+			dev:         internal.BlockDevice{Size: 50 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: true, expectErr: false,
 		},
 		// in size range, max not specified
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 40*Gi)},
+			dev:         internal.BlockDevice{Size: 40 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi},
 			expectMatch: true, expectErr: false,
 		},
 		// in size range, min not specified
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 40*Gi)},
+			dev:         internal.BlockDevice{Size: 40 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MaxSize: &fiftyGi},
 			expectMatch: true, expectErr: false,
 		},
 		// nothing specified
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 40*Gi)},
+			dev:         internal.BlockDevice{Size: 40 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{},
 			expectMatch: true, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 1000*Gi)},
+			dev:         internal.BlockDevice{Size: 1000 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{},
 			expectMatch: true, expectErr: false,
 		},
@@ -285,13 +242,13 @@ func TestInSizeRange(t *testing.T) {
 		// barely
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 9.99*Gi)},
+			dev:         internal.BlockDevice{Size: 9 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: false, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 1*Ki)},
+			dev:         internal.BlockDevice{Size: 1 * Ki},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: false, expectErr: false,
 		},
@@ -299,41 +256,22 @@ func TestInSizeRange(t *testing.T) {
 		// barely
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 50.1*Gi)},
+			dev:         internal.BlockDevice{Size: 50 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: false, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 1000*Gi)},
+			dev:         internal.BlockDevice{Size: 1000 * Gi},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: false, expectErr: false,
 		},
 		// bad raw size
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: "foo"},
+			dev:         internal.BlockDevice{Size: -1},
 			spec:        &localv1alpha1.DeviceInclusionSpec{MinSize: &tenGi, MaxSize: &fiftyGi},
 			expectMatch: false, expectErr: true,
-		},
-		// default minSize
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", .9*Gi)},
-			spec:        &localv1alpha1.DeviceInclusionSpec{},
-			expectMatch: false, expectErr: false,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", 1.1*Gi)},
-			spec:        &localv1alpha1.DeviceInclusionSpec{},
-			expectMatch: true, expectErr: false,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Size: fmt.Sprintf("%v", .9*Gi)},
-			spec:        &localv1alpha1.DeviceInclusionSpec{MaxSize: &fiftyGi},
-			expectMatch: false, expectErr: false,
 		},
 	}
 	assertAll(t, results)
@@ -443,54 +381,41 @@ func TestInMechanicalPropertyList(t *testing.T) {
 		// exact match
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "0"},
+			dev:         internal.BlockDevice{Rotational: false},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.NonRotational}},
 			expectMatch: true, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "1"},
+			dev:         internal.BlockDevice{Rotational: true},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational}},
 			expectMatch: true, expectErr: false,
 		},
 		// subset
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "0"},
+			dev:         internal.BlockDevice{Rotational: false},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational, localv1alpha1.NonRotational}},
 			expectMatch: true, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "1"},
+			dev:         internal.BlockDevice{Rotational: true},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational, localv1alpha1.NonRotational}},
 			expectMatch: true, expectErr: false,
 		},
 		// exact mismatch, fails
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "0"},
+			dev:         internal.BlockDevice{Rotational: false},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational}},
 			expectMatch: false, expectErr: false,
 		},
 		{
 			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "1"},
+			dev:         internal.BlockDevice{Rotational: true},
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.NonRotational}},
 			expectMatch: false, expectErr: false,
-		},
-		// bad parse
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "foo"},
-			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational, localv1alpha1.NonRotational}},
-			expectMatch: false, expectErr: true,
-		},
-		{
-			matcherMap: matcherMap, matcher: matcher,
-			dev:         internal.BlockDevice{Rotational: "-1"},
-			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceMechanicalProperties: []localv1alpha1.DeviceMechanicalProperty{localv1alpha1.Rotational, localv1alpha1.NonRotational}},
-			expectMatch: false, expectErr: true,
 		},
 	}
 	assertAll(t, results)

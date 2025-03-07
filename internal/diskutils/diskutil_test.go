@@ -70,13 +70,13 @@ func TestListBlockDevices(t *testing.T) {
 					Name:       "sda",
 					FSType:     "",
 					Type:       "disk",
-					Size:       "62914560000",
+					Size:       62914560000,
 					Model:      "VBOX HARDDISK",
 					Vendor:     "ATA",
 					Serial:     "",
-					Rotational: "1",
-					ReadOnly:   "0",
-					Removable:  "0",
+					Rotational: true,
+					ReadOnly:   false,
+					Removable:  false,
 					State:      "running",
 					PartLabel:  "",
 				},
@@ -85,13 +85,13 @@ func TestListBlockDevices(t *testing.T) {
 					Name:       "sda1",
 					FSType:     "",
 					Type:       "part",
-					Size:       "62913494528",
+					Size:       62913494528,
 					Model:      "",
 					Vendor:     "",
 					Serial:     "",
-					Rotational: "1",
-					ReadOnly:   "0",
-					Removable:  "0",
+					Rotational: true,
+					ReadOnly:   false,
+					Removable:  false,
 					State:      "running",
 					PartLabel:  "BIOS-BOOT",
 				},
@@ -108,13 +108,13 @@ func TestListBlockDevices(t *testing.T) {
 					Name:       "sdc",
 					FSType:     "ext4",
 					Type:       "disk",
-					Size:       "62914560000",
+					Size:       62914560000,
 					Model:      "VBOX HARDDISK",
 					Vendor:     "ATA",
 					Serial:     "",
-					Rotational: "1",
-					ReadOnly:   "0",
-					Removable:  "1",
+					Rotational: true,
+					ReadOnly:   false,
+					Removable:  true,
 					State:      "running",
 					PartLabel:  "",
 				},
@@ -123,13 +123,13 @@ func TestListBlockDevices(t *testing.T) {
 					Name:       "sdc3",
 					FSType:     "ext2",
 					Type:       "part",
-					Size:       "62913494528",
+					Size:       62913494528,
 					Model:      "",
 					Vendor:     "",
 					Serial:     "",
-					Rotational: "1",
-					ReadOnly:   "0",
-					Removable:  "1",
+					Rotational: true,
+					ReadOnly:   false,
+					Removable:  true,
 					State:      "running",
 					PartLabel:  "",
 				},
@@ -534,12 +534,12 @@ func TestReadOnly(t *testing.T) {
 	}{
 		{
 			label:       "Case 1: not a readonly device",
-			blockDevice: BlockDevice{ReadOnly: "0"},
+			blockDevice: BlockDevice{ReadOnly: false},
 			expected:    false,
 		},
 		{
 			label:       "Case 2: readonly device",
-			blockDevice: BlockDevice{ReadOnly: "1"},
+			blockDevice: BlockDevice{ReadOnly: true},
 			expected:    true,
 		},
 	}
@@ -548,27 +548,6 @@ func TestReadOnly(t *testing.T) {
 		actual, err := tc.blockDevice.GetReadOnly()
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
 		assert.NoError(t, err)
-	}
-
-}
-
-func TestReadOnlyFail(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: invalid input",
-			blockDevice: BlockDevice{ReadOnly: "invalid input"},
-			expected:    false,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetReadOnly()
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.Error(t, err)
 	}
 
 }
@@ -581,12 +560,12 @@ func TestGetRemovable(t *testing.T) {
 	}{
 		{
 			label:       "Case 1: non-removable device",
-			blockDevice: BlockDevice{Removable: "0"},
+			blockDevice: BlockDevice{Removable: false},
 			expected:    false,
 		},
 		{
 			label:       "Case 2: removable device",
-			blockDevice: BlockDevice{Removable: "1"},
+			blockDevice: BlockDevice{Removable: true},
 			expected:    true,
 		},
 	}
@@ -596,27 +575,6 @@ func TestGetRemovable(t *testing.T) {
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
 		assert.NoError(t, err)
 	}
-}
-
-func TestGetRemovableFail(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: invalid input",
-			blockDevice: BlockDevice{Removable: "invalid input"},
-			expected:    false,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetRemovable()
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.Error(t, err)
-	}
-
 }
 
 func TestGetRotational(t *testing.T) {
@@ -627,12 +585,12 @@ func TestGetRotational(t *testing.T) {
 	}{
 		{
 			label:       "Case 1: non-rotational device",
-			blockDevice: BlockDevice{Rotational: "0"},
+			blockDevice: BlockDevice{Rotational: false},
 			expected:    false,
 		},
 		{
 			label:       "Case 2: rotationl device",
-			blockDevice: BlockDevice{Rotational: "1"},
+			blockDevice: BlockDevice{Rotational: true},
 			expected:    true,
 		},
 	}
@@ -642,27 +600,6 @@ func TestGetRotational(t *testing.T) {
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
 		assert.NoError(t, err)
 	}
-}
-
-func TestGetRotationalFail(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: invalid input",
-			blockDevice: BlockDevice{Rotational: "invalid input"},
-			expected:    false,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetRotational()
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.Error(t, err)
-	}
-
 }
 
 func TestGetOrphanedSymlinks(t *testing.T) {

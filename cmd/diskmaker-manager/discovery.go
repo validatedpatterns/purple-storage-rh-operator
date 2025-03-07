@@ -1,10 +1,13 @@
 package main
 
 import (
+	"runtime"
+
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/discovery"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"k8s.io/klog/v2"
 )
 
 func startDeviceDiscovery(cmd *cobra.Command, args []string) error {
@@ -28,4 +31,9 @@ func startDeviceDiscovery(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func printVersion() {
+	klog.Infof("Go Version: %s", runtime.Version())
+	klog.Infof("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH)
 }

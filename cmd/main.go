@@ -155,14 +155,6 @@ func main() {
 		setupLog.Error(err, "unable to create NodeDaemon controller")
 		os.Exit(1)
 	}
-	// if err = (&lvscontroller.LocalVolumeSetReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	// LvSetMap: &common.StorageClassOwnerMap{},
-	// 	Scheme: mgr.GetScheme(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	setupLog.Error(err, "unable to create LocalVolumeSet controller")
-	// 	os.Exit(1)
-	// }
 
 	if err = (&controller.PurpleStorageReconciler{
 		Client: mgr.GetClient(),

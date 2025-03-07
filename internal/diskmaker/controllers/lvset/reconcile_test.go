@@ -22,10 +22,6 @@ import (
 	provUtil "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/util"
 )
 
-const (
-	testNamespace = "default"
-)
-
 // testConfig allows manipulating the fake objects for ReconcileLocalVolumeSet
 type testContext struct {
 	fakeClient    client.Client
@@ -34,7 +30,6 @@ type testContext struct {
 	fakeClock     *fakeClock
 	fakeMounter   *mount.FakeMounter
 	fakeVolUtil   *provUtil.FakeVolumeUtil
-	fakeDirFiles  map[string][]*provUtil.FakeDirEntry
 	runtimeConfig *provCommon.RuntimeConfig
 }
 

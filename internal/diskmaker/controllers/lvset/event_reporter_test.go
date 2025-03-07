@@ -29,7 +29,7 @@ func TestEventReporer(t *testing.T) {
 	eventChannel := fakeRecorder.Events
 	fakeReporter := newEventReporter(fakeRecorder)
 
-	lvSet := &localv1alpha1.LocalVolumeSet{
+	lvSet := &localv1alpha1.PurpleStorage{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "lvset-1",
 			Namespace: "default",
@@ -57,8 +57,7 @@ func TestEventReporer(t *testing.T) {
 
 	recordedEvents := make([]string, 0)
 	for len(eventChannel) > 0 {
-		var e string
-		e = <-eventChannel
+		e := <-eventChannel
 		t.Logf("Event Found: %v\n", e)
 		if e != "" {
 			recordedEvents = append(recordedEvents, e)

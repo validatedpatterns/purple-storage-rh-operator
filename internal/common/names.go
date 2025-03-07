@@ -36,8 +36,6 @@ const (
 	// the value is the node's name
 	DiscoveryNodeLabel = "discovery-result-node"
 
-	LocalVolumeStorageClassTemplate     = "templates/localvolume-storageclass.yaml"
-	LocalProvisionerConfigMapTemplate   = "templates/local-provisioner-configmap.yaml"
 	DiskMakerManagerDaemonSetTemplate   = "templates/diskmaker-manager-daemonset.yaml"
 	DiskMakerDiscoveryDaemonSetTemplate = "templates/diskmaker-discovery-daemonset.yaml"
 	MetricsServiceTemplate              = "templates/localmetrics/service.yaml"
@@ -55,12 +53,6 @@ const (
 
 	// DiscoveryMetricsServingCert is the name of secret created for discovery service to store TLS config
 	DiscoveryMetricsServingCert = "discovery-metric-serving-cert"
-	// LocalVolumeProtectionFinalizer is set to ensure the provisioner daemonset and owning object stick around long
-	// enough to handle the PV reclaim policy.
-	LocalVolumeProtectionFinalizer = "storage.openshift.com/local-volume-protection"
-	// LSOSymlinkDeleterFinalizer is set to ensure diskmaker has a chance
-	// to remove the symlink used by the PV before it is deleted.
-	LSOSymlinkDeleterFinalizer = "storage.openshift.com/lso-symlink-deleter"
 )
 
 // GetDiskMakerImage returns the image to be used for diskmaker daemonset
@@ -88,7 +80,7 @@ func GetLocalDiskLocationPath() string {
 }
 
 // LocalVolumeSetKey returns key for the localvolumeset
-func LocalVolumeSetKey(lvs *localv1alpha1.LocalVolumeSet) string {
+func LocalVolumeSetKey(lvs *localv1alpha1.PurpleStorage) string {
 	return fmt.Sprintf("%s/%s", lvs.Namespace, lvs.Name)
 }
 

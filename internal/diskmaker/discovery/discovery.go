@@ -173,11 +173,6 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 			deviceID = ""
 		}
 
-		size, err := blockDevice.Size, nil
-		if err != nil {
-			klog.Warningf("failed to parse size for the device %q. Error %v", blockDevice.Name, err)
-		}
-
 		path, err := blockDevice.GetDevPath()
 		if err != nil {
 			klog.Warningf("failed to parse path for the device %q. Error %v", blockDevice.KName, err)
@@ -190,7 +185,7 @@ func getDiscoverdDevices(blockDevices []diskutil.BlockDevice) []v1alpha1.Discove
 			Serial:   blockDevice.Serial,
 			Type:     parseDeviceType(blockDevice.Type),
 			DeviceID: deviceID,
-			Size:     size,
+			Size:     blockDevice.Size,
 			Property: parseDeviceProperty(blockDevice.Rotational),
 			Status:   getDeviceStatus(blockDevice),
 			WWN:      blockDevice.WWN,

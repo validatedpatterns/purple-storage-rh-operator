@@ -16,7 +16,7 @@ import (
 
 func (r *DaemonReconciler) aggregateDeamonInfo(ctx context.Context, request reconcile.Request) ([]corev1.Toleration, []metav1.OwnerReference, *corev1.NodeSelector, error) {
 	//list
-	lvSetList := localv1alpha1.LocalVolumeSetList{}
+	lvSetList := localv1alpha1.PurpleStorageList{}
 	err := r.Client.List(ctx, &lvSetList, client.InNamespace(request.Namespace))
 	if err != nil {
 		return []corev1.Toleration{}, []metav1.OwnerReference{}, nil, fmt.Errorf("could not fetch localvolumeset link: %w", err)
@@ -33,7 +33,7 @@ func (r *DaemonReconciler) aggregateDeamonInfo(ctx context.Context, request reco
 	return tolerations, ownerRefs, nodeSelector, err
 }
 
-func extractLVSetInfo(lvsets []localv1alpha1.LocalVolumeSet) ([]corev1.Toleration, []metav1.OwnerReference, []corev1.NodeSelectorTerm) {
+func extractLVSetInfo(lvsets []localv1alpha1.PurpleStorage) ([]corev1.Toleration, []metav1.OwnerReference, []corev1.NodeSelectorTerm) {
 	tolerations := make([]corev1.Toleration, 0)
 	ownerRefs := make([]metav1.OwnerReference, 0)
 	terms := make([]corev1.NodeSelectorTerm, 0)
@@ -45,7 +45,7 @@ func extractLVSetInfo(lvsets []localv1alpha1.LocalVolumeSet) ([]corev1.Toleratio
 		return strings.Compare(lvsets[i].GetName(), lvsets[j].GetName()) == -1
 	})
 	for _, lvset := range lvsets {
-		tolerations = append(tolerations, lvset.Spec.Tolerations...)
+		tolerations = append(tolerations, lvset.Spec.NodeSpec.Tolerations...)
 
 		falseVar := false
 		ownerRefs = append(ownerRefs, metav1.OwnerReference{
@@ -56,8 +56,8 @@ func extractLVSetInfo(lvsets []localv1alpha1.LocalVolumeSet) ([]corev1.Toleratio
 			Controller:         &falseVar,
 			BlockOwnerDeletion: &falseVar,
 		})
-		if lvset.Spec.NodeSelector != nil {
-			terms = append(terms, lvset.Spec.NodeSelector.NodeSelectorTerms...)
+		if lvset.Spec.NodeSpec.Selector != nil {
+			terms = append(terms, lvset.Spec.NodeSpec.Selector.NodeSelectorTerms...)
 		} else {
 			matchAllNodes = true
 		}

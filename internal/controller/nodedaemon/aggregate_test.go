@@ -12,13 +12,119 @@ import (
 
 func TestExtractLVSetInfo(t *testing.T) {
 
-	lvSets := []localv1alpha1.LocalVolumeSet{
+	lvSets := []localv1alpha1.PurpleStorage{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "a",
 			},
-			Spec: localv1alpha1.LocalVolumeSetSpec{
-				NodeSelector: &corev1.NodeSelector{
+			Spec: localv1alpha1.PurpleStorageSpec{
+				NodeSpec: localv1alpha1.NodeSpec{
+					Selector: &corev1.NodeSelector{
+						// 2 terms
+						NodeSelectorTerms: []corev1.NodeSelectorTerm{
+							{MatchExpressions: []corev1.NodeSelectorRequirement{}},
+							{MatchExpressions: []corev1.NodeSelectorRequirement{}},
+						},
+					},
+					// 2 tolerations
+					Tolerations: []corev1.Toleration{
+						{
+							Key:      "key1",
+							Operator: corev1.TolerationOpExists,
+							Effect:   corev1.TaintEffectNoSchedule,
+						},
+						{
+							Key:      "key1",
+							Operator: corev1.TolerationOpExists,
+							Effect:   corev1.TaintEffectPreferNoSchedule,
+						},
+					},
+				},
+			},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "b",
+			},
+			Spec: localv1alpha1.PurpleStorageSpec{
+				NodeSpec: localv1alpha1.NodeSpec{
+					Selector: &corev1.NodeSelector{
+						// 2 terms
+						NodeSelectorTerms: []corev1.NodeSelectorTerm{
+							{MatchExpressions: []corev1.NodeSelectorRequirement{}},
+							{MatchExpressions: []corev1.NodeSelectorRequirement{}},
+						},
+					},
+					// 2 tolerations
+					Tolerations: []corev1.Toleration{
+						{
+							Key:      "key1",
+							Operator: corev1.TolerationOpEqual,
+							Value:    "value1",
+							Effect:   corev1.TaintEffectNoSchedule,
+						},
+						{
+							Key:      "key1",
+							Operator: corev1.TolerationOpEqual,
+							Value:    "value2",
+							Effect:   corev1.TaintEffectNoExecute,
+						},
+					},
+				},
+			},
+		},
+	}
+	tolerations, ownerRefs, terms := extractLVSetInfo(lvSets)
+	// extractLVSetInfo(lvSets)
+	assert.Len(t, tolerations, 2*len(lvSets))
+	assert.Len(t, ownerRefs, len(lvSets))
+	assert.Len(t, terms, 2*len(lvSets))
+
+	// every value exists
+	for _, lvSet := range lvSets {
+		for _, toleration := range lvSet.Spec.NodeSpec.Tolerations {
+			found := false
+			for _, foundToleration := range tolerations {
+				if toleration == foundToleration {
+					found = true
+					break
+				}
+			}
+			assert.True(t, found, "expected to find toleration: %+v", toleration)
+		}
+
+		found := false
+		for _, foundOwnerRef := range ownerRefs {
+			if foundOwnerRef.Name == lvSet.Name {
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "expected to find ownerRef: %q", lvSet.Name)
+
+		for _, term := range lvSet.Spec.NodeSpec.Selector.NodeSelectorTerms {
+			found := false
+			for _, foundTerm := range terms {
+				if reflect.DeepEqual(term, foundTerm) {
+					found = true
+					break
+				}
+			}
+			assert.True(t, found, "expected to find term: %+v", term)
+		}
+	}
+
+}
+
+func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
+
+	lvSetWithNodeSelector := localv1alpha1.PurpleStorage{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "a",
+		},
+		Spec: localv1alpha1.PurpleStorageSpec{
+			NodeSpec: localv1alpha1.NodeSpec{
+				Selector: &corev1.NodeSelector{
 					// 2 terms
 					NodeSelectorTerms: []corev1.NodeSelectorTerm{
 						{MatchExpressions: []corev1.NodeSelectorRequirement{}},
@@ -40,19 +146,15 @@ func TestExtractLVSetInfo(t *testing.T) {
 				},
 			},
 		},
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "b",
-			},
-			Spec: localv1alpha1.LocalVolumeSetSpec{
-				NodeSelector: &corev1.NodeSelector{
-					// 2 terms
-					NodeSelectorTerms: []corev1.NodeSelectorTerm{
-						{MatchExpressions: []corev1.NodeSelectorRequirement{}},
-						{MatchExpressions: []corev1.NodeSelectorRequirement{}},
-					},
-				},
-				// 2 tolerations
+	}
+	lvSetWithoutNodeSelector := localv1alpha1.PurpleStorage{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "b",
+		},
+		Spec: localv1alpha1.PurpleStorageSpec{
+			// no nodeSelector
+			// 2 tolerations
+			NodeSpec: localv1alpha1.NodeSpec{
 				Tolerations: []corev1.Toleration{
 					{
 						Key:      "key1",
@@ -70,104 +172,10 @@ func TestExtractLVSetInfo(t *testing.T) {
 			},
 		},
 	}
-	tolerations, ownerRefs, terms := extractLVSetInfo(lvSets)
-	// extractLVSetInfo(lvSets)
-	assert.Len(t, tolerations, 2*len(lvSets))
-	assert.Len(t, ownerRefs, len(lvSets))
-	assert.Len(t, terms, 2*len(lvSets))
-
-	// every value exists
-	for _, lvSet := range lvSets {
-		for _, toleration := range lvSet.Spec.Tolerations {
-			found := false
-			for _, foundToleration := range tolerations {
-				if toleration == foundToleration {
-					found = true
-					break
-				}
-			}
-			assert.True(t, found, "expected to find toleration: %+v", toleration)
-		}
-
-		found := false
-		for _, foundOwnerRef := range ownerRefs {
-			if foundOwnerRef.Name == lvSet.Name {
-				found = true
-				break
-			}
-		}
-		assert.True(t, found, "expected to find ownerRef: %q", lvSet.Name)
-
-		for _, term := range lvSet.Spec.NodeSelector.NodeSelectorTerms {
-			found := false
-			for _, foundTerm := range terms {
-				if reflect.DeepEqual(term, foundTerm) {
-					found = true
-					break
-				}
-			}
-			assert.True(t, found, "expected to find term: %+v", term)
-		}
-	}
-
-}
-
-func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
-
-	lvSetWithNodeSelector := localv1alpha1.LocalVolumeSet{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "a",
-		},
-		Spec: localv1alpha1.LocalVolumeSetSpec{
-			NodeSelector: &corev1.NodeSelector{
-				// 2 terms
-				NodeSelectorTerms: []corev1.NodeSelectorTerm{
-					{MatchExpressions: []corev1.NodeSelectorRequirement{}},
-					{MatchExpressions: []corev1.NodeSelectorRequirement{}},
-				},
-			},
-			// 2 tolerations
-			Tolerations: []corev1.Toleration{
-				{
-					Key:      "key1",
-					Operator: corev1.TolerationOpExists,
-					Effect:   corev1.TaintEffectNoSchedule,
-				},
-				{
-					Key:      "key1",
-					Operator: corev1.TolerationOpExists,
-					Effect:   corev1.TaintEffectPreferNoSchedule,
-				},
-			},
-		},
-	}
-	lvSetWithoutNodeSelector := localv1alpha1.LocalVolumeSet{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "b",
-		},
-		Spec: localv1alpha1.LocalVolumeSetSpec{
-			// no nodeSelector
-			// 2 tolerations
-			Tolerations: []corev1.Toleration{
-				{
-					Key:      "key1",
-					Operator: corev1.TolerationOpEqual,
-					Value:    "value1",
-					Effect:   corev1.TaintEffectNoSchedule,
-				},
-				{
-					Key:      "key1",
-					Operator: corev1.TolerationOpEqual,
-					Value:    "value2",
-					Effect:   corev1.TaintEffectNoExecute,
-				},
-			},
-		},
-	}
 
 	count := 3
 	for i := 0; i <= count; i++ {
-		lvSets := []localv1alpha1.LocalVolumeSet{}
+		lvSets := []localv1alpha1.PurpleStorage{}
 		for j := 0; j <= count; j++ {
 			// place empty nodeSelector in ith place
 			if i == j {
@@ -183,7 +191,7 @@ func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
 
 	}
 	for i := 0; i <= count; i++ {
-		lvSets := []localv1alpha1.LocalVolumeSet{}
+		lvSets := []localv1alpha1.PurpleStorage{}
 		for j := 0; j <= count; j++ {
 			lvSets = append(lvSets, lvSetWithNodeSelector)
 		}

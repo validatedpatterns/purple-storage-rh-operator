@@ -52,10 +52,9 @@ func (a *ageMap) storeDeviceAge(key string) {
 	a.mux.Lock()
 	defer a.mux.Unlock()
 
-	firstObserved, found := a.ageMap[key]
+	_, found := a.ageMap[key]
 	// set firstObserved if it doesn't exist
 	if !found {
-		firstObserved = a.clock.getCurrentTime()
-		a.ageMap[key] = firstObserved
+		a.ageMap[key] = a.clock.getCurrentTime()
 	}
 }

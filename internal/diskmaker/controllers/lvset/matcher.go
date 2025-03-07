@@ -129,14 +129,14 @@ var matcherMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceIncl
 	inTypeList: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
 		matched := false
 		if spec == nil {
-			return strings.ToLower(string(localv1alpha1.RawDisk)) == strings.ToLower(dev.Type), nil
+			return strings.EqualFold(string(localv1alpha1.RawDisk), dev.Type), nil
 		}
 		if len(spec.DeviceTypes) < 1 {
-			return strings.ToLower(string(localv1alpha1.RawDisk)) == strings.ToLower(dev.Type), nil
+			return strings.EqualFold(string(localv1alpha1.RawDisk), dev.Type), nil
 		}
 
 		for _, deviceType := range spec.DeviceTypes {
-			if strings.ToLower(string(deviceType)) == strings.ToLower(dev.Type) {
+			if strings.EqualFold(string(deviceType), dev.Type) {
 				matched = true
 				break
 			}

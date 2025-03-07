@@ -32,10 +32,10 @@ export type Device = {
 }
 
 export type LocalVolumeDiscoveryResultSpec = {
-    spec: {
+    spec?: {
         nodeName: string,
     }
-    status: {
+    status?: {
         discoveredDevices?: Device[]
     };
 } & K8sResourceCommon;

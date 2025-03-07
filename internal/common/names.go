@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	defaultDiskMakerImageVersion = "quay.io/openshift/origin-local-storage-diskmaker"
+	defaultDiskMakerImageVersion = "quay.io/hybridcloudpatterns/purple-storage-rh-operator-diskmaker"
 	defaultKubeProxyImage        = "quay.io/openshift/origin-kube-rbac-proxy:latest"
 	defaultlocalDiskLocation     = "/mnt/local-storage"
 

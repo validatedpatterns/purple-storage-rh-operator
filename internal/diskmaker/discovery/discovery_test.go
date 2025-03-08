@@ -35,9 +35,9 @@ func TestHelperProcess(t *testing.T) {
 	defer os.Exit(0)
 	switch os.Getenv("COMMAND") {
 	case "lsblk":
-		fmt.Fprintf(os.Stdout, os.Getenv("LSBLKOUT"))
+		fmt.Fprint(os.Stdout, os.Getenv("LSBLKOUT"))
 	case "blkid":
-		fmt.Fprintf(os.Stdout, os.Getenv("BLKIDOUT"))
+		fmt.Fprint(os.Stdout, os.Getenv("BLKIDOUT"))
 	}
 }
 
@@ -238,8 +238,8 @@ func TestValidBlockDevices(t *testing.T) {
 			label:              "Case 1: ignore readonly device sda",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-				{"name": "sda", "rota": "1", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "1", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdb", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+				{"name": "sda", "rota": true, "type": "mpath", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": true, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": true, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
@@ -250,12 +250,12 @@ func TestValidBlockDevices(t *testing.T) {
 			label:              "Case 2: ignore root device sda",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-      {"name": "sda", "rota": "0", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254",
+      {"name": "sda", "rota": false, "type": "mpath", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254",
          "children": [
-            {"name": "sda1", "rota": "0", "type": "part", "size": "1073741824", "model": null, "vendor": null, "ro": "0", "rm": "0", "state": null, "kname": "sda1", "serial": null, "partlabel": null, "wwn": "0x500a07512b9f5254"}
+            {"name": "sda1", "rota": false, "type": "part", "size": 1073741824, "model": null, "vendor": null, "ro": false, "rm": false, "state": null, "kname": "sda1", "serial": null, "partlabel": null, "wwn": "0x500a07512b9f5254"}
 		]
       },
-      {"name": "sdb", "rota": "0", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdb", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+      {"name": "sdb", "rota": false, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdb", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem", "sda"}, nil
 			},
@@ -263,27 +263,27 @@ func TestValidBlockDevices(t *testing.T) {
 			errMessage:                   fmt.Errorf("failed to ignore root device sda with partition"),
 		},
 		{
-			label:              "Case 3: ignore invalid device types: disk, part, loop, lvm",
+			label:              "Case 3: ignore invalid device types: part, loop, lvm",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-				{"name": "sda", "rota": "1", "type": "loop", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdb", "rota": "1", "type": "disk", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdb", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdc", "rota": "1", "type": "part", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdc", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdd", "rota": "1", "type": "lvm", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sdd", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sde", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+				{"name": "sda", "rota": true, "type": "loop", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": true, "type": "disk", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdb", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdc", "rota": true, "type": "part", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdc", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdd", "rota": true, "type": "lvm", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdd", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sde", "rota": true, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
-			expectedDiscoveredDeviceSize: 1,
+			expectedDiscoveredDeviceSize: 2,
 			errMessage:                   fmt.Errorf("failed to ignore device sda with type loop"),
 		},
 		{
 			label:              "Case 4: ignore device is suspended state",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-				{"name": "sda", "rota": "1", "type": "mpath", "size": "480103981056", "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdb", "rota": "1", "type": "mpath", "size": "3840755982336", "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": "0", "rm": "0", "state": "suspended", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+				{"name": "sda", "rota": true, "type": "disk", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": true, "type": "disk", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "suspended", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
@@ -331,6 +331,7 @@ func TestGetDiscoveredDevices(t *testing.T) {
 					ReadOnly:   false,
 					Removable:  false,
 					State:      "running",
+					WWN:        "aff-bcdd",
 				},
 			},
 			expected: []v1alpha1.DiscoveredDevice{

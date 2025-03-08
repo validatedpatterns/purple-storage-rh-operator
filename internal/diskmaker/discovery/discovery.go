@@ -11,7 +11,6 @@ import (
 
 	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/controllers/lvset"
 	diskutil "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
 	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 
@@ -253,7 +252,7 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	noBiosBootInPartLabel, err := lvset.FilterMap["noBiosBootInPartLabel"](dev, nil)
+	noBiosBootInPartLabel, err := filterMap["noBiosBootInPartLabel"](dev, nil)
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status
@@ -264,7 +263,7 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	canOpen, err := lvset.FilterMap["canOpenExclusively"](dev, nil)
+	canOpen, err := filterMap["canOpenExclusively"](dev, nil)
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status

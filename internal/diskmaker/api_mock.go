@@ -1,7 +1,7 @@
 package diskmaker
 
 import (
-	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 

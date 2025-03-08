@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"

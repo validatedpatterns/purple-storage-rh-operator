@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/darkdoc/purple-storage-rh-operator/assets"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"

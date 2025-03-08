@@ -24,7 +24,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/darkdoc/purple-storage-rh-operator/test/utils"
+	"github.com/validatedpatterns/purple-storage-rh-operator/test/utils"
 )
 
 const namespace = "purple-storage-rh-operator-system"

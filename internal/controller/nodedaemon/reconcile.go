@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	prometheusv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/localmetrics"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"

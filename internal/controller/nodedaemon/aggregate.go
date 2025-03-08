@@ -8,7 +8,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

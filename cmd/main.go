@@ -39,15 +39,15 @@ import (
 	machineconfigv1 "github.com/openshift/api/machineconfiguration/v1"
 	monitoringv1 "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 
-	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/initializer"
 
-	lvdcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolumediscovery"
-	nodedaemoncontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/nodedaemon"
+	lvdcontroller "github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/localvolumediscovery"
+	nodedaemoncontroller "github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/nodedaemon"
 
-	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/controller"
-	"github.com/darkdoc/purple-storage-rh-operator/version"
+	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller"
+	"github.com/validatedpatterns/purple-storage-rh-operator/version"
 	//+kubebuilder:scaffold:imports
 )
 

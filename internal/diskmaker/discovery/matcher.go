@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
+	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	internal "github.com/validatedpatterns/purple-storage-rh-operator/internal/diskutils"
 
 	"golang.org/x/sys/unix"
 	"k8s.io/apimachinery/pkg/api/resource"

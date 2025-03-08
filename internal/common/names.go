@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
 )

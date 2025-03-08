@@ -3,10 +3,10 @@ package nodedaemon
 import (
 	"testing"
 
-	"github.com/darkdoc/purple-storage-rh-operator/assets"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/common"
 	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
 	"github.com/stretchr/testify/assert"
+	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

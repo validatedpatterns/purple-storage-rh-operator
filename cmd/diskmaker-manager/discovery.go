@@ -3,10 +3,10 @@ package main
 import (
 	"runtime"
 
-	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker/discovery"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/localmetrics"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskmaker/discovery"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/localmetrics"
 	"k8s.io/klog/v2"
 )
 

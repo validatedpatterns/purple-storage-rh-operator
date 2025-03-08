@@ -4,8 +4,8 @@ package discovery
 import (
 	"testing"
 
-	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	internal "github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
+	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	internal "github.com/validatedpatterns/purple-storage-rh-operator/internal/diskutils"
 
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/api/resource"

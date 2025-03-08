@@ -108,13 +108,12 @@ var matcherMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceIncl
 		if err != nil {
 			return false, fmt.Errorf("could not parse device size: %w", err)
 		}
-		greaterThanOrEqualToMin := true
 		if spec.MinSize == nil {
 			spec.MinSize = &defaultMinSize
 		}
 		// quantity greater than min: -1
 		// quantity equal to min: 0
-		greaterThanOrEqualToMin = spec.MinSize.Cmp(quantity) <= 0
+		greaterThanOrEqualToMin := spec.MinSize.Cmp(quantity) <= 0
 
 		lessThanOrEqualToMax := true
 		if spec.MaxSize != nil {

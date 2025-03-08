@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -79,11 +80,16 @@ func (b *configBuilder) Build() error {
 
 	// start server
 	server := &http.Server{
-		Addr:    metricsPort,
-		Handler: metricsHandler,
+		Addr:              metricsPort,
+		Handler:           metricsHandler,
+		ReadHeaderTimeout: 2 * time.Second,
 	}
 
-	go server.ListenAndServe()
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			klog.Errorf("failed to start local metrics server: %v", err)
+		}
+	}()
 
 	return nil
 }

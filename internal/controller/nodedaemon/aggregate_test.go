@@ -11,7 +11,6 @@ import (
 )
 
 func TestExtractLVSetInfo(t *testing.T) {
-
 	lvSets := []localv1alpha1.PurpleStorage{
 		{
 			ObjectMeta: metav1.ObjectMeta{
@@ -113,11 +112,9 @@ func TestExtractLVSetInfo(t *testing.T) {
 			assert.True(t, found, "expected to find term: %+v", term)
 		}
 	}
-
 }
 
 func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
-
 	lvSetWithNodeSelector := localv1alpha1.PurpleStorage{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "a",
@@ -183,12 +180,10 @@ func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
 			} else {
 				lvSets = append(lvSets, lvSetWithNodeSelector)
 			}
-
 		}
 		_, _, terms := extractLVSetInfo(lvSets)
 		// empty nodeSelector in any spot should result in empty terms
 		assert.Len(t, terms, 0)
-
 	}
 	for i := 0; i <= count; i++ {
 		lvSets := []localv1alpha1.PurpleStorage{}
@@ -198,7 +193,5 @@ func TestExtractLVSetInfoWithNilNodeSelector(t *testing.T) {
 		_, _, terms := extractLVSetInfo(lvSets)
 		// empty nodeSelector in any spot should result in empty terms
 		assert.Len(t, terms, len(lvSets)*2)
-
 	}
-
 }

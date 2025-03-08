@@ -141,7 +141,6 @@ func newFakeLocalVolumeDiscoveryReconciler(t *testing.T, objs ...runtime.Object)
 }
 
 func TestDiscoveryReconciler(t *testing.T) {
-
 	testcases := []struct {
 		label                        string
 		discoveryDaemonCreated       bool
@@ -265,7 +264,8 @@ func TestDeleteOrphanDiscoveryResults(t *testing.T) {
 	_, err := fakeReconciler.Reconcile(context.TODO(), req)
 	assert.NoError(t, err)
 	results := &localv1alpha1.LocalVolumeDiscoveryResultList{}
-	fakeReconciler.Client.List(context.TODO(), results, client.InNamespace(namespace))
+	err = fakeReconciler.Client.List(context.TODO(), results, client.InNamespace(namespace))
+	assert.NoError(t, err)
 	assert.Equal(t, 2, len(results.Items))
 
 	// update discovery CR to remove "Node2"
@@ -275,7 +275,8 @@ func TestDeleteOrphanDiscoveryResults(t *testing.T) {
 	assert.NoError(t, err)
 	// assert that discovery result object on "Node2" is deleted
 	results = &localv1alpha1.LocalVolumeDiscoveryResultList{}
-	fakeReconciler.Client.List(context.TODO(), results, client.InNamespace(namespace))
+	err = fakeReconciler.Client.List(context.TODO(), results, client.InNamespace(namespace))
+	assert.NoError(t, err)
 	assert.Equal(t, 1, len(results.Items))
 	assert.Equal(t, "Node1", results.Items[0].Spec.NodeName)
 

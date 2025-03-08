@@ -124,8 +124,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		return waitForRequeueIfDaemonsNotReady, fmt.Errorf(message)
-
+		return waitForRequeueIfDaemonsNotReady, fmt.Errorf("%s", message)
 	} else if !(desiredDaemons == readyDaemons) {
 		message := fmt.Sprintf("running %d out of %d discovery daemons", readyDaemons, desiredDaemons)
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeProgressing, message,
@@ -159,7 +158,6 @@ func getDiskMakerDiscoveryDSMutateFn(request reconcile.Request,
 	envVars []corev1.EnvVar,
 	ownerRefs []metav1.OwnerReference,
 	nodeSelector *corev1.NodeSelector) func(*appsv1.DaemonSet) error {
-
 	return func(ds *appsv1.DaemonSet) error {
 		// read template for default values
 		dsBytes, err := assets.ReadFileAndReplace(

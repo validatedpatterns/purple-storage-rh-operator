@@ -1,3 +1,4 @@
+//nolint:lll,dupl
 package discovery
 
 import (
@@ -73,7 +74,6 @@ func TestDiscoverDevices(t *testing.T) {
 		err := tc.deviceDiscovery.discoverDevices()
 		assert.NoError(t, err)
 	}
-
 }
 func TestDiscoverDevicesFail(t *testing.T) {
 	testcases := []struct {

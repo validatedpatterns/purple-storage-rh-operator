@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sort"
-	"strings"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -15,7 +14,7 @@ import (
 )
 
 func (r *DaemonReconciler) aggregateDeamonInfo(ctx context.Context, request reconcile.Request) ([]corev1.Toleration, []metav1.OwnerReference, *corev1.NodeSelector, error) {
-	//list
+	// list
 	lvSetList := localv1alpha1.PurpleStorageList{}
 	err := r.Client.List(ctx, &lvSetList, client.InNamespace(request.Namespace))
 	if err != nil {
@@ -40,9 +39,9 @@ func extractLVSetInfo(lvsets []localv1alpha1.PurpleStorage) ([]corev1.Toleration
 	// if any one of the lvset nodeSelectors are nil, the terms should be empty to indicate matchAllNodes
 	matchAllNodes := false
 
-	// sort so that changing order doesn't cause unneccesary updates
+	// sort so that changing order doesn't cause unnecessary updates
 	sort.SliceStable(lvsets, func(i, j int) bool {
-		return strings.Compare(lvsets[i].GetName(), lvsets[j].GetName()) == -1
+		return lvsets[i].GetName() < lvsets[j].GetName()
 	})
 	for _, lvset := range lvsets {
 		tolerations = append(tolerations, lvset.Spec.NodeSpec.Tolerations...)
@@ -61,7 +60,6 @@ func extractLVSetInfo(lvsets []localv1alpha1.PurpleStorage) ([]corev1.Toleration
 		} else {
 			matchAllNodes = true
 		}
-
 	}
 	if matchAllNodes {
 		terms = make([]corev1.NodeSelectorTerm, 0)

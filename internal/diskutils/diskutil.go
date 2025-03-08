@@ -170,7 +170,6 @@ func (b BlockDevice) GetDevPath() (path string, err error) {
 
 // GetPathByID check on BlockDevice
 func (b *BlockDevice) GetPathByID(existingDeviceID string) (string, error) {
-
 	// return if previously populated value is valid
 	if len(b.PathByID) > 0 && strings.HasPrefix(b.PathByID, DiskByIDDir) {
 		evalsCorrectly, err := PathEvalsToDiskLabel(b.PathByID, b.KName)
@@ -302,7 +301,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 }
 
 // GetDeviceFSMap returns mapping between disks and the filesystem using blkid
-// It parses the output of `blkid -s TYPE`. Sample ouput format before parsing
+// It parses the output of `blkid -s TYPE`. Sample output format before parsing
 // `/dev/sdc: TYPE="ext4"
 // /dev/sdd: TYPE="ext2"`
 // If devices is empty, it scans all disks, otherwise only devices.
@@ -446,7 +445,6 @@ func (e *ExclusiveFileLock) Lock() (bool, error) {
 	}
 	e.locked = true
 	return e.locked, nil
-
 }
 
 // Unlock releases the lock. It is idempotent
@@ -460,7 +458,6 @@ func (e *ExclusiveFileLock) Unlock() error {
 		return fmt.Errorf("failed to unlock fd %q: %+v", e.fd, err)
 	}
 	return nil
-
 }
 
 func executeCmdWithCombinedOutput(cmd *exec.Cmd) (string, error) {

@@ -63,7 +63,6 @@ func getDiskMakerDSMutateFn(
 	ownerRefs []metav1.OwnerReference,
 	nodeSelector *corev1.NodeSelector,
 ) func(*appsv1.DaemonSet) error {
-
 	return func(ds *appsv1.DaemonSet) error {
 		// read template for default values
 		dsBytes, err := assets.ReadFileAndReplace(

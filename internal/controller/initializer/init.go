@@ -30,7 +30,6 @@ func New(mgr ctrl.Manager, logger logr.Logger) *initializer {
 
 // Start will start the Initializer
 func (i *initializer) Start(ctx context.Context) error {
-
 	ns, err := utils.GetDeploymentNamespace()
 	if err != nil {
 		return errors.Wrap(err, "unable to get the deployment namespace")

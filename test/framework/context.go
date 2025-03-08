@@ -54,7 +54,6 @@ type CleanupOptions struct {
 type cleanupFn func() error
 
 func (f *Framework) newContext(t *testing.T) *Context {
-
 	// Context is used among others for namespace names where '/' is forbidden and must be 63 characters or less
 	id := "osdk-e2e-" + uuid.New()
 

@@ -168,7 +168,7 @@ func TestNoFilesystemSignature(t *testing.T) {
 			dev:         internal.BlockDevice{FSType: ""},
 			expectMatch: true,
 		},
-		//false
+		// false
 		{
 			matcherMap: matcherMap, matcher: matcher,
 			dev:         internal.BlockDevice{FSType: "ext4"},

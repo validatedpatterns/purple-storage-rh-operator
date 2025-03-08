@@ -20,7 +20,6 @@ import (
 // EnqueueOnlyLabeledSubcomponents returns a predicate that filters only objects that
 // have labels["app"] in components
 func EnqueueOnlyLabeledSubcomponents(components ...string) predicate.Predicate {
-
 	return predicate.Predicate(predicate.Funcs{
 		GenericFunc: func(e event.GenericEvent) bool { return appLabelIn(e.Object, components) },
 		CreateFunc:  func(e event.CreateEvent) bool { return appLabelIn(e.Object, components) },
@@ -43,7 +42,6 @@ func appLabelIn(meta metav1.Object, components []string) bool {
 		}
 	}
 	return false
-
 }
 
 // InitMapIfNil allocates memory to a map if it is nil
@@ -108,5 +106,4 @@ func ReloadRuntimeConfig(ctx context.Context, client client.Client, request ctrl
 	rc.UseJobForCleaning = false
 
 	return nil
-
 }

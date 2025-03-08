@@ -45,9 +45,9 @@ func TestHelperProcess(t *testing.T) {
 	defer os.Exit(0)
 	switch os.Getenv("COMMAND") {
 	case "lsblk":
-		fmt.Fprintf(os.Stdout, os.Getenv("LSBLKOUT"))
+		fmt.Fprint(os.Stdout, os.Getenv("LSBLKOUT"))
 	case "blkid":
-		fmt.Fprintf(os.Stdout, os.Getenv("BLKIDOUT"))
+		fmt.Fprint(os.Stdout, os.Getenv("BLKIDOUT"))
 	}
 }
 
@@ -180,7 +180,6 @@ func TestListBlockDevices(t *testing.T) {
 			assert.Equalf(t, tc.expected[i].PartLabel, blockDevices[i].PartLabel, "[%q: Device: %d]: invalid block device PartLabel value", tc.label, i+1)
 		}
 	}
-
 }
 
 func TestGetDeviceFSMap(t *testing.T) {
@@ -378,7 +377,6 @@ func TestGetPathByID(t *testing.T) {
 			blockDevice: BlockDevice{Name: "sdb", KName: "sdb", PathByID: ""},
 			fakeGlobfunc: func(path string) ([]string, error) {
 				return []string{"/dev/disk/by-id/abcde", "/dev/disk/by-id/wwn-abcde"}, nil
-
 			},
 			fakeEvalSymlinkfunc: func(string) (string, error) {
 				return "/dev/sdb", nil
@@ -390,7 +388,6 @@ func TestGetPathByID(t *testing.T) {
 			blockDevice: BlockDevice{Name: "sdb", KName: "sdb", PathByID: ""},
 			fakeGlobfunc: func(path string) ([]string, error) {
 				return []string{"/dev/disk/by-id/abcde", "/dev/disk/by-id/wwn-abcde", "/dev/disk/by-id/scsi-abcde"}, nil
-
 			},
 			fakeEvalSymlinkfunc: func(string) (string, error) {
 				return "/dev/sdb", nil
@@ -403,7 +400,6 @@ func TestGetPathByID(t *testing.T) {
 			existingDeviceId: "scsi-abcde",
 			fakeGlobfunc: func(path string) ([]string, error) {
 				return []string{"/dev/disk/by-id/abcde", "/dev/disk/by-id/wwn-abcde", "/dev/disk/by-id/scsi-abcde"}, nil
-
 			},
 			fakeEvalSymlinkfunc: func(string) (string, error) {
 				return "/dev/sdb", nil
@@ -423,7 +419,6 @@ func TestGetPathByID(t *testing.T) {
 		actual, err := tc.blockDevice.GetPathByID(tc.existingDeviceId)
 		assert.NoError(t, err)
 		assert.Equalf(t, tc.expected, actual, "[%s] failed to get device path by ID", tc.label)
-
 	}
 }
 
@@ -471,7 +466,6 @@ func TestGetPathByIDFail(t *testing.T) {
 		actual, err := tc.blockDevice.GetPathByID("" /*existing symlinkpath */)
 		assert.Error(t, err)
 		assert.Equalf(t, tc.expected, actual, "[%s] failed to get device path by ID", tc.label)
-
 	}
 }
 
@@ -550,7 +544,6 @@ func TestReadOnly(t *testing.T) {
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
 		assert.NoError(t, err)
 	}
-
 }
 
 func TestGetRemovable(t *testing.T) {
@@ -643,6 +636,5 @@ func TestGetOrphanedSymlinks(t *testing.T) {
 		actual, err := GetOrphanedSymlinks("test", tc.blockDevices)
 		assert.NoError(t, err)
 		assert.Equalf(t, tc.expectedOrphanSymlinks, actual, "[%s]: invalid orphaned symlinks", tc.label)
-
 	}
 }

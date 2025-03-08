@@ -44,7 +44,6 @@ const (
 // CreateOrUpdatePlugin creates or updates the resources needed for the remediation console plugin.
 // HEADS UP: consider cleanup of old resources in case of name changes or removals!
 func CreateOrUpdatePlugin(ctx context.Context, cl client.Client, namespace string, log logr.Logger) error {
-
 	// Create ConsolePlugin resource
 	// Deployment and Service are deployed by OLM
 	if err := createOrUpdateConsolePlugin(ctx, namespace, cl); err != nil {

@@ -304,7 +304,6 @@ func parseDeviceProperty(property bool) v1alpha1.DeviceMechanicalProperty {
 	default:
 		return ""
 	}
-
 }
 
 func parseDeviceType(deviceType string) v1alpha1.DiscoveredDeviceType {

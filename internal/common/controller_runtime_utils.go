@@ -52,7 +52,6 @@ func InitMapIfNil(m *map[string]string) {
 		return
 	}
 	*m = make(map[string]string)
-	return
 }
 
 // GetNodeNameEnvVar returns the node name from env vars

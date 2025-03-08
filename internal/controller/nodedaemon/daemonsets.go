@@ -62,7 +62,6 @@ func getDiskMakerDSMutateFn(
 	tolerations []corev1.Toleration,
 	ownerRefs []metav1.OwnerReference,
 	nodeSelector *corev1.NodeSelector,
-	dataHash string,
 ) func(*appsv1.DaemonSet) error {
 
 	return func(ds *appsv1.DaemonSet) error {
@@ -92,8 +91,6 @@ func getDiskMakerDSMutateFn(
 
 		// add provisioner configmap hash
 		initMapIfNil(&ds.ObjectMeta.Annotations)
-		ds.ObjectMeta.Annotations[dataHashAnnotationKey] = dataHash
-
 		return nil
 	}
 }
@@ -176,5 +173,4 @@ func initMapIfNil(m *map[string]string) {
 		return
 	}
 	*m = make(map[string]string)
-	return
 }

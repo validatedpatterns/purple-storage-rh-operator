@@ -38,9 +38,7 @@ const (
 	// DiskMakerName is the name of the diskmaker-manager daemonset
 	DiskMakerName = "diskmaker-manager"
 
-	controllerName = "localvolumesetdaemon-controller"
-
-	dataHashAnnotationKey = "purple.purplestorage.com/configMapDataHash"
+	// dataHashAnnotationKey = "purple.purplestorage.com/configMapDataHash"
 
 	orphanLSOServiceMonitorName = "local-storage-operator-metrics"
 )
@@ -55,8 +53,8 @@ type DaemonReconciler struct {
 	deletedOrphanedServiceMonitor bool
 }
 
-// Reconcile reads that state of the cluster for a LocalVolumeSet object and makes changes based on the state read
-// and what is in the LocalVolumeSet.Spec
+// Reconcile reads that state of the cluster for a PurpleStorage object and makes changes based on the state read
+// and what is in the PurpleStorage.Spec
 // Note:
 // The Controller will requeue the Request to be processed again if the returned error is non-nil or
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
@@ -66,19 +64,9 @@ func (r *DaemonReconciler) Reconcile(ctx context.Context, request ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	lvSets, lvs, tolerations, ownerRefs, nodeSelector, err := r.aggregateDeamonInfo(ctx, request)
+	tolerations, ownerRefs, nodeSelector, err := r.aggregateDeamonInfo(ctx, request)
 	if err != nil {
 		return ctrl.Result{}, err
-	}
-	if len(lvSets.Items) < 1 && len(lvs.Items) < 1 {
-		return ctrl.Result{}, nil
-	}
-
-	configMap, opResult, err := r.reconcileProvisionerConfigMap(ctx, request, lvSets.Items, lvs.Items, ownerRefs)
-	if err != nil {
-		return ctrl.Result{}, err
-	} else if opResult == controllerutil.OperationResultUpdated || opResult == controllerutil.OperationResultCreated {
-		klog.InfoS("provisioner configmap", "configMap", configMap.GetName(), "result", opResult)
 	}
 
 	// enable service and servicemonitor for diskmaker daemonset
@@ -94,9 +82,7 @@ func (r *DaemonReconciler) Reconcile(ctx context.Context, request ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	configMapDataHash := dataHash(configMap.Data)
-
-	diskMakerDSMutateFn := getDiskMakerDSMutateFn(request, tolerations, ownerRefs, nodeSelector, configMapDataHash)
+	diskMakerDSMutateFn := getDiskMakerDSMutateFn(request, tolerations, ownerRefs, nodeSelector)
 	ds, opResult, err := CreateOrUpdateDaemonset(ctx, r.Client, diskMakerDSMutateFn)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -149,21 +135,6 @@ func (r *DaemonReconciler) cleanupOldDaemonsets(ctx context.Context, namespace s
 				return err
 			}
 		}
-	}
-
-	// search for old localvolumeset daemons
-	provisioner := &appsv1.DaemonSet{}
-	err = r.Client.Get(ctx, types.NamespacedName{Name: oldProvisionerName, Namespace: namespace}, provisioner)
-	if err == nil { // provisioner daemonset found
-		klog.InfoS("old daemonset found, cleaning up", "oldProvisionerName", oldProvisionerName)
-		err = r.Client.Delete(ctx, provisioner)
-		if err != nil && !(errors.IsNotFound(err) || errors.IsGone(err)) {
-			klog.ErrorS(err, "could not delete daemonset", "oldProvisionerName", oldProvisionerName)
-			return err
-		}
-	} else if !(errors.IsNotFound(err) || errors.IsGone(err)) { // unknown error
-		klog.ErrorS(err, "could not fetch daemonset to clean it up", "oldProvisionerName", oldProvisionerName)
-		return err
 	}
 
 	// wait for pods to die
@@ -240,12 +211,8 @@ func (r *DaemonReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		})
 
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&localv1alpha1.LocalVolume{}).
-		Watches(&localv1alpha1.LocalVolumeSet{}, enqueueOnlyNamespace).
+		For(&localv1alpha1.PurpleStorage{}).
 		// watch provisioner, diskmaker-manager daemonsets
 		Watches(&appsv1.DaemonSet{}, enqueueOnlyNamespace, builder.WithPredicates(common.EnqueueOnlyLabeledSubcomponents(DiskMakerName, ProvisionerName))).
-		// watch provisioner configmap
-		Watches(&corev1.ConfigMap{}, enqueueOnlyNamespace, builder.WithPredicates(common.EnqueueOnlyLabeledSubcomponents(common.ProvisionerConfigMapName))).
-		Watches(&localv1alpha1.LocalVolume{}, enqueueOnlyNamespace).
 		Complete(r)
 }

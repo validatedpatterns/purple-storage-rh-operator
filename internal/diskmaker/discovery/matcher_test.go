@@ -1,4 +1,4 @@
-package lvset
+package discovery
 
 import (
 	"testing"
@@ -19,7 +19,7 @@ const (
 // test filters
 
 func TestNotReadOnly(t *testing.T) {
-	matcherMap := FilterMap
+	matcherMap := filterMap
 	matcher := notReadOnly
 	results := []knownMatcherResult{
 		// true, no error
@@ -44,7 +44,7 @@ func TestNotReadOnly(t *testing.T) {
 }
 
 func TestNotRemovable(t *testing.T) {
-	matcherMap := FilterMap
+	matcherMap := filterMap
 	matcher := notRemovable
 	results := []knownMatcherResult{
 		// true, no error
@@ -69,7 +69,7 @@ func TestNotRemovable(t *testing.T) {
 }
 
 func TestNotSuspended(t *testing.T) {
-	matcherMap := FilterMap
+	matcherMap := filterMap
 	matcher := notSuspended
 	results := []knownMatcherResult{
 		// true
@@ -98,7 +98,7 @@ func TestNotSuspended(t *testing.T) {
 	assertAll(t, results)
 }
 func TestNoBiosBootInPartLabel(t *testing.T) {
-	matcherMap := FilterMap
+	matcherMap := filterMap
 	matcher := noBiosBootInPartLabel
 	results := []knownMatcherResult{
 		// true
@@ -158,7 +158,7 @@ func TestNoBiosBootInPartLabel(t *testing.T) {
 }
 
 func TestNoFilesystemSignature(t *testing.T) {
-	matcherMap := FilterMap
+	matcherMap := filterMap
 	matcher := noFilesystemSignature
 	results := []knownMatcherResult{
 		// true

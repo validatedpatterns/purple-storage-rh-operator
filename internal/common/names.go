@@ -3,13 +3,9 @@ package common
 import (
 	"fmt"
 	"os"
-	"regexp"
 
 	localv1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	"k8s.io/klog/v2"
-	provCommon "sigs.k8s.io/sig-storage-local-static-provisioner/pkg/common"
 
-	localv1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -37,8 +33,6 @@ const (
 	// the value is the node's name
 	DiscoveryNodeLabel = "discovery-result-node"
 
-	LocalVolumeStorageClassTemplate     = "templates/localvolume-storageclass.yaml"
-	LocalProvisionerConfigMapTemplate   = "templates/local-provisioner-configmap.yaml"
 	DiskMakerManagerDaemonSetTemplate   = "templates/diskmaker-manager-daemonset.yaml"
 	DiskMakerDiscoveryDaemonSetTemplate = "templates/diskmaker-discovery-daemonset.yaml"
 	MetricsServiceTemplate              = "templates/localmetrics/service.yaml"
@@ -56,12 +50,6 @@ const (
 
 	// DiscoveryMetricsServingCert is the name of secret created for discovery service to store TLS config
 	DiscoveryMetricsServingCert = "discovery-metric-serving-cert"
-	// LocalVolumeProtectionFinalizer is set to ensure the provisioner daemonset and owning object stick around long
-	// enough to handle the PV reclaim policy.
-	LocalVolumeProtectionFinalizer = "storage.openshift.com/local-volume-protection"
-	// LSOSymlinkDeleterFinalizer is set to ensure diskmaker has a chance
-	// to remove the symlink used by the PV before it is deleted.
-	LSOSymlinkDeleterFinalizer = "storage.openshift.com/lso-symlink-deleter"
 )
 
 // GetDiskMakerImage returns the image to be used for diskmaker daemonset
@@ -88,13 +76,8 @@ func GetLocalDiskLocationPath() string {
 	return defaultlocalDiskLocation
 }
 
-// LocalVolumeKey returns key for the localvolume
-func LocalVolumeKey(lv *localv1.LocalVolume) string {
-	return fmt.Sprintf("%s/%s", lv.Namespace, lv.Name)
-}
-
 // LocalVolumeSetKey returns key for the localvolumeset
-func LocalVolumeSetKey(lvs *localv1alpha1.LocalVolumeSet) string {
+func LocalVolumeSetKey(lvs *localv1alpha1.PurpleStorage) string {
 	return fmt.Sprintf("%s/%s", lvs.Namespace, lvs.Name)
 }
 
@@ -102,33 +85,4 @@ func LocalVolumeSetKey(lvs *localv1alpha1.LocalVolumeSet) string {
 // the key is provCommon.AnnProvisionedBy ("pv.kubernetes.io/provisioned-by")
 func GetProvisionedByValue(node corev1.Node) string {
 	return fmt.Sprintf("local-volume-provisioner-%v", node.Name)
-}
-
-func PVMatchesProvisioner(pv *corev1.PersistentVolume, provisionerName string) bool {
-	PVAnnotation, found := pv.Annotations[provCommon.AnnProvisionedBy]
-	if !found {
-		klog.V(4).InfoS("PV annotation not found - skipping.", "pvName", pv.GetName(), "provisionerName", provisionerName)
-		return false
-	}
-
-	// Check if there is an exact match.
-	if provisionerName == PVAnnotation {
-		klog.V(4).InfoS("PV matches provisioner name.", "pvName", pv.GetName(), "pvAnnotation", PVAnnotation, "provisionerName", provisionerName)
-		return true
-	}
-
-	//If there is no exact match we want to also match those PVs that start with a name (from GetProvisionedByValue) and end with node UID.
-	endsWithUIDReg := regexp.MustCompile("(\\w{8}(-\\w{4}){3}-\\w{12}$)")
-	endsWithUID := endsWithUIDReg.Find([]byte(PVAnnotation))
-
-	startsWithRuntimeNameReg := regexp.MustCompile(fmt.Sprintf("^%v", provisionerName))
-	startsWithRuntimeName := startsWithRuntimeNameReg.Find([]byte(PVAnnotation))
-
-	if endsWithUID != nil && startsWithRuntimeName != nil {
-		klog.V(4).InfoS("PV matches provisioner name (UID is ignored).", "pvName", pv.GetName(), "pvAnnotation", PVAnnotation, "provisionerName", provisionerName, "UID", endsWithUID)
-		return true
-	}
-
-	klog.V(4).InfoS("PV does not match provisioner name - skipping.", "pvName", pv.GetName(), "pvAnnotation", PVAnnotation, "provisionerName", provisionerName)
-	return false
 }

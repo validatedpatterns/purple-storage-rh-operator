@@ -42,7 +42,6 @@ import (
 	"github.com/darkdoc/purple-storage-rh-operator/internal/controller/initializer"
 	consolev1 "github.com/openshift/api/console/v1"
 
-	lvcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolume"
 	lvdcontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/localvolumediscovery"
 	nodedaemoncontroller "github.com/darkdoc/purple-storage-rh-operator/internal/controller/nodedaemon"
 
@@ -156,22 +155,6 @@ func main() {
 		setupLog.Error(err, "unable to create NodeDaemon controller")
 		os.Exit(1)
 	}
-	if err = (&lvcontroller.LocalVolumeReconciler{
-		Client: mgr.GetClient(),
-		// LvMap:  &common.StorageClassOwnerMap{},
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create LocalVolume controller")
-		os.Exit(1)
-	}
-	// if err = (&lvscontroller.LocalVolumeSetReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	// LvSetMap: &common.StorageClassOwnerMap{},
-	// 	Scheme: mgr.GetScheme(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	setupLog.Error(err, "unable to create LocalVolumeSet controller")
-	// 	os.Exit(1)
-	// }
 
 	if err = (&controller.PurpleStorageReconciler{
 		Client: mgr.GetClient(),

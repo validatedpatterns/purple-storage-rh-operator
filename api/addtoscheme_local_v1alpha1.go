@@ -1,7 +1,7 @@
 package api
 
 import (
-	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 )
 
 func init() {

@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	test "github.com/darkdoc/purple-storage-rh-operator/test/framework"
+	test "github.com/validatedpatterns/purple-storage-rh-operator/test/framework"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

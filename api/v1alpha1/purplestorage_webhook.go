@@ -20,8 +20,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/darkdoc/purple-storage-rh-operator/internal/utils"
 	configclient "github.com/openshift/client-go/config/clientset/versioned"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"

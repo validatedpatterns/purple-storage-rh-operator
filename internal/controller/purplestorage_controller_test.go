@@ -27,7 +27,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	purplev1alpha1 "github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
+	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 )
 
 var _ = Describe("PurpleStorage Controller", func() {

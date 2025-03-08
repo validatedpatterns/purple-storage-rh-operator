@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
-	"github.com/darkdoc/purple-storage-rh-operator/internal/diskutils"
+	"github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskutils"
 
-	"github.com/darkdoc/purple-storage-rh-operator/internal/diskmaker"
 	"github.com/stretchr/testify/assert"
+	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskmaker"
 )
 
 var lsblkOut string

@@ -38,7 +38,6 @@ func udevBlockMonitor(c chan string, period time.Duration) {
 		for {
 			select {
 			case <-timeout.C:
-				break
 			case _, ok := <-events:
 				if !ok {
 					return

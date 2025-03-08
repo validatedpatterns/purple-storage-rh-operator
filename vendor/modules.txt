@@ -363,7 +363,6 @@ github.com/openshift/client-go/operator/listers/operator/v1alpha1
 github.com/openshift/client-go/security/clientset/versioned/scheme
 # github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232
 ## explicit; go 1.22.0
-github.com/openshift/library-go/pkg/operator/resource/resourcemerge
 github.com/openshift/library-go/pkg/operator/resource/resourceread
 # github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000 => github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 ## explicit; go 1.13

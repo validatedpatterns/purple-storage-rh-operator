@@ -138,12 +138,12 @@ func TestNewDiscoveryResultInstance(t *testing.T) {
 
 	for _, tc := range testCases {
 		actual := newDiscoveryResultInstance(tc.nodeName, tc.namespace, tc.parentObjectName, tc.parentObjectUID)
-		assert.Equalf(t, tc.expected.Name, *&actual.Name, "[%q] LocalVolumeDiscoveryResult name not set correctly", tc.label)
-		assert.Equalf(t, tc.expected.Namespace, *&actual.Namespace, "[%q] LocalVolumeDiscoveryResult namespace not set correctly", tc.label)
-		assert.Equalf(t, tc.expected.Labels, *&actual.Labels, "[%q] LocalVolumeDiscoveryResult labels not set correctly", tc.label)
-		assert.Equalf(t, tc.expected.Spec.NodeName, *&actual.Spec.NodeName, "[%q] LocalVolumeDiscoveryResult NodeName spec not set correctly", tc.label)
-		assert.Equalf(t, tc.expected.ObjectMeta.OwnerReferences[0].Name, *&actual.ObjectMeta.OwnerReferences[0].Name, "[%q] LocalVolumeDiscoveryResult ownerReference name not set correctly", tc.label)
-		assert.Equalf(t, tc.expected.ObjectMeta.OwnerReferences[0].UID, *&actual.ObjectMeta.OwnerReferences[0].UID, "[%q] LocalVolumeDiscoveryResult ownerReference UID not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.Name, actual.Name, "[%q] LocalVolumeDiscoveryResult name not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.Namespace, actual.Namespace, "[%q] LocalVolumeDiscoveryResult namespace not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.Labels, actual.Labels, "[%q] LocalVolumeDiscoveryResult labels not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.Spec.NodeName, actual.Spec.NodeName, "[%q] LocalVolumeDiscoveryResult NodeName spec not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.ObjectMeta.OwnerReferences[0].Name, actual.ObjectMeta.OwnerReferences[0].Name, "[%q] LocalVolumeDiscoveryResult ownerReference name not set correctly", tc.label)
+		assert.Equalf(t, tc.expected.ObjectMeta.OwnerReferences[0].UID, actual.ObjectMeta.OwnerReferences[0].UID, "[%q] LocalVolumeDiscoveryResult ownerReference UID not set correctly", tc.label)
 	}
 }
 

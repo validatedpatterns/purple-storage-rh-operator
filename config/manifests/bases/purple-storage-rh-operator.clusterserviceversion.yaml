@@ -28,6 +28,10 @@ spec:
         path: mco_config.create
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: Inherited from LVSet to provide control over node selector and
+          device filtering capabilities
+        displayName: Node Spec
+        path: node_spec
       - description: Labels to be used for the machineconfigpool
         displayName: Labels
         path: mco_config.labels

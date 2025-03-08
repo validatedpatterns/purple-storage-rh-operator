@@ -45,7 +45,7 @@ var filterMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclu
 	},
 
 	notRemovable: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		return dev.Removable, nil
+		return !dev.Removable, nil
 	},
 
 	notSuspended: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
@@ -67,8 +67,7 @@ var filterMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclu
 	},
 
 	noChildren: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		hasChildren, err := dev.HasChildren()
-		return !hasChildren, err
+		return len(dev.Children) == 0, nil
 	},
 	canOpenExclusively: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
 		pathname, err := dev.GetDevPath()

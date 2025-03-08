@@ -18,8 +18,8 @@ import (
 	"context"
 
 	"github.com/mitchellh/go-homedir"
-	"github.com/rogpeppe/go-internal/modfile"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/mod/modfile"
 	k8syaml "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )

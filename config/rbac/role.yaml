@@ -224,16 +224,6 @@ rules:
   - '*'
   - update
 - apiGroups:
-  - ""
-  - storage.k8s.io
-  resources:
-  - configmaps
-  - persistentvolumeclaims
-  - persistentvolumes
-  - storageclasses
-  verbs:
-  - '*'
-- apiGroups:
   - admissionregistration.k8s.io
   resources:
   - mutatingwebhookconfigurations
@@ -457,12 +447,7 @@ rules:
   - servicemonitors
   verbs:
   - create
-  - delete
   - get
-  - list
-  - patch
-  - update
-  - watch
 - apiGroups:
   - networking.k8s.io
   resources:
@@ -561,30 +546,6 @@ rules:
 - apiGroups:
   - purple.purplestorage.com
   resources:
-  - localvolumes
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - purple.purplestorage.com
-  resources:
-  - localvolumesets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - purple.purplestorage.com
-  resources:
   - purplestorages
   verbs:
   - create
@@ -614,20 +575,6 @@ rules:
   - clusterrolebindings
   verbs:
   - '*'
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterrolebindings
-  - clusterroles
-  - rolebindings
-  verbs:
   - create
   - delete
   - get
@@ -1366,14 +1313,6 @@ rules:
   - use
   - watch
 - apiGroups:
-  - security.openshift.io
-  resourceNames:
-  - privileged
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - use
-- apiGroups:
   - storage.k8s.io
   resources:
   - csidrivers
@@ -1390,7 +1329,6 @@ rules:
   resources:
   - storageclasses
   verbs:
-  - '*'
   - create
   - delete
   - get
@@ -1402,65 +1340,6 @@ rules:
   - storage.k8s.io
   resources:
   - volumeattachments
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: manager-role
-  namespace: default
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  - endpoints
-  - events
-  - persistentvolumeclaims
-  - pods
-  - secrets
-  - services
-  - services/finalizers
-  verbs:
-  - '*'
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  - deployments
-  - replicasets
-  - statefulsets
-  verbs:
-  - '*'
-- apiGroups:
-  - apps
-  resourceNames:
-  - local-storage-operator
-  resources:
-  - deployments/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - local.storage.openshift.io
-  resources:
-  - '*'
-  verbs:
-  - create
-  - get
-  - list
-  - update
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - roles
   verbs:
   - create
   - delete

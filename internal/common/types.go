@@ -1,10 +1,6 @@
 package common
 
 const (
-	// LocalVolumeOwnerNameForPV stores name of LocalVolume that created this PV
-	LocalVolumeOwnerNameForPV = "storage.openshift.com/local-volume-owner-name"
-	// LocalVolumeOwnerNamespaceForPV stores namespace of LocalVolume that created this PV
-	LocalVolumeOwnerNamespaceForPV = "storage.openshift.com/local-volume-owner-namespace"
 
 	// PVOwnerKindLabel stores the namespace of the CR that created this PV
 	PVOwnerKindLabel = "storage.openshift.com/owner-kind"

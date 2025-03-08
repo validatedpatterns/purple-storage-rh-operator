@@ -24,11 +24,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/scheme"
 )
 
-const (
-	LocalVolumeKind    = "LocalVolume"
-	LocalVolumeSetKind = "LocalVolumeSet"
-)
-
 var (
 	// GroupVersion is group version used to register these objects
 	GroupVersion = schema.GroupVersion{Group: "purple.purplestorage.com", Version: "v1alpha1"}

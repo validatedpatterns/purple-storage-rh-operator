@@ -5,8 +5,6 @@ resources:
 - bases/purple.purplestorage.com_purplestorages.yaml
 - bases/purple.purplestorage.com_localvolumediscoveries.yaml
 - bases/purple.purplestorage.com_localvolumediscoveryresults.yaml
-- bases/purple.purplestorage.com_localvolumesets.yaml
-- bases/purple.purplestorage.com_localvolumes.yaml
 
 #+kubebuilder:scaffold:crdkustomizeresource
 

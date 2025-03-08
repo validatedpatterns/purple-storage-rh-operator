@@ -41,18 +41,15 @@ var defaultMinSize = resource.MustParse("1Gi")
 // they verify that the device itself is good to use
 var filterMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclusionSpec) (bool, error){
 	notReadOnly: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		readOnly, err := dev.GetReadOnly()
-		return !readOnly, err
+		return !dev.ReadOnly, nil
 	},
 
 	notRemovable: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		removable, err := dev.GetRemovable()
-		return !removable, err
+		return dev.Removable, nil
 	},
 
 	notSuspended: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		matched := dev.State != internal.StateSuspended
-		return matched, nil
+		return dev.State != internal.StateSuspended, nil
 	},
 
 	noBiosBootInPartLabel: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
@@ -62,8 +59,7 @@ var filterMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceInclu
 	},
 
 	noFilesystemSignature: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
-		matched := dev.FSType == ""
-		return matched, nil
+		return dev.FSType == "", nil
 	},
 	noBindMounts: func(dev internal.BlockDevice, spec *localv1alpha1.DeviceInclusionSpec) (bool, error) {
 		hasBindMounts, _, err := dev.HasBindMounts()
@@ -150,10 +146,8 @@ var matcherMap = map[string]func(internal.BlockDevice, *localv1alpha1.DeviceIncl
 			return true, nil
 		}
 		matched := false
-		rotational, err := dev.GetRotational()
-		if err != nil {
-			return false, err
-		}
+		rotational := dev.Rotational
+
 		for _, prop := range spec.DeviceMechanicalProperties {
 			matchedRotational := prop == localv1alpha1.Rotational && rotational
 			matchedNonRotational := prop == localv1alpha1.NonRotational && !rotational

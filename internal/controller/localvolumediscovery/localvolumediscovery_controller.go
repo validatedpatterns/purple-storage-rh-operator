@@ -65,6 +65,7 @@ type LocalVolumeDiscoveryReconciler struct {
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=purple.purplestorage.com,resources=localvolumediscoveryresults/status,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=monitoring.coreos.com,resources=prometheusrules,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile reads that state of the cluster for a LocalVolumeDiscovery object and makes changes based on the state read
 // and what is in the LocalVolumeDiscovery.Spec

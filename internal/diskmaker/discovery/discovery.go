@@ -220,7 +220,7 @@ func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevi
 
 // ignoreDevices checks if a device should be ignored during discovery
 func ignoreDevices(dev diskutil.BlockDevice) bool {
-	if readOnly, err := dev.GetReadOnly(); err != nil || readOnly {
+	if dev.ReadOnly {
 		klog.Infof("ignoring read only device %q", dev.Name)
 		return true
 	}

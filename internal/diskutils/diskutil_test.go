@@ -540,9 +540,8 @@ func TestReadOnly(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetReadOnly()
+		actual := tc.blockDevice.ReadOnly
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.NoError(t, err)
 	}
 }
 
@@ -565,9 +564,8 @@ func TestGetRemovable(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetRemovable()
+		actual := tc.blockDevice.Removable
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.NoError(t, err)
 	}
 }
 
@@ -590,9 +588,8 @@ func TestGetRotational(t *testing.T) {
 	}
 
 	for _, tc := range testcases {
-		actual, err := tc.blockDevice.GetRotational()
+		actual := tc.blockDevice.Rotational
 		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.NoError(t, err)
 	}
 }
 

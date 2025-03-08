@@ -40,8 +40,12 @@ type DeviceDiscovery struct {
 // NewDeviceDiscovery returns a new DeviceDiscovery instance
 func NewDeviceDiscovery() (*DeviceDiscovery, error) {
 	scheme := scheme.Scheme
-	v1alpha1.AddToScheme(scheme)
-	//api.AddToScheme(scheme)
+	err := v1alpha1.AddToScheme(scheme)
+	if err != nil {
+		klog.Error(err, "failed to add scheme")
+		return nil, err
+	}
+
 	apiUpdater, err := diskmaker.NewAPIUpdater(scheme)
 	if err != nil {
 		klog.Error(err, "failed to create new APIUpdater")
@@ -243,7 +247,7 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 	return false
 }
 
-// getDeviceStatus returns device status as "Available", "NotAvailable" or "Unkown"
+// getDeviceStatus returns device status as "Available", "NotAvailable" or "Unknown"
 func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 	status := v1alpha1.DeviceStatus{}
 	if dev.FSType != "" {

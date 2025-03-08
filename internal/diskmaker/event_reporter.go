@@ -53,13 +53,13 @@ func NewSuccessEvent(eventReason, message, disk string) *DiskEvent {
 type EventReporter struct {
 	mux            sync.Mutex
 	apiClient      ApiUpdater
-	reportedEvents sets.String
+	reportedEvents sets.Set[string]
 }
 
 // NewEventReporter returns a new event reportor
 func NewEventReporter(apiClient ApiUpdater) *EventReporter {
 	er := &EventReporter{apiClient: apiClient}
-	er.reportedEvents = sets.NewString()
+	er.reportedEvents = sets.New[string]()
 	return er
 }
 

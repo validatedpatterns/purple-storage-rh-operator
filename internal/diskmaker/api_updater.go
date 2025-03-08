@@ -82,7 +82,7 @@ func getEventRecorder(scheme *runtime.Scheme) (record.EventRecorder, error) {
 func (s *sdkAPIUpdater) recordEvent(obj runtime.Object, e *DiskEvent) {
 	nodeName := os.Getenv("MY_NODE_NAME")
 	message := e.Message
-	if len(nodeName) != 0 {
+	if nodeName != "" {
 		message = fmt.Sprintf("%s - %s", nodeName, message)
 	}
 

@@ -343,7 +343,7 @@ func TestInTypeList(t *testing.T) {
 			spec:        &localv1alpha1.DeviceInclusionSpec{DeviceTypes: []localv1alpha1.DeviceType{"DISK", "PART"}},
 			expectMatch: true, expectErr: false,
 		},
-		// mispelling, fails
+		// misspelling, fails
 		{
 			matcherMap: matcherMap, matcher: matcher,
 			dev:         internal.BlockDevice{Type: string(localv1alpha1.RawDisk)},

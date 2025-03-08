@@ -211,6 +211,7 @@ func (r *DaemonReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		})
 
 	return ctrl.NewControllerManagedBy(mgr).
+		Named("local-volume-discovery-controller").
 		For(&localv1alpha1.PurpleStorage{}).
 		// watch provisioner, diskmaker-manager daemonsets
 		Watches(&appsv1.DaemonSet{}, enqueueOnlyNamespace, builder.WithPredicates(common.EnqueueOnlyLabeledSubcomponents(DiskMakerName, ProvisionerName))).

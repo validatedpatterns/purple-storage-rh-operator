@@ -266,6 +266,7 @@ rules:
 - apiGroups:
   - monitoring.coreos.com
   resources:
+  - prometheusrules
   - servicemonitors
   verbs:
   - create

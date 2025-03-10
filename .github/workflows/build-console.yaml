@@ -1,0 +1,22 @@
+name: Build console container
+
+on:
+  push:
+    paths:
+      - "console/"
+  pull_request:
+    paths:
+      - "console/"
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+
+    - name: Build the console container
+      run: |
+        cd console
+        make docker-build

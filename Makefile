@@ -179,7 +179,7 @@ docker-push: ## Push docker image with the manager.
 
 .PHONY: diskmaker-docker-build
 diskmaker-docker-build: ## Build docker image of the diskmaker
-	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel7 .
+	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
 
 .PHONY: diskmaker-docker-push
 diskmaker-docker-push: ## Push docker image of the diskmaker

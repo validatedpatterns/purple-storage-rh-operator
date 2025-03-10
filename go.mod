@@ -7,7 +7,6 @@ toolchain go1.23.6
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/go-logr/logr v1.4.2
-	github.com/google/uuid v1.6.0
 	github.com/manifestival/controller-runtime-client v0.4.0
 	github.com/manifestival/manifestival v0.7.2
 	github.com/mitchellh/go-homedir v1.1.0
@@ -16,7 +15,7 @@ require (
 	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
 	github.com/openshift/client-go v0.0.0-20240528061634-b054aa794d87
 	github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232
-	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
+	github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
@@ -31,7 +30,7 @@ require (
 	k8s.io/api v0.32.2
 	k8s.io/apiextensions-apiserver v0.32.2
 	k8s.io/apimachinery v0.32.2
-	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/client-go v0.32.2
 	k8s.io/component-helpers v0.32.2
 	k8s.io/klog/v2 v2.130.1
 	sigs.k8s.io/controller-runtime v0.20.3
@@ -70,6 +69,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -105,44 +105,4 @@ require (
 	sigs.k8s.io/kube-storage-version-migrator v0.0.6-0.20230721195810-5c8923c5ff96 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.5.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
-)
-
-replace (
-	// Usually not needed unless we have newer k8s.io deps and argocd still uses an old gitops-engine
-	// github.com/argoproj/gitops-engine => github.com/argoproj/gitops-engine v0.0.0-20240905010810-bd7681ae3f8b
-	// github.com/openshift/api => github.com/openshift/api v0.0.0-20240124164020-e2ce40831f2e
-	// github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20240115204758-e6bf7d631d5e
-	github.com/openshift/machine-config-operator => github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
-	// Caused by Argo importing 'k8s.io/api'
-	// Override all the v0.0.0 entries
-	k8s.io/api => k8s.io/api v0.32.2
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.32.2
-	k8s.io/apimachinery => k8s.io/apimachinery v0.32.2
-	k8s.io/apiserver => k8s.io/apiserver v0.32.2
-	k8s.io/cli-runtime => k8s.io/cli-runtime v0.32.2
-	k8s.io/client-go => k8s.io/client-go v0.32.2
-	k8s.io/cloud-provider => k8s.io/cloud-provider v0.32.2
-	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.32.2
-	k8s.io/code-generator => k8s.io/code-generator v0.32.2
-	k8s.io/component-base => k8s.io/component-base v0.32.2
-	k8s.io/component-helpers => k8s.io/component-helpers v0.32.2
-	k8s.io/controller-manager => k8s.io/controller-manager v0.32.2
-	k8s.io/cri-api => k8s.io/cri-api v0.32.2
-	k8s.io/cri-client => k8s.io/cri-client v0.32.2
-	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.32.2
-	k8s.io/dynamic-resource-allocation => k8s.io/dynamic-resource-allocation v0.32.2
-	k8s.io/endpointslice => k8s.io/endpointslice v0.32.2
-	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.32.2
-	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.32.2
-	k8s.io/kube-proxy => k8s.io/kube-proxy v0.32.2
-	k8s.io/kube-scheduler => k8s.io/kube-scheduler v0.32.2
-	k8s.io/kubectl => k8s.io/kubectl v0.32.2
-	k8s.io/kubelet => k8s.io/kubelet v0.32.2
-	k8s.io/kubernetes => k8s.io/kubernetes v1.32.2
-	k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers v0.32.2
-	k8s.io/metrics => k8s.io/metrics v0.32.2
-	k8s.io/mount-utils => k8s.io/mount-utils v0.32.2
-	k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.32.2
-	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.32.2
-	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.20.3
 )

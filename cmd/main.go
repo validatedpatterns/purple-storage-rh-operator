@@ -43,7 +43,6 @@ import (
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/initializer"
 
 	lvdcontroller "github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/localvolumediscovery"
-	nodedaemoncontroller "github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/nodedaemon"
 
 	purplev1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller"
@@ -146,13 +145,6 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create LocalVolumeDiscovery controller")
-		os.Exit(1)
-	}
-	if err = (&nodedaemoncontroller.DaemonReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create NodeDaemon controller")
 		os.Exit(1)
 	}
 

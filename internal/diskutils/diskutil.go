@@ -10,6 +10,7 @@ import (
 
 	"k8s.io/klog/v2"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
@@ -28,6 +29,8 @@ const (
 	DiskByIDDir = "/dev/disk/by-id/"
 	// DiskDMDir is the path for symlinks of device mapper disks (e.g. mpath)
 	DiskDMDir = "/dev/mapper/"
+
+	gpfsPartitionLabel = "GPFS:"
 )
 
 // IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
@@ -88,6 +91,24 @@ func (b BlockDevice) HasChildren() (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func (b *BlockDevice) HasChildWithGPFSPartition() bool {
+	for _, c := range b.Children {
+		if c.PartLabel == gpfsPartitionLabel {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BlockDevice) HasChildWithMPathPartition() bool {
+	for _, c := range b.Children {
+		if c.Type == string(v1alpha1.MultiPathType) {
+			return true
+		}
+	}
+	return false
 }
 
 // HasBindMounts checks for bind mounts and returns mount point for a device by parsing `proc/1/mountinfo`.

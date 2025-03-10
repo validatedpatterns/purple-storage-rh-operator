@@ -221,8 +221,8 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 		return true
 	}
 
-	if len(dev.Children) > 0 {
-		klog.Infof("ignoring root device %q", dev.Name)
+	if len(dev.Children) == 0 {
+		klog.Infof("ignoring device %s with no children", dev.Name)
 		return true
 	}
 
@@ -238,6 +238,11 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 
 	if strings.Trim(dev.WWN, " ") == "" {
 		klog.Infof("ignoring device %q with undefined WWN", dev.Name)
+	}
+
+	if !dev.HasChildWithGPFSPartition() && !dev.HasChildWithMPathPartition() {
+		klog.Infof("ignoring device %s with no children with MultiPath and with no GPFS partitions", dev.Name)
+		return true
 	}
 
 	return false

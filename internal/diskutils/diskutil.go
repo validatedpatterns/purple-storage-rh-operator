@@ -10,6 +10,7 @@ import (
 
 	"k8s.io/klog/v2"
 
+	"github.com/darkdoc/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
@@ -28,6 +29,8 @@ const (
 	DiskByIDDir = "/dev/disk/by-id/"
 	// DiskDMDir is the path for symlinks of device mapper disks (e.g. mpath)
 	DiskDMDir = "/dev/mapper/"
+
+	gpfsPartitionLabel = "GPFS:"
 )
 
 // IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
@@ -65,38 +68,6 @@ type BlockDevice struct {
 	Children   []BlockDevice `json:"children,omitempty"`
 }
 
-// IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
-
-// GetRotational as bool
-func (b BlockDevice) GetRotational() (bool, error) {
-	return b.Rotational, nil
-	// v, err := parseBitBool(b.Rotational)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse rotational property %q as bool", b.Rotational)
-	// }
-	// return v, err
-}
-
-// GetReadOnly as bool
-func (b BlockDevice) GetReadOnly() (bool, error) {
-	return b.ReadOnly, nil
-	// v, err := parseBitBool(b.ReadOnly)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse readOnly property %q as bool", b.ReadOnly)
-	// }
-	// return v, err
-}
-
-// GetRemovable as bool
-func (b BlockDevice) GetRemovable() (bool, error) {
-	return b.Removable, nil
-	// v, err := parseBitBool(b.Removable)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse removable property %q as bool", b.Removable)
-	// }
-	// return v, err
-}
-
 func parseBitBool(s string) (bool, error) {
 	if s == "0" || s == "" {
 		return false, nil
@@ -104,16 +75,6 @@ func parseBitBool(s string) (bool, error) {
 		return true, nil
 	}
 	return false, fmt.Errorf("lsblk bool value not 0 or 1: %q", s)
-}
-
-// GetSize as int64
-func (b BlockDevice) GetSize() (int64, error) {
-	return b.Size, nil
-	// v, err := strconv.ParseInt(b.Size, 10, 64)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse size property %q as int64", b.Size)
-	// }
-	// return v, err
 }
 
 // HasChildren check on BlockDevice
@@ -130,6 +91,24 @@ func (b BlockDevice) HasChildren() (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func (b *BlockDevice) HasChildWithGPFSPartition() bool {
+	for _, c := range b.Children {
+		if c.PartLabel == gpfsPartitionLabel {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BlockDevice) HasChildWithMPathPartition() bool {
+	for _, c := range b.Children {
+		if c.Type == string(v1alpha1.MultiPathType) {
+			return true
+		}
+	}
+	return false
 }
 
 // HasBindMounts checks for bind mounts and returns mount point for a device by parsing `proc/1/mountinfo`.

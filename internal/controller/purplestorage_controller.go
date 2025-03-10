@@ -252,27 +252,6 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
-	// Load and install manifests from ibm
-	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.IbmCnsaVersion)
-	_, err = os.Stat(install_path)
-	if os.IsNotExist(err) {
-		install_path = fmt.Sprintf("/%s", install_path)
-		_, err = os.Stat(install_path)
-		if os.IsNotExist(err) {
-			return ctrl.Result{}, err
-		}
-	}
-	installManifest, err := manifestival.NewManifest(install_path, manifestival.UseClient(mfc.NewClient(r.Client)))
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	log.Log.Info(fmt.Sprintf("Applying manifest from %s", install_path))
-
-	if err := installManifest.Apply(); err != nil {
-		log.Log.Error(err, "Error applying manifest")
-		return reconcile.Result{}, err
-	}
-	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
 	// Create machineconfig to enable kernel modules if needed
 	if purplestorage.Spec.MachineConfig.Create {
@@ -305,6 +284,28 @@ func (r *PurpleStorageReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			return ctrl.Result{}, err
 		}
 	}
+
+	// Load and install manifests from ibm
+	install_path := fmt.Sprintf("files/%s/install.yaml", purplestorage.Spec.IbmCnsaVersion)
+	_, err = os.Stat(install_path)
+	if os.IsNotExist(err) {
+		install_path = fmt.Sprintf("/%s", install_path)
+		_, err = os.Stat(install_path)
+		if os.IsNotExist(err) {
+			return ctrl.Result{}, err
+		}
+	}
+	installManifest, err := manifestival.NewManifest(install_path, manifestival.UseClient(mfc.NewClient(r.Client)))
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Log.Info(fmt.Sprintf("Applying manifest from %s", install_path))
+
+	if err := installManifest.Apply(); err != nil {
+		log.Log.Error(err, "Error applying manifest")
+		return reconcile.Result{}, err
+	}
+	log.Log.Info(fmt.Sprintf("Applied manifest from %s", install_path))
 
 	secretstring := fmt.Sprintf(`{"auths":{"quay.io/rhsysdeseng":{"auth":%q,"email":""}}}`, strings.TrimSpace(pull))
 	// Create secrets in IBM namespaces to pull images from quay

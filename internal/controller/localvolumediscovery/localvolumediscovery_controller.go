@@ -26,7 +26,6 @@ import (
 	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/controller/nodedaemon"
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/localmetrics"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -100,7 +99,7 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 		getEnvVars(instance.Name, string(instance.UID)),
 		getOwnerRefs(instance),
 		instance.Spec.NodeSelector)
-	ds, opResult, err := nodedaemon.CreateOrUpdateDaemonset(ctx, r.Client, diskMakerDSMutateFn)
+	ds, opResult, err := CreateOrUpdateDaemonset(ctx, r.Client, diskMakerDSMutateFn)
 	if err != nil {
 		message := fmt.Sprintf("failed to create discovery daemonset. Error %+v", err)
 		err := r.updateDiscoveryStatus(ctx, instance, operatorv1.OperatorStatusTypeDegraded, message,
@@ -174,7 +173,7 @@ func getDiskMakerDiscoveryDSMutateFn(request reconcile.Request,
 		}
 		dsTemplate := resourceread.ReadDaemonSetV1OrDie(dsBytes)
 
-		nodedaemon.MutateAggregatedSpec(
+		MutateAggregatedSpec(
 			ds,
 			tolerations,
 			ownerRefs,

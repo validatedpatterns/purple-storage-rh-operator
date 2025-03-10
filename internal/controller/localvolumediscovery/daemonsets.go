@@ -1,18 +1,14 @@
-package nodedaemon
+package localvolumediscovery
 
 import (
 	"context"
 	"os"
 
-	"github.com/openshift/library-go/pkg/operator/resource/resourceread"
-	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 // daemonsets are defined as: daemonSetMutateFn func(*appsv1.DaemonSet) error
@@ -54,45 +50,6 @@ func CreateOrUpdateDaemonset(
 // ds.Spec.UpdateStrategy
 // ds.Spec.MinReadySeconds
 // ds.Spec.RevisionHistoryLimit
-
-// Diskmaker Daemonset
-// to be consumed by createOrUpdateDaemonset
-func getDiskMakerDSMutateFn(
-	request reconcile.Request,
-	tolerations []corev1.Toleration,
-	ownerRefs []metav1.OwnerReference,
-	nodeSelector *corev1.NodeSelector,
-) func(*appsv1.DaemonSet) error {
-	return func(ds *appsv1.DaemonSet) error {
-		// read template for default values
-		dsBytes, err := assets.ReadFileAndReplace(
-			common.DiskMakerManagerDaemonSetTemplate,
-			[]string{
-				"${OBJECT_NAMESPACE}", request.Namespace,
-				"${CONTAINER_IMAGE}", common.GetDiskMakerImage(),
-				"${RBAC_PROXY_IMAGE}", common.GetKubeRBACProxyImage(),
-				"${PRIORITY_CLASS_NAME}", os.Getenv("PRIORITY_CLASS_NAME"),
-			},
-		)
-		if err != nil {
-			return err
-		}
-		dsTemplate := resourceread.ReadDaemonSetV1OrDie(dsBytes)
-
-		// common spec
-		MutateAggregatedSpec(
-			ds,
-			tolerations,
-			ownerRefs,
-			nodeSelector,
-			dsTemplate,
-		)
-
-		// add provisioner configmap hash
-		initMapIfNil(&ds.ObjectMeta.Annotations)
-		return nil
-	}
-}
 
 // MutateAggregatedSpec returns a mutate function that applies the other arguments to the referenced daemonset
 // its purpose is to be used in more specific mutate functions

@@ -7,7 +7,6 @@ toolchain go1.23.6
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/go-logr/logr v1.4.2
-	github.com/google/uuid v1.6.0
 	github.com/manifestival/controller-runtime-client v0.4.0
 	github.com/manifestival/manifestival v0.7.2
 	github.com/mitchellh/go-homedir v1.1.0
@@ -16,7 +15,7 @@ require (
 	github.com/openshift/api v0.0.0-20240821141839-566edf361acd
 	github.com/openshift/client-go v0.0.0-20240528061634-b054aa794d87
 	github.com/openshift/library-go v0.0.0-20240711100342-737dc0fa5232
-	github.com/openshift/machine-config-operator v0.0.0-00010101000000-000000000000
+	github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 	github.com/pborman/uuid v1.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.80.1
@@ -70,6 +69,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -111,8 +111,6 @@ replace (
 	// Usually not needed unless we have newer k8s.io deps and argocd still uses an old gitops-engine
 	// github.com/argoproj/gitops-engine => github.com/argoproj/gitops-engine v0.0.0-20240905010810-bd7681ae3f8b
 	// github.com/openshift/api => github.com/openshift/api v0.0.0-20240124164020-e2ce40831f2e
-	// github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20240115204758-e6bf7d631d5e
-	github.com/openshift/machine-config-operator => github.com/openshift/machine-config-operator v0.0.1-0.20200913004441-7eba765c69c9
 	// Caused by Argo importing 'k8s.io/api'
 	// Override all the v0.0.0 entries
 	k8s.io/api => k8s.io/api v0.32.2

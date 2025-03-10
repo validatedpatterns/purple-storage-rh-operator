@@ -152,8 +152,12 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 build-diskmaker: ## Build diskmaker binary.
 	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -mod=vendor -ldflags '-X main.version=$(REV)' -o $(TARGET_DIR)/diskmaker $(CURPATH)/cmd/diskmaker-manager
 
+.PHONY: pull
+pull:
+	@touch internal/controller/pull.txt
+
 .PHONY: build
-build: manifests generate fmt vet ## Build manager binary.
+build: pull manifests generate fmt vet ## Build manager binary.
 	GOOS=${GOOS} GOARCH=${GOARCH} hack/build.sh
 
 .PHONY: run
@@ -179,7 +183,7 @@ docker-push: ## Push docker image with the manager.
 
 .PHONY: diskmaker-docker-build
 diskmaker-docker-build: ## Build docker image of the diskmaker
-	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel7 .
+	$(CONTAINER_TOOL) build -t $(DISKMAKER_IMAGE) -f $(CURPATH)/Dockerfile.diskmaker.rhel9 .
 
 .PHONY: diskmaker-docker-push
 diskmaker-docker-push: ## Push docker image of the diskmaker

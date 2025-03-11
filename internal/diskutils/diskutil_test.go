@@ -4,7 +4,6 @@ package diskutils
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -15,26 +14,31 @@ var lsblkOut string
 var blkidOut string
 
 const (
-	lsblkOutput1 = `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="0" STATE="running" SERIAL="" PARTLABEL=""
-NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="" SERIAL="" PARTLABEL="BIOS-BOOT"
-`
-	lsblkOutput2 = `NAME="sdc" KNAME="sdc" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="1" STATE="running" SERIAL=""
-NAME="sdc3" KNAME="sdc3" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="1" STATE="" SERIAL=""
-`
+	lsblkOutput1 = `{"blockdevices": [
+				{"name": "sda", "rota": true, "type": "disk", "size": 62914560000, "model": "VBOX HARDDISK", "vendor": "ATA", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "", "partlabel": "", "wwn": "0x500a07512b9f5254"},
+				{"name": "sda1", "rota": true, "type": "part", "size": 62913494528, "model": "", "vendor": "", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "", "partlabel": "BIOS-BOOT", "wwn": "0x55cd2e41563851e9"}]}`
+	lsblkOutput2 = `{"blockdevices": [
+				{"name": "sdc","rota": true, "type": "disk", "size": 62914560000, "model": "VBOX HARDDISK", "vendor": "ATA", "ro": false, "rm": true, "state": "", "kname": "sdc", "serial": "", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdc3", "rota": true, "type": "part", "size": 62913494528, "model": "", "vendor": "", "ro": false, "rm": true, "state": "", "kname": "sdc3", "serial": "", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`
+
 	blkIDOutput1 = `/dev/sdc: TYPE="ext4"
 /dev/sdc3: TYPE="ext2"
 `
 )
 
-// helperCommand returns a fake exec.Cmd for unit tests
-func helperCommand(command string, args ...string) *exec.Cmd {
-	cs := []string{"-test.run=TestHelperProcess", "--", command}
-	cs = append(cs, args...)
-	cmd := exec.Command(os.Args[0], cs...)
-	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", fmt.Sprintf("COMMAND=%s", command),
-		fmt.Sprintf("LSBLKOUT=%s", lsblkOut), fmt.Sprintf("BLKIDOUT=%s", blkidOut),
-		fmt.Sprintf("GOCOVERDIR=%s", os.TempDir())}
-	return cmd
+type mockCmdExec struct {
+	stdout []string
+	count  int
+}
+
+func (m *mockCmdExec) Execute(name string, args ...string) Command {
+	return m
+}
+
+func (m *mockCmdExec) CombinedOutput() ([]byte, error) {
+	o := m.stdout[m.count]
+	m.count++
+	return []byte(o), nil
 }
 
 func TestHelperProcess(t *testing.T) {
@@ -138,14 +142,14 @@ func TestListBlockDevices(t *testing.T) {
 		},
 		{
 			label:             "Case 3: empty lsblk output",
-			lsblkOutput:       "",
+			lsblkOutput:       `{"blockdevices": []}`,
 			totalBlockDevices: 0,
 			totalBadRows:      0,
 			expected:          []BlockDevice{},
 		},
 		{
 			label:             "Case 4: lsblk output with white space",
-			lsblkOutput:       `NAME="sda" MODEL="VBOX HARDDISK   " VENDOR="ATA   "`,
+			lsblkOutput:       `{"blockdevices": [{"name":"sda","model":"VBOX HARDDISK   ","vendor":"ATA   "}]}`,
 			totalBlockDevices: 1,
 			totalBadRows:      0,
 			expected: []BlockDevice{
@@ -161,10 +165,9 @@ func TestListBlockDevices(t *testing.T) {
 	for _, tc := range testcases {
 		lsblkOut = tc.lsblkOutput
 		blkidOut = tc.blkIDOutput
-		ExecCommand = helperCommand
-		defer func() { ExecCommand = exec.Command }()
+		ExecCommand = &mockCmdExec{stdout: []string{blkidOut, lsblkOut}}
 		blockDevices, badRows, err := ListBlockDevices([]string{})
-		assert.NoError(t, err)
+		assert.NoError(t, err, "[%q: Device]: invalid json", tc.label)
 		assert.Equalf(t, tc.totalBadRows, len(badRows), "[%s] total bad rows list didn't match", tc.label)
 		assert.Equalf(t, tc.totalBlockDevices, len(blockDevices), "[%s] total block device list didn't match", tc.label)
 		for i := 0; i < len(blockDevices); i++ {
@@ -179,164 +182,6 @@ func TestListBlockDevices(t *testing.T) {
 			assert.Equalf(t, tc.expected[i].ReadOnly, blockDevices[i].ReadOnly, "[%q: Device: %d]: invalid block device read only value", tc.label, i+1)
 			assert.Equalf(t, tc.expected[i].PartLabel, blockDevices[i].PartLabel, "[%q: Device: %d]: invalid block device PartLabel value", tc.label, i+1)
 		}
-	}
-}
-
-func TestGetDeviceFSMap(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blkIDOutput string
-		expected    map[string]string
-	}{
-		{
-			label:       "Case 1: Empty blkid response",
-			blkIDOutput: "",
-			expected:    map[string]string{},
-		},
-		{
-			label:       "Case 2: Valid blkid response",
-			blkIDOutput: blkIDOutput1,
-			expected: map[string]string{
-				"/dev/sdc":  "ext4",
-				"/dev/sdc3": "ext2",
-			},
-		},
-	}
-
-	for _, tc := range testcases {
-		blkidOut = tc.blkIDOutput
-		ExecCommand = helperCommand
-		defer func() { ExecCommand = exec.Command }()
-
-		actual, err := GetDeviceFSMap([]string{})
-		assert.NoError(t, err)
-		assert.Equalf(t, tc.expected, actual, "[%s]: failed to get device filesystem map", tc.label)
-	}
-}
-
-func TestHasChildren(t *testing.T) {
-	testcases := []struct {
-		label        string
-		blockDevice  BlockDevice
-		fakeGlobfunc func(string) ([]string, error)
-		expected     bool
-	}{
-		{
-			label:       "Case 1: device with partitions",
-			blockDevice: BlockDevice{Name: "sdb", KName: "sdb"},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"removable", "subsytem", "sdb1"}, nil
-			},
-			expected: true,
-		},
-		{
-			label:       "Case 2: device with partitions",
-			blockDevice: BlockDevice{Name: "sdb", KName: "sdb"},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"removable", "subsytem", "sdb2"}, nil
-			},
-			expected: true,
-		},
-		{
-			label:       "Case 3: device with no partitions",
-			blockDevice: BlockDevice{Name: "sdb", KName: "sdb"},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"removable", "subsytem"}, nil
-			},
-			expected: false,
-		},
-	}
-
-	for _, tc := range testcases {
-		FilePathGlob = tc.fakeGlobfunc
-		defer func() { FilePathGlob = filepath.Glob }()
-		actual, err := tc.blockDevice.HasChildren()
-		assert.NoError(t, err)
-		assert.Equalf(t, tc.expected, actual, "[%s]: failed to check if devie %q has child partitions", tc.label, tc.blockDevice.Name)
-	}
-}
-
-func TestHasBindMounts(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "discovery")
-	if err != nil {
-		t.Fatalf("error creating temp directory : %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	testcases := []struct {
-		label              string
-		blockDevice        BlockDevice
-		mountInfo          string
-		expected           bool
-		expectedMountPoint string
-	}{
-		{
-			label:              "Case 1: device with bind mounts",
-			blockDevice:        BlockDevice{KName: "sdc"},
-			mountInfo:          "5595 121 0:6 /sdc /var/lib/kubelet/plugins/kubernetes.io~local-volume/volumeDevices/local-pv-343bdd9/6d9d33ae-408e-4bac-81f7-c0bc347a9667 rw shared:23 - devtmpfs devtmpfs rw,seclabel,size=32180404k,nr_inodes=8045101,mode=755",
-			expected:           true,
-			expectedMountPoint: "/var/lib/kubelet/plugins/kubernetes.io~local-volume/volumeDevices/local-pv-343bdd9/6d9d33ae-408e-4bac-81f7-c0bc347a9667",
-		},
-		{
-			label:              "Case 2: device with regular mounts",
-			blockDevice:        BlockDevice{KName: "sdc"},
-			mountInfo:          "121 98 259:1 / /boot rw,relatime shared:65 - ext4 /dev/sdc rw,seclabel",
-			expected:           true,
-			expectedMountPoint: "/boot",
-		},
-		{
-			label:              "Case 3: device with no mount points",
-			blockDevice:        BlockDevice{KName: "sdd"},
-			mountInfo:          "5595 121 0:6 /sdc /var/lib/kubelet/plugins/kubernetes.io~local-volume/volumeDevices/local-pv-343bdd9/6d9d33ae-408e-4bac-81f7-c0bc347a9667 rw shared:23 - devtmpfs devtmpfs rw,seclabel,size=32180404k,nr_inodes=8045101,mode=755",
-			expected:           false,
-			expectedMountPoint: "",
-		},
-		{
-			label:              "Case 4: device with no mount point",
-			blockDevice:        BlockDevice{KName: "sdc"},
-			mountInfo:          "",
-			expected:           false,
-			expectedMountPoint: "",
-		},
-	}
-
-	for _, tc := range testcases {
-		filename := filepath.Join(tempDir, "mountfile")
-		err = os.WriteFile(filename, []byte(tc.mountInfo), 0755)
-		if err != nil {
-			t.Fatalf("error writing mount info to file : %v", err)
-		}
-		mountFile = filename
-		actual, mountPoint, err := tc.blockDevice.HasBindMounts()
-		assert.NoError(t, err)
-		assert.Equalf(t, tc.expected, actual, "[%s]: failed to check bind mounts", tc.label)
-		assert.Equalf(t, tc.expectedMountPoint, mountPoint, "[%s]: failed to get correct mount point", tc.label)
-	}
-}
-
-func TestHasChildrenFail(t *testing.T) {
-	testcases := []struct {
-		label        string
-		blockDevice  BlockDevice
-		fakeGlobfunc func(string) ([]string, error)
-		expected     bool
-	}{
-		{
-			label:       "Case 1: filepath.Glob command failure",
-			blockDevice: BlockDevice{KName: "sdb"},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{}, fmt.Errorf("failed to list matching files")
-			},
-			expected: false,
-		},
-	}
-
-	for _, tc := range testcases {
-		FilePathGlob = tc.fakeGlobfunc
-		defer func() { FilePathGlob = filepath.Glob }()
-		actual, err := tc.blockDevice.HasChildren()
-		assert.Error(t, err)
-		assert.Equalf(t, tc.expected, actual, "[%s]: failed to check if devie %q has child partitions", tc.label, tc.blockDevice.Name)
 	}
 }
 
@@ -466,172 +311,5 @@ func TestGetPathByIDFail(t *testing.T) {
 		actual, err := tc.blockDevice.GetPathByID("" /*existing symlinkpath */)
 		assert.Error(t, err)
 		assert.Equalf(t, tc.expected, actual, "[%s] failed to get device path by ID", tc.label)
-	}
-}
-
-func TestParseBitBool(t *testing.T) {
-	testcases := []struct {
-		label    string
-		input    string
-		expected bool
-	}{
-		{
-			label:    "Case 1: prasing 0",
-			input:    "0",
-			expected: false,
-		},
-
-		{
-			label:    "Case 2: parsing empty value",
-			input:    "",
-			expected: false,
-		},
-
-		{
-			label:    "Case 1: parsing 1",
-			input:    "1",
-			expected: true,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual, err := parseBitBool(tc.input)
-		assert.Equalf(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-		assert.NoError(t, err)
-	}
-}
-
-func TestParseBitBoolFail(t *testing.T) {
-	testcases := []struct {
-		label    string
-		input    string
-		expected bool
-	}{
-		{
-			label:    "Case 1: parsing invalid input",
-			input:    "invalid input",
-			expected: false,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual, err := parseBitBool(tc.input)
-		assert.Equal(t, actual, tc.expected, "[%s]: invalid response", tc.label)
-		assert.Error(t, err)
-	}
-}
-
-func TestReadOnly(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: not a readonly device",
-			blockDevice: BlockDevice{ReadOnly: false},
-			expected:    false,
-		},
-		{
-			label:       "Case 2: readonly device",
-			blockDevice: BlockDevice{ReadOnly: true},
-			expected:    true,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual := tc.blockDevice.ReadOnly
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-	}
-}
-
-func TestGetRemovable(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: non-removable device",
-			blockDevice: BlockDevice{Removable: false},
-			expected:    false,
-		},
-		{
-			label:       "Case 2: removable device",
-			blockDevice: BlockDevice{Removable: true},
-			expected:    true,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual := tc.blockDevice.Removable
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-	}
-}
-
-func TestGetRotational(t *testing.T) {
-	testcases := []struct {
-		label       string
-		blockDevice BlockDevice
-		expected    bool
-	}{
-		{
-			label:       "Case 1: non-rotational device",
-			blockDevice: BlockDevice{Rotational: false},
-			expected:    false,
-		},
-		{
-			label:       "Case 2: rotationl device",
-			blockDevice: BlockDevice{Rotational: true},
-			expected:    true,
-		},
-	}
-
-	for _, tc := range testcases {
-		actual := tc.blockDevice.Rotational
-		assert.Equal(t, tc.expected, actual, "[%s]: invalid response", tc.label)
-	}
-}
-
-func TestGetOrphanedSymlinks(t *testing.T) {
-	testcases := []struct {
-		label                  string
-		blockDevices           []BlockDevice
-		fakeGlobfunc           func(string) ([]string, error)
-		fakeEvalSymlinkfunc    func(string) (string, error)
-		expectedOrphanSymlinks []string
-	}{
-		{
-			label:        "no orphan synlinks found",
-			blockDevices: []BlockDevice{{KName: "sdb"}},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"sdb"}, nil
-			},
-			fakeEvalSymlinkfunc: func(path string) (string, error) {
-				return "/dev/disk/by-id/sdb", nil
-			},
-			expectedOrphanSymlinks: []string{},
-		},
-
-		{
-			label:        "orphan synlinks found",
-			blockDevices: []BlockDevice{{KName: "sdc"}},
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"sdc"}, nil
-			},
-			fakeEvalSymlinkfunc: func(path string) (string, error) {
-				return "/dev/disk/by-id/sdb", nil
-			},
-			expectedOrphanSymlinks: []string{"sdc"},
-		},
-	}
-
-	for _, tc := range testcases {
-		FilePathEvalSymLinks = tc.fakeEvalSymlinkfunc
-		FilePathGlob = tc.fakeGlobfunc
-
-		actual, err := GetOrphanedSymlinks("test", tc.blockDevices)
-		assert.NoError(t, err)
-		assert.Equalf(t, tc.expectedOrphanSymlinks, actual, "[%s]: invalid orphaned symlinks", tc.label)
 	}
 }

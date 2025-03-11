@@ -221,11 +221,6 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 		return true
 	}
 
-	if len(dev.Children) == 0 {
-		klog.Infof("ignoring device %s with no children", dev.Name)
-		return true
-	}
-
 	if dev.State == diskutil.StateSuspended {
 		klog.Infof("ignoring device %q with invalid state %q", dev.Name, dev.State)
 		return true
@@ -236,12 +231,13 @@ func ignoreDevices(dev diskutil.BlockDevice) bool {
 		return true
 	}
 
-	if strings.Trim(dev.WWN, " ") == "" {
-		klog.Infof("ignoring device %q with undefined WWN", dev.Name)
+	if dev.Removable {
+		klog.Infof("ignoring device %s with removable capability", dev.Name)
+		return true
 	}
 
-	if !dev.HasChildWithGPFSPartition() && !dev.HasChildWithMPathPartition() {
-		klog.Infof("ignoring device %s with no children with MultiPath and with no GPFS partitions", dev.Name)
+	if strings.Trim(dev.WWN, " ") == "" {
+		klog.Infof("ignoring device %q with undefined WWN", dev.Name)
 		return true
 	}
 
@@ -257,7 +253,7 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	noBiosBootInPartLabel, err := filterMap["noBiosBootInPartLabel"](dev, nil)
+	noBiosBootInPartLabel, err := filterMap["noBiosBootInPartLabel"](dev)
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status
@@ -268,7 +264,7 @@ func getDeviceStatus(dev diskutil.BlockDevice) v1alpha1.DeviceStatus {
 		return status
 	}
 
-	canOpen, err := filterMap["canOpenExclusively"](dev, nil)
+	canOpen, err := filterMap["canOpenExclusively"](dev)
 	if err != nil {
 		status.State = v1alpha1.Unknown
 		return status

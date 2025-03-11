@@ -56,26 +56,6 @@ spec:
         - mountPath: /run/udev
           mountPropagation: HostToContainer
           name: run-udev
-      - args:
-        - --logtostderr=true
-        - --secure-listen-address=0.0.0.0:9393
-        - --upstream=http://127.0.0.1:8383/
-        - --tls-cert-file=/etc/tls/private/tls.crt
-        - --tls-private-key-file=/etc/tls/private/tls.key
-        image: ${RBAC_PROXY_IMAGE}
-        imagePullPolicy: IfNotPresent
-        name: kube-rbac-proxy
-        ports:
-        - containerPort: 9393
-          name: metrics
-          protocol: TCP
-        resources:
-          requests:
-            memory: 20Mi
-            cpu: 10m
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: FallbackToLogsOnError
-        volumeMounts: []
       hostPID: true
       priorityClassName: ${PRIORITY_CLASS_NAME}
       serviceAccountName: purple-storage-rh-operator-controller-manager

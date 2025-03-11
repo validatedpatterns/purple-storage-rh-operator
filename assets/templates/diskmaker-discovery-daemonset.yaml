@@ -75,9 +75,7 @@ spec:
             cpu: 10m
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: FallbackToLogsOnError
-        volumeMounts:
-        - mountPath: /etc/tls/private
-          name: metrics-serving-cert
+        volumeMounts: []
       hostPID: true
       priorityClassName: ${PRIORITY_CLASS_NAME}
       serviceAccountName: purple-storage-rh-operator-controller-manager
@@ -94,10 +92,6 @@ spec:
           path: /run/udev
           type: ""
         name: run-udev
-      - name: metrics-serving-cert
-        secret:
-          defaultMode: 420
-          secretName: discovery-metric-serving-cert
   updateStrategy:
     rollingUpdate:
       maxSurge: 0

@@ -26,7 +26,6 @@ import (
 	localv1alpha1 "github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/validatedpatterns/purple-storage-rh-operator/assets"
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/common"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/localmetrics"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -84,14 +83,6 @@ func (r *LocalVolumeDiscoveryReconciler) Reconcile(ctx context.Context, request 
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
-		return ctrl.Result{}, err
-	}
-
-	// enable service and service monitor for Local Volume Discovery
-	metricsExportor := localmetrics.NewExporter(ctx, r.Client, common.DiscoveryServiceName, instance.Namespace, common.DiscoveryMetricsServingCert,
-		getOwnerRefs(instance), DiskMakerDiscovery)
-	if err := metricsExportor.EnableMetricsExporter(); err != nil {
-		klog.ErrorS(err, "failed to create service and servicemonitors", "object", instance.Name)
 		return ctrl.Result{}, err
 	}
 

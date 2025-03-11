@@ -12,7 +12,6 @@ import (
 	"github.com/validatedpatterns/purple-storage-rh-operator/api/v1alpha1"
 	"github.com/validatedpatterns/purple-storage-rh-operator/internal/diskmaker"
 	diskutil "github.com/validatedpatterns/purple-storage-rh-operator/internal/diskutils"
-	"github.com/validatedpatterns/purple-storage-rh-operator/internal/localmetrics"
 
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -125,9 +124,6 @@ func (discovery *DeviceDiscovery) discoverDevices() error {
 	discoveredDisks := getDiscoverdDevices(validDevices)
 	klog.Infof("discovered devices: %+v", discoveredDisks)
 
-	// update discovered devices metric
-	localmetrics.SetDiscoveredDevicesMetrics(os.Getenv("MY_NODE_NAME"), len(discoveredDisks))
-
 	// Update discovered devices in the  LocalVolumeDiscoveryResult resource
 	if !reflect.DeepEqual(discovery.disks, discoveredDisks) {
 		klog.Info("device list updated. Updating LocalVolumeDiscoveryResult status...")
@@ -220,7 +216,7 @@ func uniqueDevices(sample []v1alpha1.DiscoveredDevice) []v1alpha1.DiscoveredDevi
 
 // ignoreDevices checks if a device should be ignored during discovery
 func ignoreDevices(dev diskutil.BlockDevice) bool {
-	if readOnly, err := dev.GetReadOnly(); err != nil || readOnly {
+	if dev.ReadOnly {
 		klog.Infof("ignoring read only device %q", dev.Name)
 		return true
 	}

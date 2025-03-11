@@ -23,9 +23,6 @@ const (
 	DiscoveryNodeLabel = "discovery-result-node"
 
 	DiskMakerDiscoveryDaemonSetTemplate = "templates/diskmaker-discovery-daemonset.yaml"
-	MetricsServiceTemplate              = "templates/localmetrics/service.yaml"
-	MetricsServiceMonitorTemplate       = "templates/localmetrics/service-monitor.yaml"
-	PrometheusRuleTemplate              = "templates/localmetrics/prometheus-rule.yaml"
 
 	// DiscoveryServiceName is the name of the service created for the diskmaker discovery daemon
 	DiscoveryServiceName = "local-storage-discovery-metrics"

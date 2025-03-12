@@ -11,15 +11,18 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/pkg/errors"
-	"golang.org/x/sys/unix"
 )
 
 var (
-	ExecCommand          = exec.Command
+	ExecCommand          CommandExecutor
 	FilePathGlob         = filepath.Glob
 	FilePathEvalSymLinks = filepath.EvalSymlinks
 	mountFile            = "/proc/1/mountinfo"
 )
+
+func init() {
+	ExecCommand = CmdExec{}
+}
 
 const (
 	// StateSuspended is a possible value of BlockDevice.State
@@ -29,6 +32,21 @@ const (
 	// DiskDMDir is the path for symlinks of device mapper disks (e.g. mpath)
 	DiskDMDir = "/dev/mapper/"
 )
+
+type CommandExecutor interface {
+	Execute(name string, args ...string) Command
+}
+
+type CmdExec struct {
+}
+
+func (c CmdExec) Execute(name string, args ...string) Command {
+	return exec.Command(name, args...)
+}
+
+type Command interface {
+	CombinedOutput() ([]byte, error)
+}
 
 // IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
 type IDPathNotFoundError struct {
@@ -47,89 +65,22 @@ type BlockDeviceList struct {
 }
 
 type BlockDevice struct {
-	Name       string        `json:"NAME"`
-	Rotational bool          `json:"ROTA"`
-	Type       string        `json:"TYPE"`
-	Size       int64         `json:"SIZE"`
-	Model      string        `json:"MODEL,omitempty"`
-	Vendor     string        `json:"VENDOR,omitempty"`
+	Name       string        `json:"name"`
+	Rotational bool          `json:"rota"`
+	Type       string        `json:"type"`
+	Size       int64         `json:"size"`
+	Model      string        `json:"model,omitempty"`
+	Vendor     string        `json:"vendor,omitempty"`
 	ReadOnly   bool          `json:"RO,omitempty"`
 	Removable  bool          `json:"RM,omitempty"`
-	State      string        `json:"STATE,omitempty"`
-	KName      string        `json:"KNAME"`
-	FSType     string        `json:"fsType"`
-	Serial     string        `json:"SERIAL,omitempty"`
-	PartLabel  string        `json:"PARTLABEL,omitempty"`
+	State      string        `json:"state,omitempty"`
+	KName      string        `json:"kname"`
+	FSType     string        `json:"fstype,omitempty"`
+	Serial     string        `json:"serial,omitempty"`
+	PartLabel  string        `json:"partlabel,omitempty"`
 	PathByID   string        `json:"pathByID,omitempty"` // Fetched from introspecting /dev
 	WWN        string        `json:"WWN,omitempty"`      // Purple unicorn storage fields
 	Children   []BlockDevice `json:"children,omitempty"`
-}
-
-// IDPathNotFoundError indicates that a symlink to the device was not found in /dev/disk/by-id/
-
-// GetRotational as bool
-func (b BlockDevice) GetRotational() (bool, error) {
-	return b.Rotational, nil
-	// v, err := parseBitBool(b.Rotational)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse rotational property %q as bool", b.Rotational)
-	// }
-	// return v, err
-}
-
-// GetReadOnly as bool
-func (b BlockDevice) GetReadOnly() (bool, error) {
-	return b.ReadOnly, nil
-	// v, err := parseBitBool(b.ReadOnly)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse readOnly property %q as bool", b.ReadOnly)
-	// }
-	// return v, err
-}
-
-// GetRemovable as bool
-func (b BlockDevice) GetRemovable() (bool, error) {
-	return b.Removable, nil
-	// v, err := parseBitBool(b.Removable)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse removable property %q as bool", b.Removable)
-	// }
-	// return v, err
-}
-
-func parseBitBool(s string) (bool, error) {
-	if s == "0" || s == "" {
-		return false, nil
-	} else if s == "1" {
-		return true, nil
-	}
-	return false, fmt.Errorf("lsblk bool value not 0 or 1: %q", s)
-}
-
-// GetSize as int64
-func (b BlockDevice) GetSize() (int64, error) {
-	return b.Size, nil
-	// v, err := strconv.ParseInt(b.Size, 10, 64)
-	// if err != nil {
-	// 	err = errors.Wrapf(err, "failed to parse size property %q as int64", b.Size)
-	// }
-	// return v, err
-}
-
-// HasChildren check on BlockDevice
-func (b BlockDevice) HasChildren() (bool, error) {
-	sysDevDir := filepath.Join("/sys/block/", b.KName, "/*")
-	paths, err := FilePathGlob(sysDevDir)
-	if err != nil {
-		return false, errors.Wrapf(err, "failed to check if device %q has partitions", b.KName)
-	}
-	for _, path := range paths {
-		name := filepath.Base(path)
-		if strings.HasPrefix(name, b.KName) {
-			return true, nil
-		}
-	}
-	return false, nil
 }
 
 // HasBindMounts checks for bind mounts and returns mount point for a device by parsing `proc/1/mountinfo`.
@@ -260,11 +211,14 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 
 	columns := "NAME,ROTA,TYPE,SIZE,MODEL,VENDOR,RO,RM,STATE,KNAME,SERIAL,PARTLABEL,WWN"
 	args := []string{"--json", "-b", "-o", columns}
-	cmd := ExecCommand("lsblk", args...)
+	cmd := ExecCommand.Execute("lsblk", args...)
 	klog.Infof("Executing command: %#v", cmd)
 	output, err := executeCmdWithCombinedOutput(cmd)
 	if err != nil {
 		return []BlockDevice{}, []BlockDevice{}, fmt.Errorf("failed to run command: %s", err)
+	}
+	if len(output) == 0 {
+		return []BlockDevice{}, []BlockDevice{}, nil
 	}
 	lDevices := BlockDeviceList{}
 	err = json.Unmarshal([]byte(output), &lDevices)
@@ -286,6 +240,8 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 			break
 		}
 
+		row.Model = strings.Trim(row.Model, " ")
+		row.Vendor = strings.Trim(row.Vendor, " ")
 		// Update device filesystem using `blkid`
 		if fs, ok := deviceFSMap[fmt.Sprintf("/dev/%s", row.Name)]; ok {
 			row.FSType = fs
@@ -293,7 +249,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 		blockDevices = append(blockDevices, row)
 	}
 
-	if len(badRows) == len(lDevices.BlockDevices) {
+	if len(badRows) == len(lDevices.BlockDevices) && len(lDevices.BlockDevices) > 0 {
 		return []BlockDevice{}, badRows, fmt.Errorf("could not parse any of the lsblk entries")
 	}
 
@@ -308,7 +264,7 @@ func ListBlockDevices(devices []string) ([]BlockDevice, []BlockDevice, error) {
 func GetDeviceFSMap(devices []string) (map[string]string, error) {
 	m := map[string]string{}
 	args := append([]string{"-s", "TYPE"}, devices...)
-	cmd := ExecCommand("blkid", args...)
+	cmd := ExecCommand.Execute("blkid", args...)
 	output, err := executeCmdWithCombinedOutput(cmd)
 	if err != nil {
 		// According to blkid man page, exit status 2 is returned
@@ -343,124 +299,7 @@ func GetDeviceFSMap(devices []string) (map[string]string, error) {
 	return m, nil
 }
 
-// GetPVCreationLock checks whether a PV can be created based on this device
-// and Locks the device so that no PVs can be created on it while the lock is held.
-// the PV lock will fail if:
-// - another process holds an exclusive file lock on the device (using the syscall flock)
-// - a symlink to this device exists in symlinkDirs
-// returns:
-// ExclusiveFileLock, must be unlocked regardless of success
-// bool determines if flock was placed on device.
-// existingLinkPaths is a list of existing symlinks. It is not exhaustive
-// error
-func GetPVCreationLock(device string, symlinkDirs ...string) (ExclusiveFileLock, bool, []string, error) {
-	lock := ExclusiveFileLock{Path: device}
-	locked, err := lock.Lock()
-	// If the device is busy, then we should continue and check for symlinks
-	if err != nil && err != unix.EBUSY {
-		return lock, locked, []string{}, err
-	}
-	existingLinkPaths, symErr := GetMatchingSymlinksInDirs(device, symlinkDirs...)
-	// If symErr is not nil, there was an error fetching the symlinks
-	if symErr != nil {
-		return lock, locked, existingLinkPaths, symErr
-	} else if len(existingLinkPaths) == 0 && !locked {
-		// Alternatively, if we don't have any existing symlinks AND we can't get a lock,
-		// then the device is likely busy, and return the original error.
-		return lock, locked, existingLinkPaths, err
-	}
-
-	return lock, locked, existingLinkPaths, nil
-}
-
-// GetMatchingSymlinksInDirs returns all the files in dir that are the same file as path after evaluating symlinks
-// it works using `find -L dir1 dir2 dirn -samefile path`
-func GetMatchingSymlinksInDirs(path string, dirs ...string) ([]string, error) {
-	cmd := exec.Command("find", "-L", strings.Join(dirs, " "), "-samefile", path)
-	output, err := executeCmdWithCombinedOutput(cmd)
-	if err != nil {
-		return []string{}, fmt.Errorf("failed to get symlinks in directories: %q for device path %q. %v", dirs, path, err)
-	}
-	links := make([]string, 0)
-	output = strings.Trim(output, " \n")
-	if len(output) < 1 {
-		return links, nil
-	}
-	split := strings.Split(output, "\n")
-	for _, entry := range split {
-		link := strings.Trim(entry, " ")
-		if len(link) != 0 {
-			links = append(links, link)
-		}
-	}
-	return links, nil
-}
-
-// GetOrphanedSymlinks returns the devices that were symlinked previously, but didn't match the updated
-// LocalVolumeSet deviceInclusionSpec or LocalVolume devicePaths
-func GetOrphanedSymlinks(symlinkDir string, validDevices []BlockDevice) ([]string, error) {
-	orphanedSymlinkDevices := []string{}
-	paths, err := FilePathGlob(filepath.Join(symlinkDir, "/*"))
-	if err != nil {
-		return orphanedSymlinkDevices, err
-	}
-
-	for _, path := range paths {
-		symlinkFound := false
-		for _, device := range validDevices {
-			isMatch, err := PathEvalsToDiskLabel(path, device.KName)
-			if err != nil {
-				return orphanedSymlinkDevices, err
-			}
-			if isMatch {
-				symlinkFound = true
-				break
-			}
-		}
-		if !symlinkFound {
-			orphanedSymlinkDevices = append(orphanedSymlinkDevices, path)
-		}
-	}
-
-	return orphanedSymlinkDevices, nil
-}
-
-type ExclusiveFileLock struct {
-	Path   string
-	locked bool
-	fd     int
-}
-
-// Lock locks the file so other process cannot open the file
-func (e *ExclusiveFileLock) Lock() (bool, error) {
-	// fd, errno := unix.Open(e.Path, unix.O_RDONLY, 0)
-	fd, errno := unix.Open(e.Path, unix.O_RDONLY|unix.O_EXCL, 0)
-	e.fd = fd
-	if errno == unix.EBUSY {
-		e.locked = false
-		// device is in use
-		return false, errno
-	} else if errno != nil {
-		return false, errno
-	}
-	e.locked = true
-	return e.locked, nil
-}
-
-// Unlock releases the lock. It is idempotent
-func (e *ExclusiveFileLock) Unlock() error {
-	if e.locked {
-		err := unix.Close(e.fd)
-		if err == nil {
-			e.locked = false
-			return nil
-		}
-		return fmt.Errorf("failed to unlock fd %q: %+v", e.fd, err)
-	}
-	return nil
-}
-
-func executeCmdWithCombinedOutput(cmd *exec.Cmd) (string, error) {
+func executeCmdWithCombinedOutput(cmd Command) (string, error) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return string(output), err

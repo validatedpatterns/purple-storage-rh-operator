@@ -19,7 +19,6 @@ package v1alpha1
 import (
 	operatorv1 "github.com/openshift/api/operator/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -49,9 +48,6 @@ type NodeSpec struct {
 	// If specified, a list of tolerations to pass to the discovery daemons.
 	// +optional
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
-	// DeviceInclusionSpec is the filtration rule for including a device in the device discovery
-	// +optional
-	DeviceInclusionSpec *DeviceInclusionSpec `json:"deviceInclusionSpec,omitempty"`
 }
 
 type MachineConfig struct {
@@ -136,30 +132,3 @@ const (
 	// Multipath device type
 	MultiPath DeviceType = "mpath"
 )
-
-// DeviceInclusionSpec holds the inclusion filter spec
-type DeviceInclusionSpec struct {
-	// Devices is the list of devices that should be used for automatic detection.
-	// This would be one of the types supported by the local-storage operator. Currently,
-	// the supported types are: disk, part. If the list is empty only `disk` types will be selected
-	// +optional
-	DeviceTypes []DeviceType `json:"deviceTypes,omitempty"`
-	// DeviceMechanicalProperty denotes whether Rotational or NonRotational disks should be used.
-	// by default, it selects both
-	// +optional
-	DeviceMechanicalProperties []DeviceMechanicalProperty `json:"deviceMechanicalProperties,omitempty"`
-	// MinSize is the minimum size of the device which needs to be included. Defaults to `1Gi` if empty
-	// +optional
-	MinSize *resource.Quantity `json:"minSize,omitempty"`
-	// MaxSize is the maximum size of the device which needs to be included
-	// +optional
-	MaxSize *resource.Quantity `json:"maxSize,omitempty"`
-	// Models is a list of device models. If not empty, the device's model as outputted by lsblk needs
-	// to contain at least one of these strings.
-	// +optional
-	Models []string `json:"models,omitempty"`
-	// Vendors is a list of device vendors. If not empty, the device's model as outputted by lsblk needs
-	// to contain at least one of these strings.
-	// +optional
-	Vendors []string `json:"vendors,omitempty"`
-}

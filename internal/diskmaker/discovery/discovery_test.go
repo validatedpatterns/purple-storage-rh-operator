@@ -4,7 +4,6 @@ package discovery
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -18,14 +17,19 @@ import (
 var lsblkOut string
 var blkidOut string
 
-// helperCommand returns a fake exec.Cmd for unit tests
-func helperCommand(command string, args ...string) *exec.Cmd {
-	cs := []string{"-test.run=TestHelperProcess", "--", command}
-	cs = append(cs, args...)
-	cmd := exec.Command(os.Args[0], cs...)
-	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", fmt.Sprintf("COMMAND=%s", command),
-		fmt.Sprintf("LSBLKOUT=%s", lsblkOut), fmt.Sprintf("BLKIDOUT=%s", blkidOut)}
-	return cmd
+type mockCmdExec struct {
+	stdout []string
+	count  int
+}
+
+func (m *mockCmdExec) Execute(name string, args ...string) diskutils.Command {
+	return m
+}
+
+func (m *mockCmdExec) CombinedOutput() ([]byte, error) {
+	o := m.stdout[m.count]
+	m.count++
+	return []byte(o), nil
 }
 
 func TestHelperProcess(t *testing.T) {
@@ -39,77 +43,6 @@ func TestHelperProcess(t *testing.T) {
 		fmt.Fprint(os.Stdout, os.Getenv("LSBLKOUT"))
 	case "blkid":
 		fmt.Fprint(os.Stdout, os.Getenv("BLKIDOUT"))
-	}
-}
-
-func TestDiscoverDevices(t *testing.T) {
-	testcases := []struct {
-		deviceDiscovery    *DeviceDiscovery
-		fakelsblkCmdOutput string
-		fakeblkidCmdOutput string
-		fakeGlobfunc       func(string) ([]string, error)
-		errMessage         error
-	}{
-		{
-			deviceDiscovery:    getFakeDeviceDiscovery(),
-			fakeblkidCmdOutput: "",
-			fakelsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="0" RM="0" STATE="running" SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="" SERIAL=""`,
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"removable", "subsytem", "sda"}, nil
-			},
-			errMessage: nil,
-		},
-	}
-
-	for _, tc := range testcases {
-		lsblkOut = tc.fakelsblkCmdOutput
-		blkidOut = tc.fakeblkidCmdOutput
-		diskutils.ExecCommand = helperCommand
-		diskutils.FilePathGlob = tc.fakeGlobfunc
-		defer func() {
-			diskutils.FilePathGlob = filepath.Glob
-			diskutils.ExecCommand = exec.Command
-		}()
-		err := tc.deviceDiscovery.discoverDevices()
-		assert.NoError(t, err)
-	}
-}
-func TestDiscoverDevicesFail(t *testing.T) {
-	testcases := []struct {
-		deviceDiscovery    *DeviceDiscovery
-		mockClient         *diskmaker.MockAPIUpdater
-		fakeLsblkCmdOutput string
-		fakeGlobfunc       func(string) ([]string, error)
-		errMessage         error
-	}{
-		{
-			deviceDiscovery: getFakeDeviceDiscovery(),
-			mockClient: &diskmaker.MockAPIUpdater{
-				MockUpdateDiscoveryResultStatus: func(lvdr *v1alpha1.LocalVolumeDiscoveryResult) error {
-					return fmt.Errorf("failed to update status")
-				},
-			},
-			fakeLsblkCmdOutput: `NAME="sda" KNAME="sda" ROTA="1" TYPE="disk" SIZE="62914560000" MODEL="VBOX HARDDISK" VENDOR="ATA" RO="1" RM="0" STATE="running" FSTYPE="" SERIAL=""` + "\n" +
-				`NAME="sda1" KNAME="sda1" ROTA="1" TYPE="part" SIZE="62913494528" MODEL="" VENDOR="" RO="0" RM="0" STATE="" SERIAL=""`,
-			fakeGlobfunc: func(name string) ([]string, error) {
-				return []string{"removable", "subsytem"}, nil
-			},
-			errMessage: nil,
-		},
-	}
-
-	for _, tc := range testcases {
-		lsblkOut = tc.fakeLsblkCmdOutput
-		diskutils.ExecCommand = helperCommand
-		diskutils.FilePathGlob = tc.fakeGlobfunc
-		defer func() {
-			diskutils.FilePathGlob = filepath.Glob
-			diskutils.ExecCommand = exec.Command
-		}()
-		tc.deviceDiscovery.apiClient = tc.mockClient
-		err := tc.deviceDiscovery.discoverDevices()
-		assert.Error(t, err)
 	}
 }
 
@@ -129,6 +62,7 @@ func TestIgnoreDevices(t *testing.T) {
 				ReadOnly: false,
 				State:    "running",
 				Type:     "disk",
+				WWN:      "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
@@ -137,18 +71,19 @@ func TestIgnoreDevices(t *testing.T) {
 			errMessage: fmt.Errorf("ignored wrong device"),
 		},
 		{
-			label: "don't ignore lvm type",
+			label: "ignore lvm type",
 			blockDevice: diskutils.BlockDevice{
 				Name:     "sdb",
 				KName:    "sdb",
 				ReadOnly: false,
 				State:    "running",
 				Type:     "lvm",
+				WWN:      "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
-			expected:   false,
+			expected:   true,
 			errMessage: fmt.Errorf("ignored wrong device"),
 		},
 		{
@@ -159,6 +94,7 @@ func TestIgnoreDevices(t *testing.T) {
 				ReadOnly: false,
 				State:    "running",
 				Type:     "mpath",
+				WWN:      "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
@@ -174,6 +110,7 @@ func TestIgnoreDevices(t *testing.T) {
 				ReadOnly: true,
 				State:    "running",
 				Type:     "disk",
+				WWN:      "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
@@ -189,6 +126,7 @@ func TestIgnoreDevices(t *testing.T) {
 				ReadOnly: false,
 				State:    "suspended",
 				Type:     "disk",
+				WWN:      "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
@@ -197,19 +135,56 @@ func TestIgnoreDevices(t *testing.T) {
 			errMessage: fmt.Errorf("ignored wrong suspended device"),
 		},
 		{
-			label: "ignore root device with children",
+			label: "don't ignore device with children",
 			blockDevice: diskutils.BlockDevice{
 				Name:     "sdb",
 				KName:    "sdb",
 				ReadOnly: false,
 				State:    "running",
 				Type:     "disk",
+				Children: []diskutils.BlockDevice{
+					{Name: "sdb1", KName: "sdb1"},
+				},
+				WWN: "a",
+			},
+			fakeGlobfunc: func(name string) ([]string, error) {
+				return []string{"removable", "subsytem", "sdb"}, nil
+			},
+			expected:   false,
+			errMessage: fmt.Errorf("ignored device with children"),
+		},
+		{
+			label: "ignore removable device",
+			blockDevice: diskutils.BlockDevice{
+				Name:      "sdb",
+				KName:     "sdb",
+				ReadOnly:  false,
+				State:     "running",
+				Type:      "disk",
+				Removable: true,
+				WWN:       "a",
 			},
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem", "sdb"}, nil
 			},
 			expected:   true,
-			errMessage: fmt.Errorf("failed to ignore root device with children"),
+			errMessage: fmt.Errorf("failed to ignore removable device"),
+		},
+		{
+			label: "ignore disk without WWN",
+			blockDevice: diskutils.BlockDevice{
+				Name:      "sda",
+				KName:     "sda",
+				ReadOnly:  false,
+				State:     "running",
+				Type:      "disk",
+				Removable: false,
+			},
+			fakeGlobfunc: func(name string) ([]string, error) {
+				return []string{"removable", "subsytem", "sdb"}, nil
+			},
+			expected:   true,
+			errMessage: fmt.Errorf("failed to ignore device without WWN"),
 		},
 	}
 
@@ -238,8 +213,8 @@ func TestValidBlockDevices(t *testing.T) {
 			label:              "Case 1: ignore readonly device sda",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-				{"name": "sda", "rota": true, "type": "mpath", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": true, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdb", "rota": true, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+				{"name": "sda", "rota": true, "type": "disk", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": true, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": true, "type": "disk", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 			fakeGlobfunc: func(name string) ([]string, error) {
 				return []string{"removable", "subsytem"}, nil
 			},
@@ -250,9 +225,9 @@ func TestValidBlockDevices(t *testing.T) {
 			label:              "Case 2: ignore root device sda",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
-      {"name": "sda", "rota": false, "type": "mpath", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254",
+      {"name": "sda", "rota": false, "type": "mpath", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": null,
          "children": [
-            {"name": "sda1", "rota": false, "type": "part", "size": 1073741824, "model": null, "vendor": null, "ro": false, "rm": false, "state": null, "kname": "sda1", "serial": null, "partlabel": null, "wwn": "0x500a07512b9f5254"}
+            {"name": "sda1", "rota": false, "type": "part", "size": 1073741824, "model": null, "vendor": null, "ro": false, "rm": false, "state": null, "kname": "sda1", "serial": null, "partlabel": null, "wwn": ""}
 		]
       },
       {"name": "sdb", "rota": false, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdb", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
@@ -263,12 +238,12 @@ func TestValidBlockDevices(t *testing.T) {
 			errMessage:                   fmt.Errorf("failed to ignore root device sda with partition"),
 		},
 		{
-			label:              "Case 3: ignore invalid device types: part, loop, lvm",
+			label:              "Case 3: ignore invalid device types: loop, lvm, cdrom",
 			fakeblkidCmdOutput: "",
 			fakeLsblkCmdOutput: `{"blockdevices": [
 				{"name": "sda", "rota": true, "type": "loop", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
 				{"name": "sdb", "rota": true, "type": "disk", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdb", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
-				{"name": "sdc", "rota": true, "type": "part", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdc", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdc", "rota": true, "type": "cdrom", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdc", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
 				{"name": "sdd", "rota": true, "type": "lvm", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sdd", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
 				{"name": "sde", "rota": true, "type": "mpath", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
 
@@ -290,19 +265,28 @@ func TestValidBlockDevices(t *testing.T) {
 			expectedDiscoveredDeviceSize: 1,
 			errMessage:                   fmt.Errorf("failed to ignore device sda1 in suspended state"),
 		},
+		{
+			label:              "Case 4: ignore device with removable storage",
+			fakeblkidCmdOutput: "",
+			fakeLsblkCmdOutput: `{"blockdevices": [
+				{"name": "sda", "rota": true, "type": "disk", "size": 480103981056, "model": "MTFDDAK480TDS   ", "vendor": "ATA     ", "ro": false, "rm": false, "state": "running", "kname": "sda", "serial": "20442B9F5254", "partlabel": null, "wwn": "0x500a07512b9f5254"},
+				{"name": "sdb", "rota": true, "type": "disk", "size": 3840755982336, "model": "SSDSC2KB038TZR  ", "vendor": "ATA     ", "ro": false, "rm": true, "state": "running", "kname": "sda1", "serial": "PHYI313002K23P8EGN", "partlabel": null, "wwn": "0x55cd2e41563851e9"}]}`,
+			fakeGlobfunc: func(name string) ([]string, error) {
+				return []string{"removable", "subsytem"}, nil
+			},
+			expectedDiscoveredDeviceSize: 1,
+			errMessage:                   fmt.Errorf("failed to ignore device sda1 in suspended state"),
+		},
 	}
 
 	for _, tc := range testcases {
 		lsblkOut = tc.fakeLsblkCmdOutput
 		blkidOut = tc.fakeblkidCmdOutput
-		diskutils.ExecCommand = helperCommand
+		m := &mockCmdExec{stdout: []string{blkidOut, lsblkOut}}
+		diskutils.ExecCommand = m
 		diskutils.FilePathGlob = tc.fakeGlobfunc
-		defer func() {
-			diskutils.FilePathGlob = filepath.Glob
-			diskutils.ExecCommand = exec.Command
-		}()
 		actual, err := getValidBlockDevices()
-		assert.NoError(t, err)
+		assert.NoError(t, err, "[%s]:", tc.label)
 		assert.Equalf(t, tc.expectedDiscoveredDeviceSize, len(actual), "[%s]: %s", tc.label, tc.errMessage)
 	}
 }

@@ -17,7 +17,7 @@ metadata:
                 "node-role.kubernetes.io/worker": ""
               }
             },
-            "ibm_cnsa_version": "v5.2.2.0",
+            "ibm_cnsa_version": "v5.2.2.1",
             "mco_config": {
               "create": true,
               "labels": {
@@ -28,9 +28,9 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    createdAt: "2025-03-11T20:30:14Z"
+    createdAt: "2025-03-12T12:14:55Z"
     operatorframework.io/suggested-namespace: openshift-purplestorage
-    operators.operatorframework.io/builder: operator-sdk-v1.37.0
+    operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
   name: purple-storage-rh-operator.v0.0.4
   namespace: placeholder

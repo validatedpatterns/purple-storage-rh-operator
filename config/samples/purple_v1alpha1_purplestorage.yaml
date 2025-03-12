@@ -3,7 +3,7 @@ kind: PurpleStorage
 metadata:
   name: purplestorage-sample
 spec:
-  ibm_cnsa_version: "v5.2.2.0"
+  ibm_cnsa_version: "v5.2.2.1"
   mco_config:
     create: true
     labels:
